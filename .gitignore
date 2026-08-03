@@ -1,0 +1,13 @@
+# Repositórios de referência
+thesis-flow/
+exemplo-atividade-es-seguro/
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Diretórios de IDEs e editores
+.vscode/
+.idea/
+*.swp
+*.swo
