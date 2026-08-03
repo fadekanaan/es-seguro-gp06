@@ -12,12 +12,12 @@
 
 | # | Seção | Arquivo de trabalho |
 |---|-------|-------------------|
-| 1 | [Identificação e descrição do sistema](#1-identificação-do-sistema) | [etapa-1-sec1-identificacao-descricao.md](etapas/etapa-1-sec1-identificacao-descricao.md) |
-| 2 | [Usuários, ativos e pontos de interação](#3-usuários-ativos-e-pontos-de-interação) | [etapa-1-sec2-usuarios-ativos.md](etapas/etapa-1-sec2-usuarios-ativos.md) |
-| 3 | [Visão geral da arquitetura](#4-visão-geral-da-arquitetura) | [etapa-1-sec3-arquitetura.md](etapas/etapa-1-sec3-arquitetura.md) |
-| 4 | [Modelagem de ameaças com STRIDE](#5-modelagem-de-ameaças-com-stride) | [etapa-1-sec4-stride.md](etapas/etapa-1-sec4-stride.md) |
-| 5 | [Casos de abuso](#6-casos-de-abuso) | [etapa-1-sec5-casos-de-abuso.md](etapas/etapa-1-sec5-casos-de-abuso.md) |
-| 6 | [Considerações finais](#7-considerações-finais) | [etapa-1-sec6-consideracoes.md](etapas/etapa-1-sec6-consideracoes.md) |
+| 1 | [Identificação e descrição do sistema](#1-identificação-do-sistema) | [sec1-identificacao-descricao.md](etapas/etapa-1/sec1-identificacao-descricao.md) |
+| 2 | [Usuários, ativos e pontos de interação](#3-usuários-ativos-e-pontos-de-interação) | [sec2-usuarios-ativos.md](etapas/etapa-1/sec2-usuarios-ativos.md) |
+| 3 | [Visão geral da arquitetura](#4-visão-geral-da-arquitetura) | [sec3-arquitetura.md](etapas/etapa-1/sec3-arquitetura.md) |
+| 4 | [Modelagem de ameaças com STRIDE](#5-modelagem-de-ameaças-com-stride) | [sec4-stride.md](etapas/etapa-1/sec4-stride.md) |
+| 5 | [Casos de abuso](#6-casos-de-abuso) | [sec5-casos-de-abuso.md](etapas/etapa-1/sec5-casos-de-abuso.md) |
+| 6 | [Considerações finais](#7-considerações-finais) | [sec6-consideracoes.md](etapas/etapa-1/sec6-consideracoes.md) |
 
 ### Etapa 2 — Análise, Priorização e Tratamento de Riscos com o NIST CSF
 
