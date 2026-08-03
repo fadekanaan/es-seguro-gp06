@@ -9,6 +9,8 @@ Universidade Federal do Pampa (UNIPAMPA) — Alegrete/RS
 
 Este repositório contém a análise de segurança do sistema **ThesisFlow**, um sistema de acompanhamento acadêmico de mestrado desenvolvido no 3° marco da disciplina de Resolução de Problemas III no curso de Engenharia de Software da UNIPAMPA - Alegrete/RS. O trabalho abrange modelagem de ameaças com STRIDE, definição de casos de abuso e análise de riscos com o NIST Cybersecurity Framework 2.0.
 
+## 🔗 Repositório - [ThesisFlow](https://github.com/fadekanaan/thesis-flow)
+
 ## 👥 Integrantes do Grupo
 
 | Nome |
