@@ -1,9 +1,13 @@
 # Enunciado do Trabalho
 
 ## Orientações gerais
+
 As orientações desta seção são válidas para todas as etapas do trabalho. O mesmo sistema e o mesmo repositório deverão ser utilizados durante toda a disciplina, permitindo acompanhar a evolução da análise e das decisões de segurança.
 
+---
+
 ### 1. Repositório do grupo
+
 O trabalho deverá ser desenvolvido em um repositório no GitHub criado especificamente para o grupo.
 
 O documento principal deverá ser escrito em Markdown e poderá ser disponibilizado no arquivo `README.md` ou em outro arquivo claramente identificado, como:
@@ -20,7 +24,10 @@ Todos os arquivos produzidos para o trabalho deverão ser versionados no mesmo r
 
 Não deverão ser enviados apenas links para diagramas armazenados em ferramentas externas. Os arquivos utilizados no trabalho também deverão estar disponíveis no repositório.
 
+---
+
 ### 2. Participação individual e uso de commits
+
 Embora o trabalho seja realizado em grupo, a avaliação será individual.
 
 Todos os integrantes deverão demonstrar sua participação por meio de commits próprios no repositório.
@@ -53,10 +60,13 @@ A quantidade de commits, isoladamente, não determinará a nota. Serão consider
 
 Commits artificiais, alterações sem conteúdo relevante ou divisão proposital de uma pequena alteração em muitos commits não serão considerados como participação efetiva.
 
+---
+
 ### 3. Organização recomendada do repositório
+
 Uma possível estrutura é apresentada a seguir:
 
-```
+```text
 nome-do-projeto/
 ├── README.md
 ├── docs/
@@ -70,7 +80,10 @@ nome-do-projeto/
 
 Essa estrutura é apenas uma recomendação. O grupo poderá adotar outra organização, desde que os arquivos estejam claramente identificados.
 
+---
+
 ### 4. Orientação sobre o GitHub
+
 Em breve será disponibilizado um vídeo explicando como criar e organizar o projeto no GitHub, incluindo orientações para estudantes que ainda não possuem experiência prévia com:
 
 - criação de repositórios;
@@ -82,7 +95,10 @@ Em breve será disponibilizado um vídeo explicando como criar e organizar o pro
 
 A falta de experiência anterior com Git ou GitHub não será um impedimento para a realização do trabalho. Procure o professor sempre que necessário. A disciplina também conta com dois mestrandos estagiários que estão disponíveis para apoiá-los. O vídeo apresentará os procedimentos necessários para iniciar o projeto.
 
+---
+
 ### 5. Entrega
+
 A entrega será realizada por meio do endereço do repositório do grupo; você já pode entregar o repositório assim que o criar; você poderá atualizá-lo a qualquer momento; o repositório será avaliado apenas no final da disciplina, pois este trabalho é composto de várias etapas.
 
 O repositório deverá estar acessível ao professor até a data definida para a entrega (recomendo disponibilizar o mais breve possível, após a atividade estar aberta para o envio). O vídeo final, sumarizando tudo o que foi feito, pode ser enviado ao final da disciplina. Alterações realizadas após o prazo poderão ser desconsideradas para fins de avaliação.
@@ -90,10 +106,14 @@ O repositório deverá estar acessível ao professor até a data definida para a
 Todos os integrantes deverão verificar se seus commits estão corretamente associados às suas próprias contas do GitHub.
 
 ---
+---
 
 ## Etapa 1 — Casos de Abuso e Modelagem de Ameaças com STRIDE
 
+---
+
 ### 6. Objetivo
+
 O objetivo desta etapa é iniciar a análise de segurança de um sistema de software antes da implementação, identificando possíveis comportamentos maliciosos, ameaças e impactos relacionados ao funcionamento da aplicação.
 
 Cada grupo deverá escolher um sistema de software e produzir, no repositório do grupo no GitHub, um documento em Markdown contendo:
@@ -104,7 +124,10 @@ Cada grupo deverá escolher um sistema de software e produzir, no repositório d
 - a definição de casos de abuso;
 - opcionalmente, diagramas que auxiliem na compreensão do sistema e das ameaças identificadas.
 
+---
+
 ### 7. Escolha do sistema
+
 O grupo deverá escolher um sistema que possua diferentes tipos de usuários, troca de informações e operações relevantes para a segurança.
 
 Exemplos:
@@ -124,10 +147,14 @@ O grupo também poderá propor outro tipo de software, desde que o sistema escol
 
 Não será necessário implementar o software. O foco deste trabalho é compreender o funcionamento do sistema e analisar os possíveis problemas de segurança.
 
+---
+
 ### 8. Estrutura mínima do documento
+
 O documento deverá conter, no mínimo, as seções apresentadas a seguir.
 
 #### 8.1 Identificação do sistema
+
 Apresentar:
 
 - nome do sistema;
@@ -136,6 +163,7 @@ Apresentar:
 - breve justificativa para a escolha do sistema.
 
 #### 8.2 Descrição do sistema
+
 Descrever brevemente o funcionamento do software.
 
 A descrição deverá permitir que uma pessoa que não conhece o sistema compreenda:
@@ -149,6 +177,7 @@ A descrição deverá permitir que uma pessoa que não conhece o sistema compree
 Não é necessário apresentar uma especificação completa de requisitos. Entretanto, a descrição deve ser suficientemente clara para sustentar a análise de segurança.
 
 #### 8.3 Usuários, ativos e pontos de interação
+
 Identificar os principais elementos envolvidos no sistema, como:
 
 - usuários e perfis de acesso;
@@ -168,6 +197,7 @@ Identificar os principais elementos envolvidos no sistema, como:
 O grupo deverá destacar quais desses elementos são considerados ativos importantes, isto é, recursos que podem causar prejuízos caso sejam acessados, alterados, destruídos ou indisponibilizados indevidamente.
 
 #### 8.4 Visão geral da arquitetura ou fluxo
+
 Apresentar uma visão simplificada de como os usuários e componentes interagem.
 
 Essa visão poderá ser apresentada por meio de texto, tabela ou diagrama.
@@ -183,6 +213,7 @@ Preferencialmente, o grupo poderá elaborar um ou mais diagramas, como:
 Os diagramas deverão estar legíveis e ser versionados no repositório do grupo. Caso você não conheça esses diagramas, não se preocupe; são apenas sugestões. Pode usar o formato textual apenas se preferir.
 
 #### 8.5 Modelagem de ameaças com STRIDE
+
 O grupo deverá aplicar o STRIDE ao sistema escolhido.
 
 Para cada categoria, deverão ser identificadas ameaças que façam sentido no contexto do sistema:
@@ -199,14 +230,15 @@ A análise deverá apresentar ameaças concretas e relacionadas ao funcionamento
 Sugere-se organizar a análise em uma tabela semelhante à seguinte:
 
 | ID | Categoria STRIDE | Componente ou ativo | Ameaça identificada | Possível impacto |
-| --- | --- | --- | --- | --- |
-| T01 | Spoofing | Conta do usuário | Um atacante utiliza credenciais roubadas para acessar a conta de outra pessoa | Acesso a informações privadas e realização de operações fraudulentas |
-| T02 | Tampering | Pedido | Um usuário altera o valor de um pedido antes do pagamento | Prejuízo financeiro |
-| T03 | Information Disclosure | Banco de dados | Informações pessoais são expostas por uma falha de autorização | Violação de privacidade |
+| :---: | :---: | :--- | :--- | :--- |
+| `T01` | **Spoofing** | Conta do usuário | Um atacante utiliza credenciais roubadas para acessar a conta de outra pessoa | Acesso a informações privadas e realização de operações fraudulentas |
+| `T02` | **Tampering** | Pedido | Um usuário altera o valor de um pedido antes do pagamento | Prejuízo financeiro |
+| `T03` | **Information Disclosure** | Banco de dados | Informações pessoais são expostas por uma falha de autorização | Violação de privacidade |
 
 O número de ameaças dependerá da complexidade do sistema. Entretanto, espera-se que o grupo analise todas as categorias do STRIDE e justifique quando alguma delas não for aplicável.
 
 #### 8.6 Casos de abuso
+
 Os casos de abuso deverão representar formas pelas quais uma pessoa mal-intencionada, um usuário indevido ou até mesmo um usuário legítimo poderia utilizar o sistema para causar danos.
 
 Cada caso de abuso deverá conter:
@@ -223,6 +255,7 @@ Cada caso de abuso deverá conter:
 Exemplo:
 
 ##### CA01 — Cadastro de falso profissional
+
 **Ator:** usuário mal-intencionado.
 
 **Objetivo:** obter acesso a informações privadas de clientes.
@@ -242,6 +275,7 @@ Exemplo:
 Os casos de abuso também poderão ser representados por diagramas, desde que sejam acompanhados por uma explicação textual.
 
 #### 8.7 Considerações finais
+
 Apresentar uma síntese contendo:
 
 - as ameaças consideradas mais preocupantes;
@@ -251,7 +285,10 @@ Apresentar uma síntese contendo:
 
 Não é obrigatório, neste primeiro trabalho, propor uma solução completa para todas as ameaças. Entretanto, o grupo poderá indicar possíveis medidas de proteção quando considerar pertinente.
 
-#### 9. Critérios de avaliação
+---
+
+### 9. Critérios de avaliação
+
 Serão considerados:
 
 - clareza e qualidade da descrição do sistema;
@@ -267,10 +304,14 @@ Serão considerados:
 - participação individual demonstrada por meio dos commits.
 
 ---
+---
 
 ## Etapa 2 — Análise, Priorização e Tratamento de Riscos com o NIST CSF
 
+---
+
 ### 10. Objetivo
+
 O objetivo desta etapa é continuar a análise iniciada na Etapa 1, transformando as ameaças e os casos de abuso identificados em riscos que possam ser avaliados, comparados, priorizados e tratados.
 
 O grupo deverá:
@@ -287,7 +328,10 @@ O grupo deverá:
 
 Nesta etapa, não será necessário implementar os controles. O objetivo é elaborar um plano de tratamento coerente com o sistema analisado e com os riscos anteriormente identificados.
 
+---
+
 ### 11. Continuidade do projeto
+
 O grupo deverá utilizar:
 
 - o mesmo sistema escolhido na Etapa 1;
@@ -300,7 +344,10 @@ A Etapa 2 deverá ser adicionada ao documento existente. O conteúdo da Etapa 1 
 
 Caso o grupo perceba algum problema na análise anterior, poderá corrigi-lo por meio de novos commits. A alteração deverá ser explicada e deverá manter a coerência entre ameaças, casos de abuso, riscos e controles.
 
+---
+
 ### 12. Estrutura mínima da Etapa 2
+
 O documento deverá conter, no mínimo:
 
 - critérios de probabilidade;
@@ -317,29 +364,33 @@ O documento deverá conter, no mínimo:
 - estimativa do risco residual;
 - considerações finais.
 
+---
+
 ### 13. Análise e priorização dos riscos
 
 #### 13.1 Critérios de probabilidade
+
 O grupo deverá utilizar a seguinte escala:
 
 | Valor | Classificação | Critério |
-| --- | --- | --- |
-| 1 | Baixa | O evento depende de condições incomuns, acesso muito específico ou grande capacidade técnica |
-| 2 | Média-baixa | O evento é possível, mas depende de uma vulnerabilidade ou condição específica |
-| 3 | Média-alta | O evento é plausível e pode ocorrer em situações comuns de uso ou ataque |
-| 4 | Alta | O evento pode ocorrer com facilidade, frequência ou durante condições previsíveis do sistema |
+| :---: | :---: | :--- |
+| `1` | Baixa | O evento depende de condições incomuns, acesso muito específico ou grande capacidade técnica |
+| `2` | Média-baixa | O evento é possível, mas depende de uma vulnerabilidade ou condição específica |
+| `3` | Média-alta | O evento é plausível e pode ocorrer em situações comuns de uso ou ataque |
+| `4` | Alta | O evento pode ocorrer com facilidade, frequência ou durante condições previsíveis do sistema |
 
 A probabilidade não deverá ser escolhida apenas por intuição. Cada valor deverá ser justificado com base nas características do sistema, nos usuários, nas vulnerabilidades, nas condições de exploração e no contexto de uso.
 
 #### 13.2 Critérios de impacto
+
 O grupo deverá utilizar a seguinte escala:
 
 | Valor | Classificação | Critério |
-| --- | --- | --- |
-| 1 | Baixo | Causa pequeno transtorno e pode ser corrigido rapidamente |
-| 2 | Moderado | Causa interrupção ou inconsistência limitada, com possibilidade de recuperação |
-| 3 | Alto | Causa prejuízo relevante aos usuários, ao negócio, à administração ou à privacidade |
-| 4 | Muito alto | Pode afetar muitos usuários, comprometer operações críticas ou causar prejuízo grave |
+| :---: | :---: | :--- |
+| `1` | Baixo | Causa pequeno transtorno e pode ser corrigido rapidamente |
+| `2` | Moderado | Causa interrupção ou inconsistência limitada, com possibilidade de recuperação |
+| `3` | Alto | Causa prejuízo relevante aos usuários, ao negócio, à administração ou à privacidade |
+| `4` | Muito alto | Pode afetar muitos usuários, comprometer operações críticas ou causar prejuízo grave |
 
 Na avaliação do impacto, o grupo poderá considerar, conforme o sistema escolhido:
 
@@ -354,6 +405,7 @@ Na avaliação do impacto, o grupo poderá considerar, conforme o sistema escolh
 - quantidade de pessoas afetadas.
 
 #### 13.3 Cálculo e classificação
+
 A pontuação deverá ser calculada da seguinte forma:
 
 $$\text{Pontuação} = \text{Probabilidade} \times \text{Impacto}$$
@@ -361,39 +413,41 @@ $$\text{Pontuação} = \text{Probabilidade} \times \text{Impacto}$$
 O resultado deverá ser classificado conforme a tabela:
 
 | Pontuação | Nível do risco |
-| --- | --- |
-| 1 a 3 | Baixo |
-| 4 a 7 | Médio |
-| 8 a 11 | Alto |
-| 12 a 16 | Crítico |
+| :---: | :---: |
+| `1 a 3` | Baixo |
+| `4 a 7` | Médio |
+| `8 a 11` | Alto |
+| `12 a 16` | Crítico |
 
 A pontuação auxilia na comparação dos riscos, mas não substitui a análise do contexto. Dois riscos com a mesma pontuação podem receber prioridades diferentes quando suas consequências, dependências ou possibilidades de recuperação forem distintas.
 
 #### 13.4 Registro de riscos
+
 Cada ameaça relevante da Etapa 1 deverá originar pelo menos um risco. Quando uma ameaça puder causar consequências diferentes, o grupo poderá criar mais de um risco relacionado a ela.
 
 O registro deverá conter:
 
 | Campo | Descrição |
-| --- | --- |
-| ID | Identificador único, como R01, R02 e R03 |
-| Origem STRIDE | Categoria ou ameaça da Etapa 1 relacionada ao risco |
-| Evento de risco | Situação que poderá ocorrer e causar prejuízo |
-| Vulnerabilidade ou condição | Fraqueza ou circunstância que permite o evento |
-| Probabilidade | Valor de 1 a 4 |
-| Impacto | Valor de 1 a 4 |
-| Pontuação | Resultado da multiplicação |
-| Nível | Baixo, médio, alto ou crítico |
+| :--- | :--- |
+| **ID** | Identificador único, como `R01`, `R02` e `R03` |
+| **Origem STRIDE** | Categoria ou ameaça da Etapa 1 relacionada ao risco |
+| **Evento de risco** | Situação que poderá ocorrer e causar prejuízo |
+| **Vulnerabilidade ou condição** | Fraqueza ou circunstância que permite o evento |
+| **Probabilidade** | Valor de 1 a 4 |
+| **Impacto** | Valor de 1 a 4 |
+| **Pontuação** | Resultado da multiplicação |
+| **Nível** | Baixo, médio, alto ou crítico |
 
 Sugere-se utilizar uma tabela semelhante à seguinte:
 
 | ID | Origem STRIDE | Evento de risco | Vulnerabilidade ou condição | Probabilidade | Impacto | Pontuação | Nível |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| R01 | Spoofing | Um atacante acessa a conta de um usuário e realiza operações em seu nome | Credenciais comprometidas e ausência de verificação adicional | 3 | 4 | 12 | Crítico |
+| :---: | :---: | :--- | :--- | :---: | :---: | :---: | :---: |
+| `R01` | Spoofing | Um atacante acessa a conta de um usuário e realiza operações em seu nome | Credenciais comprometidas e ausência de verificação adicional | `3` | `4` | `12` | **Crítico** |
 
 O exemplo serve apenas para demonstrar a estrutura. Os riscos deverão ser elaborados especificamente para o sistema escolhido pelo grupo.
 
 #### 13.5 Justificativas
+
 Para cada risco, o grupo deverá explicar:
 
 - por que a probabilidade recebeu aquele valor;
@@ -405,6 +459,7 @@ Para cada risco, o grupo deverá explicar:
 Não será suficiente apresentar apenas os números.
 
 #### 13.6 Priorização
+
 Depois da classificação, o grupo deverá apresentar uma ordem inicial de prioridade.
 
 A priorização deverá considerar:
@@ -419,17 +474,20 @@ A priorização deverá considerar:
 
 O grupo deverá explicar por que um risco deve ser tratado antes dos demais.
 
+---
+
 ### 14. Tratamento dos riscos
 
 #### 14.1 Estratégias de tratamento
+
 Para cada risco, o grupo deverá escolher uma estratégia principal:
 
 | Estratégia | Descrição |
-| --- | --- |
-| Evitar | Eliminar a atividade ou condição que dá origem ao risco |
-| Reduzir | Implementar medidas para diminuir sua probabilidade ou seu impacto |
-| Compartilhar | Atribuir parte da operação ou das consequências a um terceiro |
-| Aceitar | Reconhecer e manter conscientemente o risco, com justificativa e acompanhamento |
+| :--- | :--- |
+| **Evitar** | Eliminar a atividade ou condição que dá origem ao risco |
+| **Reduzir** | Implementar medidas para diminuir sua probabilidade ou seu impacto |
+| **Compartilhar** | Atribuir parte da operação ou das consequências a um terceiro |
+| **Aceitar** | Reconhecer e manter conscientemente o risco, com justificativa e acompanhamento |
 
 A escolha deverá ser justificada.
 
@@ -441,16 +499,17 @@ Aceitar um risco não significa ignorá-lo. A aceitação deverá indicar:
 - quando a decisão deverá ser revisada.
 
 #### 14.2 Funções do NIST CSF 2.0
+
 O grupo deverá utilizar as seis funções do NIST Cybersecurity Framework 2.0 para organizar os resultados de segurança esperados:
 
 | Função | Finalidade |
-| --- | --- |
-| Govern | Definir políticas, responsabilidades, prioridades e critérios de decisão |
-| Identify | Conhecer ativos, dependências, vulnerabilidades e riscos |
-| Protect | Implementar salvaguardas para reduzir a probabilidade ou o impacto |
-| Detect | Identificar eventos suspeitos, falhas e possíveis incidentes |
-| Respond | Conter, analisar, comunicar e tratar incidentes |
-| Recover | Restaurar serviços e dados e reduzir os prejuízos causados |
+| :--- | :--- |
+| **Govern** | Definir políticas, responsabilidades, prioridades e critérios de decisão |
+| **Identify** | Conhecer ativos, dependências, vulnerabilidades e riscos |
+| **Protect** | Implementar salvaguardas para reduzir a probabilidade ou o impacto |
+| **Detect** | Identificar eventos suspeitos, falhas e possíveis incidentes |
+| **Respond** | Conter, analisar, comunicar e tratar incidentes |
+| **Recover** | Restaurar serviços e dados e reduzir os prejuízos causados |
 
 As funções do NIST não são controles específicos.
 
@@ -463,33 +522,35 @@ Por exemplo:
 Não será suficiente escrever apenas “aplicar o NIST” ou listar as funções sem relacioná-las aos riscos do sistema.
 
 #### 14.3 Mapeamento dos riscos para o NIST CSF
+
 O grupo deverá indicar quais funções são relevantes para cada risco.
 
 Sugere-se utilizar uma tabela como:
 
 | Risco | Govern | Identify | Protect | Detect | Respond | Recover |
-| --- | --- | --- | --- | --- | --- | --- |
-| R01 | X | X | X | X | X | X |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| `R01` | X | X | X | X | X | X |
 
 Um risco poderá estar relacionado a várias funções. Entretanto, o grupo deverá analisar cada relação, evitando marcar todas as funções automaticamente.
 
 #### 14.4 Plano de tratamento
+
 Para cada risco, o grupo deverá elaborar um plano contendo:
 
 | Campo | Descrição |
-| --- | --- |
-| Risco | Identificador e título |
-| Estratégia | Evitar, reduzir, compartilhar ou aceitar |
-| Controles propostos | Medidas concretas para tratar o risco |
-| Funções do NIST | Funções relacionadas aos controles |
-| Responsáveis | Pessoas, equipes ou setores responsáveis |
-| Evidências e verificação | Formas de confirmar que os controles existem e funcionam |
+| :--- | :--- |
+| **Risco** | Identificador e título |
+| **Estratégia** | Evitar, reduzir, compartilhar ou aceitar |
+| **Controles propostos** | Medidas concretas para tratar o risco |
+| **Funções do NIST** | Funções relacionadas aos controles |
+| **Responsáveis** | Pessoas, equipes ou setores responsáveis |
+| **Evidências e verificação** | Formas de confirmar que os controles existem e funcionam |
 
 Sugere-se utilizar uma tabela como:
 
 | Risco | Estratégia | Controles propostos | Funções relacionadas | Responsáveis | Evidências e verificação |
-| --- | --- | --- | --- | --- | --- |
-| R01 | Reduzir | Autenticação multifator; confirmação de operações sensíveis; notificações | Protect, Detect, Respond e Recover | Desenvolvimento e infraestrutura | Testes de autenticação; logs; simulação de conta comprometida |
+| :---: | :---: | :--- | :--- | :--- | :--- |
+| `R01` | Reduzir | Autenticação multifator; confirmação de operações sensíveis; notificações | Protect, Detect, Respond e Recover | Desenvolvimento e infraestrutura | Testes de autenticação; logs; simulação de conta comprometida |
 
 Os controles deverão ser específicos e observáveis.
 
@@ -510,6 +571,7 @@ Quando uma dessas ideias for utilizada, o grupo deverá explicar:
 - como será verificada.
 
 #### 14.5 Ordem inicial de implementação
+
 O grupo deverá definir uma ordem inicial para a implementação dos controles.
 
 A ordem poderá considerar:
@@ -525,18 +587,22 @@ A ordem poderá considerar:
 A ordem deverá ser justificada e poderá ser revisada nas próximas etapas.
 
 #### 14.6 Estimativa do risco residual
+
 O grupo deverá estimar o nível esperado de cada risco após a implementação dos controles.
 
 A tabela deverá conter:
 
 | Risco | Nível inicial | Nível residual esperado | Condição para aceitar o residual |
-| --- | --- | --- | --- |
+| :---: | :---: | :---: | :--- |
 
 O risco residual deverá ser apresentado como uma estimativa.
 
 O grupo não poderá afirmar que o risco já foi reduzido apenas porque um controle foi proposto. A redução somente poderá ser confirmada após implementação, testes e obtenção de evidências.
 
+---
+
 ### 15. Considerações finais
+
 A conclusão deverá apresentar:
 
 - os riscos considerados mais importantes;
@@ -548,7 +614,10 @@ A conclusão deverá apresentar:
 - as limitações da avaliação;
 - os pontos que precisarão ser detalhados nas próximas etapas.
 
+---
+
 ### 16. Critérios de avaliação da Etapa 2
+
 Serão considerados:
 
 - continuidade e coerência com a Etapa 1;
