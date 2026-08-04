@@ -1,8 +1,10 @@
 # Etapa 1 — Seção 1: Identificação e Descrição do Sistema
 
+---
+
 ## 1. Identificação do sistema
 
-- **Nome do sistema:** ThesisFlow — Sistema de Acompanhamento de Mestrado
+- **Nome do sistema:** **ThesisFlow** — Sistema de Acompanhamento de Mestrado
 - **Integrantes do grupo:**
   - Artur Wahlbrink Kraemer
   - Marcus Vinicius Morini Querol Junior
@@ -11,7 +13,7 @@
   - Fade Hassan Husein Kanaan
   - Rodrigo Thoma da Silva
 - **Repositório:** [https://github.com/fadekanaan/es-seguro-gp06](https://github.com/fadekanaan/es-seguro-gp06)
-- **Justificativa:** O ThesisFlow foi escolhido por ser um sistema real desenvolvido pelo próprio grupo durante a disciplina de Engenharia de Software no mesmo semestre. Isso nos permite realizar uma análise contextualizada e aprofundada, pois conhecemos em detalhes sua arquitetura, seus componentes, os dados que armazena e como os usuários interagem com ele. O sistema reúne múltiplos perfis de usuário, armazena dados pessoais e acadêmicos sensíveis, realiza autenticação, controla permissões e integra serviços externos — tornando-o um objeto de estudo rico para a análise de segurança com STRIDE e NIST CSF.
+- **Justificativa:** O **ThesisFlow** foi escolhido por ser um sistema real desenvolvido pelo próprio grupo durante a disciplina de Engenharia de Software no mesmo semestre. Isso nos permite realizar uma análise contextualizada e aprofundada, pois conhecemos em detalhes sua arquitetura, seus componentes, os dados que armazena e como os usuários interagem com ele. O sistema reúne múltiplos perfis de usuário, armazena dados pessoais e acadêmicos sensíveis, realiza autenticação, controla permissões e integra serviços externos — tornando-o um objeto de estudo rico para a análise de segurança com `STRIDE` e `NIST CSF`.
 
 ---
 
@@ -21,12 +23,12 @@ O **ThesisFlow** é um sistema de acompanhamento acadêmico voltado a programas 
 
 ### Problema que o sistema resolve
 
-Programas de pós-graduação exigem que os estudantes cumpram uma série de requisitos ao longo dos meses: completar um número mínimo de créditos, registrar atividades acadêmicas com comprovação, cumprir marcos do plano de trabalho e submeter produções científicas. Sem um sistema centralizado, esse acompanhamento é fragmentado, dependente de planilhas, e-mails e processos manuais sujeitos a erros. O ThesisFlow centraliza esse processo em uma plataforma web segura e auditável.
+Programas de pós-graduação exigem que os estudantes cumpram uma série de requisitos ao longo dos meses: completar um número mínimo de créditos, registrar atividades acadêmicas com comprovação, cumprir marcos do plano de trabalho e submeter produções científicas. Sem um sistema centralizado, esse acompanhamento é fragmentado, dependente de planilhas, e-mails e processos manuais sujeitos a erros. O **ThesisFlow** centraliza esse processo em uma plataforma web segura e auditável.
 
 ### Quem utiliza o sistema
 
 | Perfil | Descrição |
-|--------|-----------|
+| :---: | :--- |
 | **Estudante** | Matriculado no programa de mestrado. Registra atividades, faz upload de comprovantes, acompanha seu plano de trabalho e consulta seu status acadêmico. |
 | **Orientador** | Professor responsável por um ou mais estudantes. Valida atividades creditáveis, acompanha o progresso do orientando e registra produções científicas. |
 | **Coordenador** | Responsável pela administração do programa. Gerencia cadastros de usuários, define tipos de atividades creditáveis, aprova extensões de prazo, emite relatórios gerenciais e configura políticas acadêmicas. |
@@ -45,10 +47,10 @@ Programas de pós-graduação exigem que os estudantes cumpram uma série de req
 ### Informações armazenadas e transmitidas
 
 - Dados pessoais dos estudantes (nome, e-mail, matrícula)
-- Credenciais de acesso (gerenciadas pelo Firebase Authentication)
+- Credenciais de acesso (gerenciadas pelo `Firebase Authentication`)
 - Planos de trabalho com datas, etapas e prazos
-- Registros de atividades creditáveis com comprovantes em arquivo (Firebase Storage)
-- Produções científicas (artigos, publicações técnicas) com metadados de autoria e venue
+- Registros de atividades creditáveis com comprovantes em arquivo (`Firebase Storage`)
+- Produções científicas (artigos, publicações técnicas) com metadados de autoria e *venue*
 - Histórico de validações e aprovações
 - Logs de auditoria de todas as operações sensíveis
 - Status acadêmico inferido (regular, em risco, apto para defesa, etc.)
@@ -58,9 +60,9 @@ Programas de pós-graduação exigem que os estudantes cumpram uma série de req
 
 - Credenciais de autenticação
 - Dados pessoais dos estudantes
-- Comprovantes e documentos (arquivos no Firebase Storage)
+- Comprovantes e documentos (arquivos no `Firebase Storage`)
 - Registros de validação e aprovação de créditos
 - Logs de auditoria
 - Status acadêmico de cada estudante
 - Planos de trabalho e prazos
-- Permissões e papéis de acesso (RBAC)
+- Permissões e papéis de acesso (`RBAC`)
