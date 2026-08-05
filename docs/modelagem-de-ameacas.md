@@ -21,7 +21,12 @@
 
 ### Etapa 2 — Análise, Priorização e Tratamento de Riscos com o NIST CSF
 
-> **Nota sobre a Etapa 2:** A Etapa 2 será adicionada a este documento após a disponibilização do material de referência pelo professor.
+| # | Seção | Arquivo de trabalho |
+| :---: | :--- | :--- |
+| `7` | [Critérios de avaliação de risco](#7-critérios-de-avaliação-de-risco) | [`sec7-criterios-avaliacao.md`](etapas/etapa-2/sec7-criterios-avaliacao.md) |
+| `8` | [Registro de riscos](#8-registro-de-riscos) | [`sec8-registro-de-riscos.md`](etapas/etapa-2/sec8-registro-de-riscos.md) |
+| `9` | [Priorização dos riscos](#9-priorização-dos-riscos) | [`sec9-priorizacao-riscos.md`](etapas/etapa-2/sec9-priorizacao-riscos.md) |
+| `10` | [Tratamento dos riscos e NIST CSF 2.0](#10-tratamento-dos-riscos-e-mapeamento-para-o-nist-csf-20) | [`sec10-tratamento-nist-csf.md`](etapas/etapa-2/sec10-tratamento-nist-csf.md) |
 
 ---
 ---
@@ -362,7 +367,7 @@ A análise `STRIDE` foi aplicada aos componentes e ativos do **ThesisFlow**. Par
 
 ---
 
-## 7. Considerações finais
+## Considerações finais
 
 ### Ameaças mais preocupantes
 
@@ -397,3 +402,243 @@ A maior dificuldade foi diferenciar ameaças genéricas de situações concretas
 Outra dificuldade foi determinar o limite entre **ameaça** (o que pode acontecer), **vulnerabilidade** (a condição que permite) e **ataque** (a ação do agente malicioso). A utilização do `STRIDE` ajudou a estruturar essa análise por perspectivas distintas, revelando ameaças que poderiam não ser percebidas em uma análise apenas funcional.
 
 Por fim, a categoria **Repudiation** foi a mais difícil de contextualizar, pois depende não apenas de uma falha técnica, mas também do comportamento dos usuários e da qualidade dos registros de auditoria — que no **ThesisFlow** podem ser desabilitados via configuração.
+
+---
+---
+
+## Etapa 2 — Análise, Priorização e Tratamento de Riscos com o NIST CSF
+
+---
+
+## 7. Critérios de Avaliação de Risco
+
+Esta seção define os critérios de probabilidade e impacto que serão aplicados a todas as ameaças identificadas na Etapa 1, transformando-as em eventos de risco mensuráveis e comparáveis. As escalas adotadas seguem as diretrizes da disciplina e são calibradas de acordo com o contexto específico do **ThesisFlow**.
+
+---
+
+### 7.1 Critérios de probabilidade
+
+A escala de probabilidade reflete a facilidade com que um evento de risco pode ocorrer, considerando as condições técnicas do sistema, o perfil dos usuários, as vulnerabilidades existentes e o contexto de uso acadêmico.
+
+| Valor | Classificação | Critério |
+| :---: | :---: | :--- |
+| `1` | Baixa | O evento depende de condições incomuns, acesso muito específico ou grande capacidade técnica |
+| `2` | Média-baixa | O evento é possível, mas depende de uma vulnerabilidade ou condição específica |
+| `3` | Média-alta | O evento é plausível e pode ocorrer em situações comuns de uso ou ataque |
+| `4` | Alta | O evento pode ocorrer com facilidade, frequência ou durante condições previsíveis do sistema |
+
+A probabilidade não é atribuída por intuição. Cada valor é justificado com base nas características do sistema, nas vulnerabilidades identificadas, nas condições de exploração e no contexto de uso do **ThesisFlow** (ver Seção 8).
+
+---
+
+### 7.2 Critérios de impacto
+
+A escala de impacto reflete as consequências de um evento de risco bem-sucedido sobre os usuários, os dados, a integridade acadêmica e a conformidade legal do sistema.
+
+| Valor | Classificação | Critério |
+| :---: | :---: | :--- |
+| `1` | Baixo | Causa pequeno transtorno e pode ser corrigido rapidamente |
+| `2` | Moderado | Causa interrupção ou inconsistência limitada, com possibilidade de recuperação |
+| `3` | Alto | Causa prejuízo relevante aos usuários, ao negócio, à administração ou à privacidade |
+| `4` | Muito alto | Pode afetar muitos usuários, comprometer operações críticas ou causar prejuízo grave |
+
+Na avaliação do impacto foram considerados: prejuízo direto aos usuários, exposição de dados pessoais protegidos pela `LGPD`, interrupção de operações críticas do calendário acadêmico, comprometimento da integridade das decisões de validação e dificuldade de recuperação.
+
+---
+
+### 7.3 Cálculo e classificação do nível de risco
+
+A pontuação de cada risco é calculada pela seguinte fórmula:
+
+```
+Pontuação = Probabilidade × Impacto
+```
+
+O resultado é então classificado conforme a tabela abaixo:
+
+| Pontuação | Nível do risco |
+| :---: | :---: |
+| `1 a 3` | **Baixo** |
+| `4 a 7` | **Médio** |
+| `8 a 11` | **Alto** |
+| `12 a 16` | **Crítico** |
+
+> A pontuação auxilia na comparação entre riscos, mas não substitui a análise contextual. Dois riscos com a mesma pontuação podem receber prioridades distintas em função da gravidade das consequências, das dependências entre componentes ou da dificuldade de recuperação (ver Seção 9).
+
+---
+
+## 8. Registro de Riscos
+
+Cada ameaça identificada na Etapa 1 (T01–T12) originou pelo menos um evento de risco. Os Casos de Abuso (CA01–CA06) são referenciados como origens complementares onde a relação é direta. As avaliações de probabilidade e impacto aplicam os critérios definidos na Seção 7.
+
+---
+
+### 8.1 Tabela consolidada do Registro de Riscos
+
+| ID | Origem | Evento de risco | Vulnerabilidade ou condição | Prob. | Impacto | Pont. | Nível |
+| :---: | :---: | :--- | :--- | :---: | :---: | :---: | :---: |
+| `R01` | T01 · Spoofing | Token JWT de usuário autenticado é roubado via XSS ou interceptação e utilizado por um atacante para operar como a vítima | Ausência de proteção contra XSS no frontend e ausência de mecanismo de revogação proativa de tokens | `3` | `4` | `12` | **Crítico** |
+| `R02` | T02 · Spoofing · CA03 | Atacante se cadastra como orientador com dados falsos e obtém acesso aos dados de estudantes e à capacidade de validar créditos | Sistema não valida vínculo institucional do orientador nem exige aprovação de coordenador para ativação da conta | `3` | `3` | `9` | **Alto** |
+| `R03` | T03 · Tampering · CA01 | Estudante substitui arquivo de comprovante após upload por documento forjado, obtendo validação de créditos indevidos | URL de acesso ao `Firebase Storage` não possui controle de imutabilidade após o upload inicial | `3` | `4` | `12` | **Crítico** |
+| `R04` | T04 · Tampering | Usuário com acesso indevido à API altera datas ou marcos do plano de trabalho de um estudante sem autorização | Falha ou ausência do decorator `@authorize` em endpoints de atualização do plano de trabalho | `2` | `3` | `6` | **Médio** |
+| `R05` | T05 · Repudiation · CA05 | Aspecto `@audit` é desabilitado via flag de configuração e orientador nega responsabilidade por validação já realizada | Flag `ASPECTS_ENABLED["audit"]` permite desativar a auditoria em tempo de execução sem controle de acesso | `2` | `4` | `8` | **Alto** |
+| `R06` | T06 · Repudiation | Coordenador realiza operação administrativa (ex.: aprovação de extensão) e, na ausência de log imutável, nega tê-la realizado | Logs de auditoria podem ser alterados ou expurgados por quem detém acesso ao banco de dados | `2` | `3` | `6` | **Médio** |
+| `R07` | T07 · Info. Disclosure · CA02 | Estudante autenticado enumera IDs de outros estudantes em requisições GET e coleta dados pessoais e acadêmicos de terceiros (IDOR) | API não verifica se o recurso solicitado pertence ao usuário autenticado, retornando o objeto completo sem filtragem | `3` | `4` | `12` | **Crítico** |
+| `R08` | T08 · Info. Disclosure | URL de download de comprovante no `Firebase Storage` é descoberta ou compartilhada, expondo documentos pessoais sem autenticação | Regras do `Firebase Storage` não exigem autenticação para leitura, ou a URL de acesso não possui validade limitada | `3` | `3` | `9` | **Alto** |
+| `R09` | T09 · Denial of Service · CA04 | Atacante envia volume massivo de requisições aos endpoints que invocam o motor de inferência lógica, degradando ou tornando o sistema indisponível | Ausência de *rate limiting* e de cache de resultados nos endpoints computacionalmente intensos | `3` | `3` | `9` | **Alto** |
+| `R10` | T10 · Denial of Service | Usuário autenticado realiza upload massivo de arquivos de grande volume, esgotando a cota de armazenamento do Firebase | Ausência de limitação de tamanho de arquivo, de cota por usuário e de restrição por tipo de conteúdo no `Firebase Storage` | `2` | `2` | `4` | **Médio** |
+| `R11` | T11 · Elevation of Privilege · CA06 | Estudante autenticado chama diretamente endpoint restrito a coordenadores, explorando ausência ou falha do decorator `@authorize` | Endpoint administrativo sem o decorator `@authorize(role="coordinator")` ou com verificação de papel insuficiente | `2` | `4` | `8` | **Alto** |
+| `R12` | T12 · Elevation of Privilege | Script `bootstrap_admin.py` fica acessível ou executável em produção, permitindo criação de conta de coordenador por atacante externo | Script privilegiado exposto via endpoint não autenticado ou por acesso indevido ao servidor em ambiente de produção | `1` | `4` | `4` | **Médio** |
+
+---
+
+### 8.2 Justificativas das avaliações
+
+As justificativas a seguir explicam, para cada risco, os critérios que motivaram os valores de probabilidade e impacto atribuídos.
+
+---
+
+#### R01 — Roubo de token JWT (T01)
+
+- **Probabilidade 3 — Média-alta:** Ataques de XSS e interceptação de tokens são técnicas amplamente documentadas e utilizadas. O frontend `React` com `Vite` não garante proteção automática contra todos os vetores de XSS, especialmente em bibliotecas de terceiros ou renderização de conteúdo dinâmico. A ausência de mecanismo de revogação proativa torna o ataque sustentável por toda a validade do token.
+- **Impacto 4 — Muito alto:** Um token comprometido concede ao atacante acesso completo à conta da vítima, permitindo realizar qualquer operação autorizada para aquele papel — incluindo validação de créditos (orientador), emissão de relatórios ou alteração de configurações (coordenador). O impacto se multiplica quando o token pertence a um perfil com privilégios elevados.
+- **Relação com casos de abuso:** Esta ameaça habilita vários outros casos de abuso se o token pertencer a um orientador (CA05) ou coordenador (CA06).
+
+---
+
+#### R02 — Falso orientador (T02 · CA03)
+
+- **Probabilidade 3 — Média-alta:** O cadastro de orientadores sem validação de vínculo institucional é uma falha explorada com técnicas simples: basta criar uma conta com e-mail plausível. Não há barreira técnica relevante impedindo o registro.
+- **Impacto 3 — Alto:** O atacante obtém acesso prolongado aos dados pessoais, comprovantes e plano de trabalho de múltiplos estudantes, além da capacidade de aprovar atividades fraudulentamente. O impacto inclui violação de privacidade com implicações jurídicas (`LGPD`) e comprometimento da integridade acadêmica.
+
+---
+
+#### R03 — Substituição de comprovante forjado (T03 · CA01)
+
+- **Probabilidade 3 — Média-alta:** A substituição de arquivo após upload é possível a qualquer estudante autenticado que conheça a URL de acesso ao `Storage`. Não há mecanismo de imutabilidade documentado que bloqueie essa operação.
+- **Impacto 4 — Muito alto:** A fraude de comprovante compromete a validade dos créditos acadêmicos e pode permitir que um estudante avance para a defesa sem ter cumprido os requisitos reais. O dano é ao mesmo tempo acadêmico, institucional e difícil de detectar sem auditoria ativa.
+
+---
+
+#### R04 — Alteração indevida do plano de trabalho (T04)
+
+- **Probabilidade 2 — Média-baixa:** A exploração depende de uma falha específica no controle de acesso (`@authorize` ausente ou falho) em endpoints de atualização do plano de trabalho. Esse vetor exige conhecimento técnico da API (ex.: Swagger exposto).
+- **Impacto 3 — Alto:** A adulteração do plano de trabalho pode mascarar atrasos acadêmicos, criar inconsistências no histórico do estudante e dificultar a auditoria posterior. O dano afeta diretamente a confiabilidade das decisões do programa.
+
+---
+
+#### R05 — Desabilitação do aspecto de auditoria (T05 · CA05)
+
+- **Probabilidade 2 — Média-baixa:** A exploração exige acesso privilegiado às configurações do sistema (variável `ASPECTS_ENABLED`), o que restringe o vetor a insiders ou a atacantes que já tenham comprometido o ambiente de execução. No entanto, a condição é uma vulnerabilidade de configuração real e documentada no código.
+- **Impacto 4 — Muito alto:** A ausência de logs de auditoria elimina a capacidade de responsabilização por qualquer operação. Em um contexto acadêmico formal, a impossibilidade de comprovar quem realizou uma validação tem consequências institucionais e potencialmente jurídicas graves.
+
+---
+
+#### R06 — Repudiação de operação administrativa (T06)
+
+- **Probabilidade 2 — Média-baixa:** Requer que o coordenador tenha motivação para negar a ação e que os logs sejam insuficientes ou alteráveis. A condição depende tanto de comportamento humano quanto de fragilidade técnica do log.
+- **Impacto 3 — Alto:** A impossibilidade de comprovar uma decisão administrativa (ex.: aprovação de extensão de prazo) gera disputas sem resolução técnica, prejudicando estudantes e comprometendo a governança do programa.
+
+---
+
+#### R07 — IDOR para acesso a dados de terceiros (T07 · CA02)
+
+- **Probabilidade 3 — Média-alta:** A técnica IDOR é trivial para qualquer estudante autenticado que observe o padrão de IDs nas requisições. Não requer ferramentas especializadas — basta modificar um valor na URL. Identificadores sequenciais ou UUIDs previsíveis ampliam o risco.
+- **Impacto 4 — Muito alto:** A exploração permite enumeração sistemática dos dados de todos os estudantes do programa — dados pessoais, status acadêmico, plano de trabalho e comprovantes — configurando violação em massa com implicações diretas da `LGPD`.
+
+---
+
+#### R08 — URL de comprovante acessível sem autenticação (T08)
+
+- **Probabilidade 3 — Média-alta:** URLs do `Firebase Storage` sem regras restritivas de leitura são acessíveis publicamente a qualquer um que as possua. O compartilhamento acidental (ex.: via e-mail, print de tela) ou a descoberta por varredura configuram um vetor de exploração plausível e recorrente.
+- **Impacto 3 — Alto:** A exposição de comprovantes pode incluir diplomas, certidões, artigos científicos não publicados e documentos de identificação pessoal — todos sensíveis sob a `LGPD` e de valor para o titular.
+
+---
+
+#### R09 — Flooding do motor de inferência (T09 · CA04)
+
+- **Probabilidade 3 — Média-alta:** O vetor de ataque é de baixa complexidade: qualquer usuário autenticado com um script básico pode disparar requisições em alta frequência. O motor de inferência, por seu custo computacional, é um alvo natural.
+- **Impacto 3 — Alto:** A indisponibilidade durante períodos críticos do calendário acadêmico (defesas, qualificações, entrega de relatórios) pode causar perda de prazos, retrabalho administrativo e danos à reputação do sistema e do programa.
+
+---
+
+#### R10 — Upload massivo no Storage (T10)
+
+- **Probabilidade 2 — Média-baixa:** Depende de um usuário autenticado com intenção maliciosa e conhecimento da API de upload. A ausência de limitação de tamanho facilita o ataque, mas o vetor é mais direto do que um ataque externo.
+- **Impacto 2 — Moderado:** O impacto é limitado ao esgotamento da cota de armazenamento, bloqueando novos uploads legítimos. O serviço pode ser restaurado com ampliação de cota e remoção dos arquivos maliciosos, sem perda de dados existentes.
+
+---
+
+#### R11 — Elevação de privilégios via endpoint desprotegido (T11 · CA06)
+
+- **Probabilidade 2 — Média-baixa:** A exploração depende da existência de um endpoint específico sem o decorator `@authorize` correto — uma falha pontual, não sistêmica. A documentação Swagger em `/docs`, quando exposta em produção, facilita a descoberta.
+- **Impacto 4 — Muito alto:** O acesso a funções de coordenador permite alterar a estrutura do programa (tipos de atividades, configurações de crédito), aprovar extensões de prazo indevidamente e acessar relatórios gerenciais completos, comprometendo toda a integridade administrativa do sistema.
+
+---
+
+#### R12 — Exposição do script bootstrap_admin.py (T12)
+
+- **Probabilidade 1 — Baixa:** A exposição do script em produção requer um erro de configuração de infraestrutura grave (endpoint não autenticado ativo ou acesso indevido ao servidor). Em implantações minimamente cuidadosas, o risco de exposição é baixo, pois o script deve ser executado apenas localmente na inicialização.
+- **Impacto 4 — Muito alto:** Se explorado, permite a criação de uma conta de coordenador com privilégios máximos sob controle do atacante, comprometendo toda a segurança do sistema de forma imediata e potencialmente silenciosa.
+
+---
+
+## 9. Priorização dos Riscos
+
+A priorização define a ordem em que os riscos devem receber atenção e recursos. A pontuação calculada é o ponto de partida, mas não o único critério. A ordenação final também considera: a gravidade das consequências, o número de usuários afetados, a facilidade de exploração, a importância do ativo comprometido, a possibilidade de recuperação e as dependências entre os riscos.
+
+---
+
+### 9.1 Tabela de priorização
+
+| Prioridade | ID | Nível | Pontuação | Justificativa da prioridade |
+| :---: | :---: | :---: | :---: | :--- |
+| `1º` | `R07` | **Crítico** | `12` | IDOR de baixíssima complexidade técnica com impacto em massa sobre dados pessoais de todos os estudantes; violação direta da `LGPD` |
+| `2º` | `R01` | **Crítico** | `12` | Token comprometido concede controle total da conta; habilita encadeamento com outros ataques (R03, R05, R11) |
+| `3º` | `R03` | **Crítico** | `12` | Fraude de comprovante compromete a validade acadêmica do programa; impacto direto na decisão de quem defende a dissertação |
+| `4º` | `R05` | **Alto** | `8` | Desabilitação da auditoria elimina qualquer possibilidade de responsabilização; afeta transversalmente todos os outros riscos |
+| `5º` | `R11` | **Alto** | `8` | Elevação de privilégios compromete a estrutura de controle de acesso de todo o sistema |
+| `6º` | `R02` | **Alto** | `9` | Falso orientador tem acesso prolongado e sistemático aos dados de múltiplos estudantes com difícil detecção |
+| `7º` | `R08` | **Alto** | `9` | Exposição de documentos sensíveis sem autenticação; vetor plausível e silencioso |
+| `8º` | `R09` | **Alto** | `9` | DoS durante períodos críticos tem impacto acadêmico e reputacional relevante |
+| `9º` | `R04` | **Médio** | `6` | Adulteração do plano de trabalho é prejudicial, mas depende de falha específica menos provável |
+| `10º` | `R06` | **Médio** | `6` | Repudiação administrativa é séria, mas depende de comportamento humano além da falha técnica |
+| `11º` | `R10` | **Médio** | `4` | Impacto limitado a uploads futuros; reversível com expansão de cota e remoção de arquivos |
+| `12º` | `R12` | **Médio** | `4` | Probabilidade muito baixa em implantação minimamente correta; impacto crítico, mas dependente de erro operacional grave |
+
+---
+
+### 9.2 Justificativa da ordem de precedência
+
+#### Por que R07 ocupa a 1ª posição
+
+R07, R01 e R03 compartilham a mesma pontuação máxima (12). O desempate é definido pela **trivialidade de exploração** e pela **abrangência do impacto**. O IDOR (R07) não exige ferramentas especializadas, comprometimento prévio de credenciais ou conhecimento técnico avançado — qualquer estudante autenticado consegue explorar a vulnerabilidade simplesmente alterando um identificador na URL. Além disso, o impacto afeta potencialmente **todos os estudantes do programa de forma simultânea**, caracterizando uma violação em massa de dados pessoais com implicações diretas da `LGPD`.
+
+#### Por que R01 precede R03
+
+Ambos têm pontuação 12. R01 (roubo de token) precede R03 (substituição de comprovante) porque um token comprometido **habilita e amplia** outros ataques: um atacante de posse do token de um orientador pode explorar a superfície completa do sistema em nome de outro usuário. O token é a chave mestra da sessão — sua proteção é condição para a segurança de todos os demais fluxos.
+
+#### Por que R05 ocupa a 4ª posição, acima de riscos com pontuação 9
+
+R05 (desabilitação da auditoria) tem pontuação 8, mas é posicionado acima de R02, R08 e R09 (pontuação 9) por seu **caráter transversal**: a ausência de logs de auditoria agrava a consequência de praticamente todos os outros riscos, tornando impossível detectar e responsabilizar qualquer violação. Um sistema sem auditoria ativa converte riscos altos em riscos sem possibilidade de resposta.
+
+#### Por que R11 precede R02, R08 e R09
+
+R11 (elevação de privilégios) tem pontuação 8, mas compromete a **estrutura de controle de acesso de todo o sistema**. Um estudante que acessa funções de coordenador pode alterar as regras do programa para todos os usuários — um dano sistêmico que transcende o impacto individual dos riscos de pontuação 9.
+
+#### Posição de R12 (12º lugar)
+
+Apesar de ter impacto 4 (Muito alto), R12 recebeu probabilidade 1 (Baixa) porque a exploração exige erro operacional grave de infraestrutura. Em condições normais de implantação, o script `bootstrap_admin.py` não fica exposto. A probabilidade baixa justifica a posição final, sem eliminar a necessidade de controle.
+
+---
+---
+
+## Etapa 2 — continuação
+
+---
+
+## 10. Tratamento dos Riscos e Mapeamento para o NIST CSF 2.0
+
+Esta seção define as estratégias de tratamento para cada risco, mapeia os riscos para as funções do NIST Cybersecurity Framework 2.0, apresenta o plano de tratamento com controles concretos, responsáveis e formas de verificação, estabelece a ordem inicial de implementação e estima o risco residual esperado.
+
+> **Nota:** Esta seção está em elaboração e será completada nas próximas etapas do trabalho.
