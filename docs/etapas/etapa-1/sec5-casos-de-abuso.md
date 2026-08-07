@@ -6,7 +6,7 @@
 
 ### Diagrama de Casos de Abuso
 
-![Diagrama de Casos de Abuso](../../../diagramas/diagrama-casos-de-abuso.png)
+![Diagrama de Casos de Abuso](../../../diagramas/etapa-1/diagrama-casos-de-abuso.png)
 *Figura 3: Diagrama de Casos de Abuso do sistema ThesisFlow*
 
 ---

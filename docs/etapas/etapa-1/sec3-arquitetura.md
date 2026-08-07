@@ -12,7 +12,7 @@ A segurança da API é reforçada pelo aspecto `@authorize`, que valida o papel 
 
 ### Diagrama de Contexto
 
-![Diagrama de Contexto do ThesisFlow](../../../diagramas/diagrama-contexto.png)
+![Diagrama de Contexto do ThesisFlow](../../../diagramas/etapa-1/diagrama-contexto.png)
 *Figura 1: Diagrama de Contexto do sistema ThesisFlow*
 
 ---
@@ -21,7 +21,7 @@ A segurança da API é reforçada pelo aspecto `@authorize`, que valida o papel 
 
 O diagrama abaixo ilustra dois fluxos críticos para a segurança: a autenticação/autorização e o registro de atividade com upload de comprovante.
 
-![Diagrama de Fluxo de Dados](../../../diagramas/diagrama-fluxo-dados.png)
+![Diagrama de Fluxo de Dados](../../../diagramas/etapa-1/diagrama-fluxo-dados.png)
 *Figura 2: Diagrama de Fluxo de Dados (Autenticação, Autorização e Upload de Comprovante)*
 
 ---

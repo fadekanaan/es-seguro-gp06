@@ -27,6 +27,14 @@
 | `8` | [Registro de riscos](#8-registro-de-riscos) | [`sec8-registro-de-riscos.md`](etapas/etapa-2/sec8-registro-de-riscos.md) |
 | `9` | [Priorização dos riscos](#9-priorização-dos-riscos) | [`sec9-priorizacao-riscos.md`](etapas/etapa-2/sec9-priorizacao-riscos.md) |
 | `10` | [Tratamento dos riscos e NIST CSF 2.0](#10-tratamento-dos-riscos-e-mapeamento-para-o-nist-csf-20) | [`sec10-tratamento-nist-csf.md`](etapas/etapa-2/sec10-tratamento-nist-csf.md) |
+| `11` | [Considerações finais da Etapa 2](#11-considerações-finais-da-etapa-2) | [`sec11-consideracoes-finais-etapa2.md`](etapas/etapa-2/sec11-consideracoes-finais-etapa2.md) |
+
+### Etapa 3 — Projeto de uma Arquitetura Segura
+
+| # | Seção | Arquivo de trabalho |
+| :---: | :--- | :--- |
+| `12` | [Requisitos de segurança e vulnerabilidades catalogadas](#12-requisitos-de-segurança-e-mapeamento-de-vulnerabilidades-catalogadas) | [`sec12-requisitos-vulnerabilidades.md`](etapas/etapa-3/sec12-requisitos-vulnerabilidades.md) |
+| `13` | [Diagrama da arquitetura segura e decisões de arquitetura](#13-diagrama-da-arquitetura-segura-e-decisões-de-arquitetura) | [`sec13-arquitetura-segura.md`](etapas/etapa-3/sec13-arquitetura-segura.md) |
 
 ---
 ---
@@ -162,14 +170,14 @@ A segurança da API é reforçada pelo aspecto `@authorize`, que valida o papel 
 
 ### Diagrama de Contexto
 
-![Diagrama de Contexto do ThesisFlow](../diagramas/diagrama-contexto.png)
+![Diagrama de Contexto do ThesisFlow](../diagramas/etapa-1/diagrama-contexto.png)
 *Figura 1: Diagrama de Contexto do sistema ThesisFlow*
 
 ### Diagrama de Fluxo de Dados
 
 O diagrama abaixo ilustra dois fluxos críticos para a segurança: a autenticação/autorização e o registro de atividade com upload de comprovante.
 
-![Diagrama de Fluxo de Dados](../diagramas/diagrama-fluxo-dados.png)
+![Diagrama de Fluxo de Dados](../diagramas/etapa-1/diagrama-fluxo-dados.png)
 *Figura 2: Diagrama de Fluxo de Dados (Autenticação, Autorização e Upload de Comprovante)*
 
 ### Visão simplificada da arquitetura
@@ -225,7 +233,7 @@ A análise `STRIDE` foi aplicada aos componentes e ativos do **ThesisFlow**. Par
 
 ### Diagrama de Casos de Abuso
 
-![Diagrama de Casos de Abuso](../diagramas/diagrama-casos-de-abuso.png)
+![Diagrama de Casos de Abuso](../diagramas/etapa-1/diagrama-casos-de-abuso.png)
 *Figura 3: Diagrama de Casos de Abuso do sistema ThesisFlow*
 
 ---
@@ -639,6 +647,269 @@ Apesar de ter impacto 4 (Muito alto), R12 recebeu probabilidade 1 (Baixa) porque
 
 ## 10. Tratamento dos Riscos e Mapeamento para o NIST CSF 2.0
 
-Esta seção define as estratégias de tratamento para cada risco, mapeia os riscos para as funções do NIST Cybersecurity Framework 2.0, apresenta o plano de tratamento com controles concretos, responsáveis e formas de verificação, estabelece a ordem inicial de implementação e estima o risco residual esperado.
+Esta seção define as estratégias de tratamento para cada risco identificado na Seção 8, mapeia os riscos para as funções do NIST Cybersecurity Framework 2.0, apresenta o plano de tratamento com controles concretos, responsáveis e formas de verificação, estabelece a ordem inicial de implementação e estima o risco residual esperado após a aplicação dos controles.
 
-> **Nota:** Esta seção está em elaboração e será completada nas próximas etapas do trabalho.
+---
+
+### 10.1 Estratégias de tratamento
+
+Para cada risco, foi selecionada uma estratégia principal com base na natureza da vulnerabilidade, na viabilidade técnica dos controles e no contexto acadêmico do **ThesisFlow**.
+
+| Risco | Nível | Estratégia | Justificativa |
+| :---: | :---: | :---: | :--- |
+| `R01` | **Crítico** | Reduzir | Cookies `httpOnly` e TTL curto de token reduzem a janela de exploração sem eliminar JWT |
+| `R02` | **Alto** | Reduzir | Validação de domínio institucional e aprovação explícita do coordenador são medidas viáveis sem eliminar o fluxo de cadastro |
+| `R03` | **Crítico** | Reduzir | Imutabilidade no `Firebase Storage` e verificação de hash são implementáveis via configuração e código |
+| `R04` | **Médio** | Reduzir | A cobertura completa dos decorators `@authorize` nos endpoints de atualização resolve a falha pontual |
+| `R05` | **Alto** | Evitar | Remover a flag `ASPECTS_ENABLED["audit"]` do ambiente de produção elimina a condição que origina o risco |
+| `R06` | **Médio** | Reduzir | Cloud Audit Logs imutáveis do Firestore fornecem evidências irrefutáveis de operações administrativas |
+| `R07` | **Crítico** | Reduzir | Verificação de propriedade do recurso no servidor é prática padrão e correção direta |
+| `R08` | **Alto** | Reduzir | Signed URLs com validade de 15 minutos já estão disponíveis no Firebase Admin SDK |
+| `R09` | **Alto** | Reduzir | Rate limiting por UID e cache de resultados do motor lógico reduzem probabilidade e impacto |
+| `R10` | **Médio** | Reduzir | Limitar tamanho e tipo de arquivo no endpoint de upload é configuração simples |
+| `R11` | **Alto** | Reduzir | Auditoria sistemática de todos os endpoints e correção dos decorators `@authorize` resolve a falha estrutural |
+| `R12` | **Médio** | Evitar | Remover qualquer endpoint HTTP que invoque `bootstrap_admin.py` e documentar execução exclusivamente local |
+
+---
+
+### 10.2 Funções do NIST CSF 2.0
+
+| Função | Finalidade geral | Resultado esperado no ThesisFlow | Exemplos de controles |
+| :---: | :--- | :--- | :--- |
+| **Govern** | Definir políticas, responsabilidades e critérios de decisão | Política de uso aceitável definida; responsáveis por cada risco identificados | Política de auditoria obrigatória; atribuição de papéis de segurança |
+| **Identify** | Conhecer ativos, dependências, vulnerabilidades e riscos | Ativos críticos mapeados; riscos R01–R12 registrados; vulnerabilidades CWE/OWASP identificadas | Registro de riscos; mapeamento de componentes |
+| **Protect** | Implementar salvaguardas para reduzir probabilidade ou impacto | Acesso protegido por autenticação e autorização; dados protegidos em trânsito e em repouso | `@authorize`; cookies `httpOnly`; imutabilidade Storage; rate limiting |
+| **Detect** | Identificar eventos suspeitos, falhas e possíveis incidentes | Tentativas de IDOR, flooding e elevação de privilégios registradas e alertadas | Logs do aspecto `@audit`; alertas de HTTP 403 |
+| **Respond** | Conter, analisar, comunicar e tratar incidentes | Conta comprometida bloqueada; token revogado; coordenador notificado | Endpoint de logout com revogação; bloqueio por UID |
+| **Recover** | Restaurar serviços e dados após incidente | Sistema restaurado ao estado íntegro; usuários afetados notificados | Backup do Firestore; restauração de comprovantes |
+
+---
+
+### 10.3 Mapeamento dos riscos para as funções do NIST CSF
+
+| Risco | Govern | Identify | Protect | Detect | Respond | Recover |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| `R01` | | | ✓ | ✓ | ✓ | ✓ |
+| `R02` | ✓ | ✓ | ✓ | | ✓ | |
+| `R03` | | | ✓ | ✓ | ✓ | ✓ |
+| `R04` | | | ✓ | ✓ | ✓ | |
+| `R05` | ✓ | | ✓ | | ✓ | |
+| `R06` | ✓ | | ✓ | ✓ | ✓ | |
+| `R07` | | | ✓ | ✓ | ✓ | |
+| `R08` | | | ✓ | ✓ | ✓ | |
+| `R09` | | | ✓ | ✓ | ✓ | ✓ |
+| `R10` | | | ✓ | ✓ | ✓ | ✓ |
+| `R11` | ✓ | ✓ | ✓ | ✓ | ✓ | |
+| `R12` | ✓ | ✓ | ✓ | | ✓ | |
+
+---
+
+### 10.4 Plano de tratamento
+
+| Risco | Estratégia | Controles propostos | Funções NIST | Responsáveis | Evidências e verificação |
+| :---: | :---: | :--- | :--- | :--- | :--- |
+| `R01` | Reduzir | Cookie `httpOnly` + `Secure`; TTL de 1h; revogação server-side no logout; headers CSP no React | Protect, Detect, Respond, Recover | Dev frontend + Dev backend | Logout com token inválido retorna HTTP 401; cookie sem acesso via JS; scan CSP sem injeção |
+| `R02` | Reduzir | Validação de e-mail com domínio `@unipampa.edu.br`; aprovação do coordenador para ativar conta de orientador | Govern, Identify, Protect, Respond | Dev backend + Coordenador | E-mail externo rejeitado; conta sem aprovação inativa; processo documentado |
+| `R03` | Reduzir | Regra de imutabilidade no Storage; hash SHA-256 armazenado no upload; hash verificado na validação | Protect, Detect, Respond, Recover | Dev backend + Configuração Firebase | PUT no mesmo caminho retorna HTTP 403; hash no Firestore coincide com arquivo no Storage |
+| `R04` | Reduzir | `@authorize` em todos os endpoints PUT/PATCH do plano; log via `@audit` de toda alteração | Protect, Detect, Respond | Dev backend | Script de auditoria sem falhas; token de `student` retorna HTTP 403 em endpoint de `advisor` |
+| `R05` | Evitar | Remover flag `ASPECTS_ENABLED["audit"]` do código de produção; Cloud Audit Logs do Firebase como camada imutável | Govern, Protect, Respond | Dev backend + Infraestrutura | Flag ausente no código; Cloud Audit Logs ativo no console Firebase |
+| `R06` | Reduzir | Cloud Audit Logs do Firestore (nível de dados); exportar para bucket imutável com retenção ≥ 1 ano | Govern, Protect, Detect, Respond | Infraestrutura + Dev backend | Logs com retenção configurada e verificada; export para bucket ativo |
+| `R07` | Reduzir | Verificação `student.uid == authenticated_user.uid` em todos os endpoints de leitura; registro de tentativas negadas via `@audit` | Protect, Detect, Respond | Dev backend | HTTP 403 confirmado em testes com ID cruzado; evento registrado no `@audit` |
+| `R08` | Reduzir | Signed URLs on-demand com validade de 15 min; nunca expor URL pública ao frontend | Protect, Detect, Respond | Dev backend + Configuração Firebase | URL expirada retorna HTTP 403; sem leitura pública nas regras do Storage |
+| `R09` | Reduzir | Rate limiting 10 req/min por UID com `slowapi`; cache in-memory TTL de 5 min nos endpoints do motor | Protect, Detect, Respond, Recover | Dev backend | 11ª requisição retorna HTTP 429; cache ativo verificado em log |
+| `R10` | Reduzir | Validar `content-type` real; limite de 10 MB por arquivo; máximo de 20 uploads por estudante por dia | Protect, Detect, Respond, Recover | Dev backend | Arquivo `.exe` retorna HTTP 422; arquivo de 50 MB retorna HTTP 413 |
+| `R11` | Reduzir | Script de auditoria de decorators em todos os endpoints; remoção do Swagger UI em produção | Govern, Identify, Protect, Detect, Respond | Dev backend + Processo de revisão | Script sem falhas; `/docs` inacessível em produção; HTTP 403 para `student` em endpoint de `coordinator` |
+| `R12` | Evitar | Remover qualquer rota HTTP que invoque `bootstrap_admin.py`; execução exclusivamente via terminal local | Govern, Identify, Protect, Respond | Dev backend + Infraestrutura | Nenhum endpoint HTTP responde ao script; `BOOTSTRAP_SECRET` ausente de logs expostos |
+
+---
+
+### 10.5 Ordem inicial de implementação
+
+| Prioridade | Risco(s) | Controle principal | Justificativa da ordem |
+| :---: | :---: | :--- | :--- |
+| `1º` | `R07` | Verificação de propriedade do recurso | Crítico; trivial de explorar; correção direta; violação em massa da `LGPD` |
+| `2º` | `R03` | Imutabilidade no Storage + hash SHA-256 | Crítico; fraude de comprovante compromete a validade do programa |
+| `3º` | `R01` | Cookie `httpOnly` + TTL de 1h + revogação | Crítico; token comprometido amplifica R03, R05 e R11 |
+| `4º` | `R11` + `R12` | Auditoria de decorators + remoção do bootstrap | Sistêmico; corrige a estrutura inteira de RBAC |
+| `5º` | `R05` | Remoção da flag + Cloud Audit Logs | Transversal: sem auditoria, outros controles são indetectáveis |
+| `6º` | `R02` | Validação de domínio + aprovação do coordenador | Alto impacto; requer mudança no fluxo de cadastro |
+| `7º` | `R08` | Signed URLs on-demand (15 min) | Implementável via Firebase Admin SDK |
+| `8º` | `R09` | Rate limiting + cache do motor lógico | Biblioteca `slowapi`; protege disponibilidade |
+| `9º` | `R04` + `R06` | `@authorize` no plano + Cloud Audit Logs admin | Médio; corrige casos menos prováveis mas relevantes |
+| `10º` | `R10` | Limites de tamanho e tipo de upload | Menor impacto relativo; configuração simples |
+
+---
+
+### 10.6 Estimativa do risco residual
+
+| Risco | Nível inicial | Controle(s) principal(is) | Nível residual esperado | Condição para aceitar o residual |
+| :---: | :---: | :--- | :---: | :--- |
+| `R01` | **Crítico** (12) | Cookie `httpOnly`; TTL de 1h; revogação | **Médio** (4–6) | Scan sem XSS bem-sucedido; TTL e revogação verificados em teste |
+| `R02` | **Alto** (9) | Domínio institucional + aprovação | **Baixo** (2–3) | Nenhum orientador ativo sem aprovação; e-mail externo rejeitado |
+| `R03` | **Crítico** (12) | Imutabilidade + hash SHA-256 | **Médio** (4–6) | Regra ativa e testada; hash verificado antes de cada validação |
+| `R04` | **Médio** (6) | `@authorize` em todos os endpoints do plano | **Baixo** (1–2) | Script de auditoria sem falhas |
+| `R05` | **Alto** (8) | Remoção da flag + Cloud Audit Logs | **Baixo** (2–3) | Flag ausente em produção; Cloud Audit Logs ativo |
+| `R06` | **Médio** (6) | Cloud Audit Logs + bucket de retenção | **Baixo** (2–3) | Logs com retenção mínima de 1 ano configurada |
+| `R07` | **Crítico** (12) | Verificação de propriedade | **Baixo** (2–3) | Testes automatizados confirmam HTTP 403 para IDs cruzados |
+| `R08` | **Alto** (9) | Signed URLs 15 min | **Baixo** (2–3) | URL expirada retorna HTTP 403; sem leitura pública no Storage |
+| `R09` | **Alto** (9) | Rate limiting + cache 5 min | **Médio** (4–6) | Rate limit testado; cache ativo e verificado |
+| `R10` | **Médio** (4) | Limites de tamanho e tipo | **Baixo** (1–2) | Testes de upload inválido rejeitados corretamente |
+| `R11` | **Alto** (8) | `@authorize` auditado em todos endpoints | **Baixo** (2–3) | Zero endpoints sem decorator |
+| `R12` | **Médio** (4) | Endpoint removido + documentação local | **Baixo** (1–2) | Endpoint ausente em produção |
+
+---
+---
+
+## 11. Considerações Finais da Etapa 2
+
+### 11.1 Riscos mais importantes e razões da priorização
+
+Os três riscos considerados mais críticos são **R07** (IDOR), **R01** (roubo de token JWT) e **R03** (substituição de comprovante forjado), todos com pontuação 12. A priorização não foi determinada apenas pela pontuação, mas pela combinação de criticidade, trivialidade de exploração e abrangência do impacto.
+
+O **R07** encabeça a lista porque não exige ferramentas ou conhecimento técnico avançado — qualquer estudante autenticado pode tentar modificar um identificador na URL e obter dados de outro estudante. O impacto é imediato e em massa, com implicações diretas da `LGPD`. O **R01** precede o **R03** porque um token comprometido funciona como chave mestra: um atacante com o token de um orientador ou coordenador pode realizar operações que ampliam o efeito de praticamente todos os outros riscos.
+
+O **R05** (desabilitação da auditoria), apesar de pontuação 8, recebeu alta prioridade de tratamento por seu caráter **transversal**: sem logs de auditoria funcionando, todos os outros controles tornam-se indetectáveis quando falharem.
+
+### 11.2 Estratégias de tratamento predominantes
+
+A estratégia **Reduzir** foi aplicada a dez dos doze riscos. Isso reflete a natureza do sistema: a maioria das vulnerabilidades identificadas admite controles técnicos específicos sem necessidade de eliminar as funcionalidades que originam o risco.
+
+A estratégia **Evitar** foi aplicada apenas a **R05** e **R12**, onde a condição que origina o risco é desnecessária em produção: a flag de desabilitação da auditoria e o endpoint que invoca o script de bootstrap não têm justificativa de existência em ambiente de produção.
+
+Nenhum risco foi classificado como **Aceitar** nesta etapa, em função da maturidade ainda baixa dos controles implementados e da sensibilidade dos dados acadêmicos envolvidos.
+
+### 11.3 Funções do NIST CSF mais relevantes
+
+As funções **Protect** e **Detect** são as mais relevantes para o **ThesisFlow** neste momento. Protect porque os controles mais urgentes são todos salvaguardas preventivas. Detect porque o sistema depende fortemente dos logs do `@audit` para responsabilizar ações de orientadores e coordenadores; sem detecção, as ameaças de Repudiation tornam-se irresolúveis.
+
+A função **Govern** é especialmente relevante para **R02**, **R05**, **R11** e **R12** — riscos que dependem de políticas organizacionais, não apenas de implementação técnica.
+
+### 11.4 Controles considerados essenciais
+
+1. **Verificação de propriedade de recurso** (R07): maior retorno por menor custo — elimina o IDOR com uma verificação de igualdade de UID no servidor.
+2. **Remoção da flag de auditoria + Cloud Audit Logs** (R05): assegura a rastreabilidade transversal de todas as operações.
+3. **Cookie `httpOnly` + TTL curto** (R01): reduz o impacto de XSS e limita a janela de exploração de tokens comprometidos.
+4. **Imutabilidade no Storage + hash SHA-256** (R03): protege a integridade dos comprovantes, base de todas as decisões de validação acadêmica.
+
+### 11.5 Limitações da avaliação
+
+- Os controles propostos são teóricos: nenhum foi implementado e testado nesta etapa.
+- As estimativas de risco residual dependem de implementação correta e de ausência de vetores não mapeados.
+- A análise cobre os riscos identificados no STRIDE original; ameaças não contempladas não foram avaliadas.
+
+---
+---
+
+## Etapa 3 — Projeto de uma Arquitetura Segura
+
+---
+
+## 12. Requisitos de Segurança e Mapeamento de Vulnerabilidades Catalogadas
+
+Esta seção deriva três requisitos de segurança a partir dos riscos críticos prioritários e mapeia cada requisito a uma vulnerabilidade catalogada em referências reconhecidas.
+
+---
+
+### 12.1 Requisitos de segurança (RS01–RS03)
+
+Os requisitos foram derivados dos três riscos de maior prioridade: **R07** (IDOR — 1º), **R01** (roubo de token JWT — 2º) e **R03** (substituição de comprovante — 3º).
+
+| ID | Risco de origem | Requisito de segurança | Critério de verificação |
+| :---: | :---: | :--- | :--- |
+| `RS01` | `R07` | A API deve verificar, em todos os endpoints que retornam dados de um estudante, que o `student_id` informado corresponde ao UID do usuário autenticado. Orientadores acessam apenas dados de seus orientandos; coordenadores têm acesso irrestrito por papel. | Requisição com `student_id` de outro estudante deve retornar HTTP `403` e registrar evento no `@audit`. Testes com cada papel devem produzir os resultados esperados. |
+| `RS02` | `R01` | O sistema deve armazenar tokens JWT exclusivamente em cookies `httpOnly` e `Secure`, com TTL máximo de 1 hora, e invalidá-los no servidor no momento do logout. Nenhum token deve ser acessível via JavaScript no frontend. | Cookie de sessão com flags `httpOnly` e `Secure` verificadas. Após logout, token rejeitado com HTTP `401`. Acesso via `document.cookie` bloqueado. |
+| `RS03` | `R03` | Após o upload de um comprovante, o sistema deve calcular e armazenar o hash `SHA-256` do arquivo e impedir qualquer substituição do arquivo original no Firebase Storage. O orientador deve poder verificar que o hash coincide com o arquivo no momento da validação. | Tentativa de `PUT` no mesmo caminho retorna HTTP `403` pelo Storage. Hash no Firestore coincide com o arquivo no Storage. Upload com `content-type` inválido retorna HTTP `422`. |
+
+---
+
+### 12.2 Mapeamento de vulnerabilidades catalogadas (VM01–VM03)
+
+| ID | Risco | Vulnerabilidade ou categoria | Referência | Relação com o ThesisFlow |
+| :---: | :---: | :--- | :--- | :--- |
+| `VM01` | `R07` | **IDOR** — Autorização quebrada por chave controlada pelo usuário | CWE-639; OWASP Top 10:2025 — A01: Broken Access Control | A API retorna recursos de estudante com base no `student_id` da URL sem verificar se pertence ao usuário autenticado |
+| `VM02` | `R01` | **Cookie sensível sem `HttpOnly`** / Autenticação imprópria | CWE-1004; CWE-287; OWASP Top 10:2025 — A07: Identification and Authentication Failures | JWT em `localStorage` ou cookie sem `httpOnly` pode ser capturado via XSS; ausência de revogação prolonga a janela de comprometimento |
+| `VM03` | `R03` | **Upload irrestrito / Ausência de controle de integridade** | CWE-434; OWASP ASVS v4 — V12.2: File Integrity | Storage sem imutabilidade permite que estudante sobrescreva comprovante após upload, substituindo documento legítimo por forjado |
+
+---
+
+## 13. Diagrama da Arquitetura Segura e Decisões de Arquitetura
+
+---
+
+### 13.1 Diagrama da arquitetura segura
+
+O diagrama abaixo representa a arquitetura do **ThesisFlow** com os controles de segurança prioritários posicionados. Componentes em destaque indicam salvaguardas adicionadas ou reforçadas em relação à arquitetura original.
+
+```mermaid
+graph TD
+    U1[👤 Estudante] -->|HTTPS| FE
+    U2[👤 Orientador] -->|HTTPS| FE
+    U3[👤 Coordenador] -->|HTTPS| FE
+
+    FE["Frontend React\n🔒 Cookie httpOnly\n+ Secure"]
+    FE -->|Bearer token JWT| RL
+
+    RL["🔒 Rate Limiter\n10 req/min\npor UID"]
+    RL --> API
+
+    API["API FastAPI"]
+    API --> FBAUTH["Firebase Auth\nValida JWT"]
+    FBAUTH -->|UID verificado| API
+
+    API --> AUTHZ["🔒 @authorize\nRBAC +\nPropriedade"]
+    AUTHZ --> SVC["Service Layer"]
+
+    SVC --> INFER["🔒 Motor Inferência\nCache TTL 5 min"]
+    SVC --> FS["🔒 Firestore\nCloud Audit Logs"]
+    SVC --> ST["🔒 Firebase Storage\nSigned URLs 15min\nImutabilidade\nHash SHA-256"]
+
+    API --> AUD["🔒 @audit\nLog: UID,\nTime e Ação"]
+    AUD --> LOG["🔒 Cloud Logging\nBucket imutável\n≥ 1 ano"]
+
+    style RL fill:#f96,color:#000
+    style AUTHZ fill:#f96,color:#000
+    style AUD fill:#f96,color:#000
+    style LOG fill:#4a9,color:#fff
+    style INFER fill:#fa3,color:#000
+    style FS fill:#4a9,color:#fff
+    style ST fill:#4a9,color:#fff
+    style FE fill:#69f,color:#fff
+```
+
+*Figura: Arquitetura segura do ThesisFlow. Vermelho: controles de acesso; verde: proteção de dados reforçada; amarelo: mitigação de disponibilidade.*
+
+> A imagem deste diagrama está disponível em [`diagramas/etapa-3/`](../diagramas/etapa-3/).
+
+---
+
+### 13.2 Decisões de arquitetura (DA01–DA03)
+
+| ID | Decisão tomada | Risco tratado | Justificativa | Componente afetado | Resultado esperado |
+| :---: | :--- | :---: | :--- | :--- | :--- |
+| `DA01` | Implementar verificação de propriedade do recurso no servidor em todos os endpoints que retornam dados de estudante | `R07` | Ocultar dados no frontend não impede acesso direto à API; a verificação deve ocorrer no servidor | API FastAPI — todos os endpoints `GET /students/{student_id}/...` | HTTP 403 para qualquer acesso cruzado; evento registrado no `@audit` |
+| `DA02` | Substituir URLs públicas do Storage por Signed URLs geradas on-demand via endpoint autenticado, com validade de 15 minutos | `R08` | URLs públicas ficam acessíveis indefinidamente após vazamento; Signed URLs expiram e exigem reautenticação | Firebase Storage + endpoint `GET /comprovantes/{id}/download-url` | Comprovantes inacessíveis sem autenticação; URL expirada retorna HTTP 403 |
+| `DA03` | Implementar rate limiting por UID autenticado nos endpoints do motor lógico, com cache de resultados por TTL de 5 minutos | `R09` | O motor tem custo computacional elevado; sem limitação, qualquer usuário autenticado pode degradar o sistema | Middleware `slowapi` + cache nos endpoints `/students/{id}/status` | UID limitado a 10 req/min; resultados recentes servidos do cache |
+
+#### DA01 — Verificação de propriedade do recurso
+
+**Problema:** A API retorna recursos de estudante com base no identificador da URL sem verificar se pertence ao usuário autenticado — vetor IDOR clássico.
+
+**Decisão:** Em todos os endpoints que recebem `student_id`, verificar no servidor antes de qualquer consulta ao repositório se o recurso pertence ao usuário autenticado. Estudantes só acessam seus próprios dados; orientadores acessam apenas dados de seus orientandos; coordenadores têm acesso irrestrito por papel.
+
+**Resultado esperado:** Eliminação do vetor IDOR; HTTP 403 para qualquer acesso cruzado, com registro no `@audit`.
+
+#### DA02 — Signed URLs para download de comprovantes
+
+**Problema:** URLs públicas de download ficam acessíveis indefinidamente após qualquer vazamento.
+
+**Decisão:** O frontend solicita o download via endpoint autenticado do backend, que gera uma Signed URL com validade de 15 minutos via Firebase Admin SDK. A URL de acesso público é eliminada das regras do Storage.
+
+**Resultado esperado:** Comprovantes inacessíveis sem autenticação; URLs expiradas retornam HTTP 403; cada acesso auditado.
+
+#### DA03 — Rate limiting e cache do motor de inferência
+
+**Problema:** O motor de inferência tem custo computacional proporcional à complexidade do estado acadêmico; sem limitação, qualquer usuário autenticado pode degradar o sistema com um script simples.
+
+**Decisão:** Rate limiting por UID com `slowapi` (10 req/min) + cache in-memory com TTL de 5 minutos nos endpoints que invocam o motor. O cache reduz a carga real sem impactar a experiência de uso legítimo.
+
+**Resultado esperado:** Cada UID limitado a 10 req/min; 11ª requisição retorna HTTP 429; o cache reduz invocações reais do motor em condições normais.
