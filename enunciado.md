@@ -637,3 +637,401 @@ Serão considerados:
 - organização e legibilidade do documento;
 - evolução do trabalho demonstrada por commits;
 - participação individual dos integrantes.
+
+---
+
+## Orientação para os sete dias finais
+
+As Etapas 3 a 7 foram reduzidas ao mínimo necessário para que o trabalho seja viável no período restante.
+
+O grupo deverá continuar utilizando o mesmo sistema e o mesmo repositório. Não será necessário implementar um software completo.
+
+Os estudantes poderão seguir uma das duas possibilidades:
+
+- **Realização prática:** para grupos que já possuem um sistema implementado ou conseguem produzir pequenos trechos de código;
+- **Realização descritiva:** para estudantes de semestres iniciais, que poderão apresentar pseudocódigo, exemplos, configurações, diagramas e descrições detalhadas de como realizariam a implementação.
+
+As duas possibilidades serão aceitas. A avaliação considerará principalmente a coerência com os riscos identificados, a qualidade das decisões, as justificativas, as evidências apresentadas e a participação individual.
+
+---
+
+## Etapa 3 — Projeto de uma Arquitetura Segura
+
+### 17. Objetivo
+
+O objetivo desta etapa é transformar os riscos e controles definidos anteriormente em requisitos de segurança e decisões de arquitetura.
+
+O grupo deverá mostrar como o sistema seria organizado para reduzir os riscos prioritários.
+
+### 18. Entregável mínimo
+
+A Etapa 3 deverá conter apenas os seguintes elementos:
+
+- três requisitos de segurança derivados dos riscos prioritários;
+- o mapeamento de três vulnerabilidades catalogadas;
+- um diagrama simples da arquitetura segura;
+- três decisões de arquitetura justificadas.
+
+#### 18.1 Requisitos de segurança
+
+O grupo deverá selecionar três riscos críticos ou altos e derivar um requisito de segurança para cada um.
+
+Os requisitos deverão ser específicos e verificáveis.
+
+Sugere-se utilizar a tabela:
+
+| ID | Risco de origem | Requisito de segurança | Critério de verificação |
+|---|---|---|---|
+| RS01 | R01 | O sistema deverá solicitar uma nova autenticação antes de confirmar uma operação sensível | A operação deverá ser recusada quando a nova autenticação não for realizada |
+
+Evitem requisitos genéricos como "o sistema deverá ser seguro".
+
+#### 18.2 Vulnerabilidades catalogadas
+
+Para cada requisito, o grupo deverá pesquisar uma vulnerabilidade relacionada em catálogos ou referências reconhecidas, como:
+
+- CWE;
+- OWASP Top 10:2025;
+- OWASP ASVS;
+- OWASP Cheat Sheet Series.
+
+O mapeamento poderá ser apresentado assim:
+
+| Risco | Vulnerabilidade ou categoria | Referência utilizada | Relação com o sistema |
+|---|---|---|---|
+| R01 | Falha de autenticação ou gerenciamento de sessão | CWE ou OWASP | Pode permitir que um atacante utilize a conta de outra pessoa |
+
+Não é necessário apresentar uma lista extensa. Três mapeamentos são suficientes.
+
+#### 18.3 Diagrama da arquitetura segura
+
+O grupo deverá criar um diagrama simples mostrando:
+
+- usuários;
+- interface ou aplicação;
+- serviço de autenticação;
+- regras de autorização;
+- banco de dados;
+- logs ou monitoramento;
+- serviços externos relevantes;
+- posição dos principais controles.
+
+O diagrama poderá ser feito no Mermaid, Draw.io, Canva ou outra ferramenta. O arquivo-fonte e a imagem deverão ser versionados no repositório.
+
+#### 18.4 Decisões de arquitetura
+
+O grupo deverá registrar três decisões.
+
+Cada decisão deverá conter:
+
+- problema ou risco tratado;
+- decisão tomada;
+- motivo;
+- componente afetado;
+- resultado esperado.
+
+Exemplo:
+
+| Decisão | Risco tratado | Justificativa |
+|---|---|---|
+| Validar permissões no servidor em todas as operações administrativas | R06 | Ocultar opções na interface não impede o acesso direto às funções |
+
+### 19. Critérios de avaliação da Etapa 3
+
+Serão considerados:
+
+- relação entre requisitos, riscos e controles;
+- uso adequado das referências de vulnerabilidades;
+- clareza do diagrama;
+- qualidade das decisões;
+- viabilidade da arquitetura proposta;
+- participação individual demonstrada pelos commits.
+
+---
+
+## Etapa 4 — Código Seguro e Testes de Segurança
+
+### 20. Objetivo
+
+O objetivo desta etapa é demonstrar como as decisões da arquitetura seriam transformadas em práticas de implementação segura.
+
+O uso da OWASP Cheat Sheet Series é recomendado como referência prática. O OWASP ASVS também poderá ser utilizado para selecionar requisitos verificáveis.
+
+Não será necessário implementar o sistema completo.
+
+### 21. Entregável mínimo
+
+O grupo deverá selecionar apenas **duas práticas de código seguro** relacionadas aos riscos e requisitos anteriores.
+
+Exemplos:
+
+- validação de entrada;
+- consultas parametrizadas;
+- controle de autorização;
+- armazenamento seguro de senhas;
+- proteção de sessões;
+- tratamento seguro de erros;
+- proteção de segredos;
+- geração de logs sem exposição de dados sensíveis.
+
+Para cada prática, o grupo deverá apresentar:
+
+- risco e requisito relacionados;
+- dois testes de segurança definidos antes da implementação;
+- implementação, pseudocódigo ou descrição detalhada;
+- resultado esperado;
+- referência da OWASP utilizada.
+
+#### 21.1 Testes antes da implementação
+
+Os testes deverão ser escritos antes do exemplo de implementação.
+
+Para cada prática, descrevam pelo menos:
+
+- um caso de uso válido;
+- um caso malicioso, inválido ou não autorizado;
+- o resultado seguro esperado.
+
+Exemplo:
+
+| Teste | Entrada ou ação | Resultado esperado |
+|---|---|---|
+| TS01 | Estudante tenta acessar a função administrativa | A solicitação é recusada e o evento é registrado |
+| TS02 | Administrador autorizado acessa a função | A solicitação é permitida |
+
+#### 21.2 Forma de realização
+
+Grupos com experiência em programação poderão incluir código e testes executáveis.
+
+Estudantes de semestres iniciais poderão entregar:
+
+- pseudocódigo;
+- trechos ilustrativos;
+- fluxos;
+- configurações comentadas;
+- descrição passo a passo de como implementariam a prática.
+
+### 22. Critérios de avaliação da Etapa 4
+
+Serão considerados:
+
+- coerência com a arquitetura;
+- escolha adequada das práticas;
+- definição dos testes antes da solução;
+- qualidade da implementação ou descrição;
+- uso das referências da OWASP;
+- clareza dos resultados esperados;
+- participação individual nos commits.
+
+---
+
+## Etapa 5 — Verificação de Vulnerabilidades
+
+### 23. Objetivo
+
+O objetivo desta etapa é utilizar uma ferramenta de teste de segurança para observar vulnerabilidades, alertas e configurações inseguras.
+
+O grupo deverá testar somente:
+
+- o próprio sistema;
+- um sistema cuja análise tenha sido expressamente autorizada; ou
+- uma aplicação deliberadamente vulnerável executada para fins educacionais.
+
+**É proibido testar sistemas de terceiros sem autorização.**
+
+### 24. Ambiente recomendado
+
+Os grupos que não possuem um sistema web implementado poderão utilizar o **OWASP Juice Shop**, uma aplicação criada para treinamento em segurança.
+
+A ferramenta sugerida é o **ZAP**, que permite observar o tráfego e executar verificações de segurança em aplicações web.
+
+O professor poderá disponibilizar um tutorial específico para a instalação e o uso básico dessas ferramentas.
+
+### 25. Entregável mínimo
+
+O grupo deverá realizar uma única sessão de verificação e apresentar:
+
+- sistema ou ambiente testado;
+- ferramenta utilizada;
+- configuração básica do teste;
+- evidência da execução;
+- análise de três alertas ou achados;
+- proposta de correção para cada achado.
+
+Sugere-se utilizar a tabela:
+
+| ID | Alerta ou achado | Evidência | Possível impacto | Relação com OWASP ou CWE | Correção proposta |
+|---|---|---|---|---|---|
+| A01 | Descrição do alerta | Captura ou trecho do relatório | Consequência possível | Categoria relacionada | Medida sugerida |
+
+Não é necessário explorar completamente as vulnerabilidades nem obter acesso indevido. O objetivo é interpretar os resultados da ferramenta.
+
+Caso a ferramenta apresente menos de três alertas relevantes, o grupo poderá analisar os alertas encontrados e explicar por que outros resultados foram descartados como informativos, duplicados ou possíveis falsos positivos.
+
+As capturas de tela e o relatório deverão ser armazenados em `evidencias/etapa-5/`.
+
+### 26. Critérios de avaliação da Etapa 5
+
+Serão considerados:
+
+- uso de um ambiente autorizado;
+- evidências da execução;
+- interpretação dos alertas;
+- relação com riscos e vulnerabilidades estudados;
+- qualidade das correções propostas;
+- capacidade de reconhecer limitações e possíveis falsos positivos;
+- participação individual.
+
+---
+
+## Etapa 6 — Monitoramento e Detecção de Intrusões
+
+### 27. Objetivo
+
+O objetivo desta etapa é compreender como um sistema pode identificar comportamentos suspeitos depois que entra em operação.
+
+Não será necessário instalar ou implementar um sistema de detecção de intrusões.
+
+O entregável será um roteiro ou uma descrição textual armazenado em:
+
+`roteiros/etapa-6-deteccao-de-intrusoes.md`
+
+### 28. Entregável mínimo
+
+O roteiro deverá explicar brevemente:
+
+- o que é detecção de intrusões;
+- a diferença entre prevenir e detectar;
+- quais eventos do sistema deveriam ser registrados;
+- três regras simples de detecção;
+- o que deveria acontecer depois de um alerta.
+
+Cada regra deverá conter:
+
+| Campo | Descrição |
+|---|---|
+| Risco observado | Risco ou caso de abuso relacionado |
+| Fonte de dados | Log, acesso, erro, requisição ou evento utilizado |
+| Condição de alerta | Comportamento que será considerado suspeito |
+| Resposta inicial | Ação recomendada após a detecção |
+
+Exemplo:
+
+| Risco observado | Fonte de dados | Condição de alerta | Resposta inicial |
+|---|---|---|---|
+| Uso indevido de conta | Logs de autenticação | Muitas tentativas malsucedidas seguidas para a mesma conta | Alertar a equipe e limitar temporariamente novas tentativas |
+
+Três regras são suficientes.
+
+### 29. Critérios de avaliação da Etapa 6
+
+Serão considerados:
+
+- compreensão do conceito;
+- relação com os riscos do projeto;
+- escolha adequada dos eventos;
+- clareza das regras;
+- coerência das respostas;
+- qualidade do roteiro;
+- participação individual nos commits.
+
+---
+
+## Etapa 7 — DevSecOps e Vídeo Final
+
+### 30. Objetivo
+
+O objetivo desta etapa é integrar tudo o que foi produzido ao longo da disciplina e demonstrar como a segurança pode acompanhar continuamente o ciclo de desenvolvimento.
+
+Não será necessário implementar um pipeline real.
+
+O grupo deverá elaborar:
+
+- uma descrição textual ou diagrama de um pipeline DevSecOps;
+- o roteiro do vídeo final;
+- o vídeo final apresentando a evolução do projeto.
+
+### 31. Pipeline DevSecOps proposto
+
+O arquivo deverá ser armazenado em:
+
+`roteiros/etapa-7-devsecops-e-video-final.md`
+
+O pipeline deverá incluir, de maneira simples:
+
+- planejamento e análise de ameaças;
+- requisitos e decisões de arquitetura;
+- implementação segura;
+- testes automatizados;
+- análise de código e dependências;
+- teste dinâmico ou pentest;
+- implantação;
+- monitoramento e resposta.
+
+Sugere-se utilizar uma tabela:
+
+| Momento | Atividade de segurança | Evidência produzida | Condição para continuar |
+|---|---|---|---|
+| Planejamento | STRIDE e análise de riscos | Tabela de ameaças e riscos | Riscos prioritários identificados |
+| Código | Práticas seguras e testes | Código, pseudocódigo ou testes | Testes aprovados |
+| Verificação | ZAP ou ferramenta equivalente | Relatório de alertas | Achados críticos analisados |
+| Operação | Logs e regras de detecção | Alertas e registros | Incidentes tratados |
+
+O grupo deverá indicar pelo menos **três condições** que impediriam a continuidade do pipeline, por exemplo:
+
+- teste de segurança reprovado;
+- vulnerabilidade crítica não analisada;
+- segredo encontrado no repositório;
+- dependência conhecida como vulnerável;
+- falha no controle de acesso.
+
+### 32. Vídeo final
+
+O vídeo deverá ter, preferencialmente, entre **5 e 8 minutos**.
+
+O grupo deverá apresentar:
+
+- o sistema escolhido;
+- as principais ameaças e casos de abuso;
+- os riscos prioritários;
+- as decisões de arquitetura;
+- as práticas de código seguro;
+- os principais resultados da verificação;
+- as regras de detecção;
+- o pipeline DevSecOps proposto;
+- o que o grupo aprendeu.
+
+O roteiro do vídeo deverá ser versionado no repositório.
+
+Não é necessário demonstrar todas as tabelas. O vídeo deverá destacar as principais decisões e mostrar a evolução do software ao longo da disciplina.
+
+Todos os integrantes deverão participar do trabalho. A participação no vídeo poderá ser dividida conforme a organização do grupo, mas a avaliação individual também considerará os commits realizados nas diferentes etapas.
+
+### 33. Critérios de avaliação da Etapa 7
+
+Serão considerados:
+
+- integração entre as etapas;
+- compreensão de DevSecOps;
+- coerência do pipeline;
+- qualidade das condições de segurança;
+- clareza e objetividade do vídeo;
+- capacidade de apresentar decisões e aprendizados;
+- qualidade do roteiro;
+- participação individual.
+
+---
+
+## Checklist final simplificado
+
+Antes da entrega, o grupo deverá verificar se o repositório contém:
+
+- [ ] **Etapa 1** — ameaças STRIDE e casos de abuso;
+- [ ] **Etapa 2** — análise, priorização e tratamento dos riscos;
+- [ ] **Etapa 3** — três requisitos, três vulnerabilidades, um diagrama e três decisões;
+- [ ] **Etapa 4** — duas práticas de código seguro com testes;
+- [ ] **Etapa 5** — uma verificação com até três achados analisados;
+- [ ] **Etapa 6** — roteiro com três regras de detecção;
+- [ ] **Etapa 7** — pipeline, roteiro e vídeo final;
+- [ ] commits próprios de todos os integrantes;
+- [ ] arquivos, diagramas e evidências versionados no GitHub.
