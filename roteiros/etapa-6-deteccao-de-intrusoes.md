@@ -31,6 +31,11 @@ Devem ser registrados, sempre que possível:
 - aumento anormal no número de requisições realizadas por um mesmo usuário ou origem;
 - bloqueios realizados por mecanismos de autorização ou limitação de requisições;
 - alterações administrativas ou operações sensíveis realizadas no sistema;
+- erros ou exceções relacionados aos mecanismos de autenticação e autorização.
+
+Para que esses registros sejam úteis na detecção de comportamentos suspeitos, cada evento deve conter informações suficientes para sua análise, como data e horário, usuário ou origem da requisição, recurso acessado, ação solicitada e resultado da operação.
+
+Esses eventos servirão como fonte de dados para as regras de detecção definidas na próxima seção.
 
 ## 4. Regras de detecção
 
@@ -67,11 +72,6 @@ As regras não substituem os controles preventivos já definidos. Seu objetivo �
 **Condição de alerta:** qualquer tentativa de um usuário com perfil de estudante ou orientador executar uma operação restrita ao perfil de coordenador.
 
 **Resposta inicial:** negar imediatamente a operação, registrar o usuário, recurso e ação solicitada e gerar um alerta para investigação. Ocorrências repetidas devem ser tratadas como comportamento suspeito e podem justificar o encerramento preventivo da sessão.
-- erros ou exceções relacionados aos mecanismos de autenticação e autorização.
-
-Para que esses registros sejam úteis na detecção de comportamentos suspeitos, cada evento deve conter informações suficientes para sua análise, como data e horário, usuário ou origem da requisição, recurso acessado, ação solicitada e resultado da operação.
-
-Esses eventos servirão como fonte de dados para as regras de detecção definidas na próxima seção.
 
 ## 5. Fluxo de resposta após um alerta
 
