@@ -72,3 +72,53 @@ As regras não substituem os controles preventivos já definidos. Seu objetivo �
 Para que esses registros sejam úteis na detecção de comportamentos suspeitos, cada evento deve conter informações suficientes para sua análise, como data e horário, usuário ou origem da requisição, recurso acessado, ação solicitada e resultado da operação.
 
 Esses eventos servirão como fonte de dados para as regras de detecção definidas na próxima seção.
+
+## 5. Fluxo de resposta após um alerta
+
+A geração de um alerta representa o início do processo de resposta e não significa, por si só, que um incidente de segurança foi confirmado. O evento deve ser analisado para determinar sua causa, gravidade e possíveis impactos.
+
+Para o ThesisFlow, é proposto o seguinte fluxo de resposta:
+
+1. **Detecção:** uma das regras de monitoramento identifica um comportamento que atende às condições definidas para geração de alerta.
+
+2. **Registro:** o sistema registra as informações disponíveis sobre o evento, incluindo data e horário, usuário ou origem da requisição, recurso envolvido, ação solicitada e resultado da operação.
+
+3. **Triagem:** o alerta é analisado para verificar se representa um comportamento legítimo, erro operacional ou possível tentativa de ataque.
+
+4. **Contenção:** caso a atividade seja considerada suspeita, podem ser adotadas medidas temporárias para limitar sua continuidade, como restrição de requisições, encerramento de sessão ou bloqueio temporário do usuário.
+
+5. **Análise:** são avaliados os registros relacionados ao evento para identificar sua origem, extensão e possíveis recursos afetados.
+
+6. **Correção:** quando necessário, são aplicadas medidas para corrigir a causa do incidente ou reduzir a possibilidade de novas ocorrências.
+
+7. **Encerramento e registro da ocorrência:** após o tratamento, o incidente deve ser documentado, incluindo o que ocorreu, quais medidas foram tomadas e quais melhorias podem ser incorporadas ao sistema.
+
+Caso a análise indique exposição ou comprometimento de dados pessoais, a equipe responsável deverá avaliar também as medidas adicionais previstas pelas políticas institucionais e pela legislação aplicável.
+
+O fluxo pode ser representado de forma resumida como:
+
+```text
+Evento suspeito
+      ↓
+Regra de detecção
+      ↓
+Geração e registro do alerta
+      ↓
+Triagem
+      ↓
+Contenção
+      ↓
+Análise
+      ↓
+Correção
+      ↓
+Registro da ocorrência
+```
+
+## 6. Considerações finais
+
+O roteiro de detecção proposto complementa os mecanismos preventivos definidos nas etapas anteriores do trabalho. Enquanto controles como autenticação, autorização e limitação de requisições buscam impedir determinadas ações, o monitoramento permite identificar tentativas de exploração e comportamentos anormais que mereçam investigação.
+
+As regras D01, D02 e D03 foram associadas aos riscos R07, R09 e R11 e estabelecem fontes de dados, condições objetivas para geração de alertas e respostas iniciais para cada cenário.
+
+A proposta não pressupõe a implementação de um IDS completo no ThesisFlow. Seu objetivo é definir quais informações deveriam ser registradas e como esses registros poderiam ser utilizados para apoiar a identificação e o tratamento de possíveis incidentes de segurança.
