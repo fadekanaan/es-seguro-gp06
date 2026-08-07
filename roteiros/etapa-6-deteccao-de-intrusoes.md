@@ -43,6 +43,8 @@ A partir dos riscos identificados nas etapas anteriores, foram definidas três r
 
 As regras não substituem os controles preventivos já definidos. Seu objetivo é permitir que tentativas de exploração, mesmo quando bloqueadas, sejam registradas e tratadas como possíveis eventos de segurança.
 
+Os limiares utilizados nas regras representam valores iniciais propostos para este roteiro. Em um ambiente real de operação, esses valores deveriam ser ajustados a partir do comportamento normal de uso do sistema, de modo a reduzir falsos positivos sem comprometer a capacidade de identificar atividades suspeitas.
+
 ### 4.1 D01 — Tentativas de acesso indevido a recursos de outro estudante
 
 **Risco relacionado:** R07 — acesso indevido a dados de outro estudante.
