@@ -31,6 +31,42 @@ Devem ser registrados, sempre que possível:
 - aumento anormal no número de requisições realizadas por um mesmo usuário ou origem;
 - bloqueios realizados por mecanismos de autorização ou limitação de requisições;
 - alterações administrativas ou operações sensíveis realizadas no sistema;
+
+## 4. Regras de detecção
+
+A partir dos riscos identificados nas etapas anteriores, foram definidas três regras de detecção para comportamentos considerados relevantes no contexto do ThesisFlow.
+
+As regras não substituem os controles preventivos já definidos. Seu objetivo é permitir que tentativas de exploração, mesmo quando bloqueadas, sejam registradas e tratadas como possíveis eventos de segurança.
+
+### 4.1 D01 — Tentativas de acesso indevido a recursos de outro estudante
+
+**Risco relacionado:** R07 — acesso indevido a dados de outro estudante.
+
+**Fonte de dados:** registros de autenticação, autorização e auditoria das requisições realizadas ao sistema.
+
+**Condição de alerta:** mais de três tentativas, dentro de um intervalo de cinco minutos, nas quais um estudante autenticado tente acessar um recurso associado a outro estudante.
+
+**Resposta inicial:** negar a operação, registrar as tentativas e gerar um alerta para análise. Caso o comportamento continue, a sessão ou o usuário poderá ser temporariamente restringido até que a ocorrência seja verificada.
+
+### 4.2 D02 — Volume anormal de requisições
+
+**Risco relacionado:** R09 — indisponibilidade causada por flooding de requisições.
+
+**Fonte de dados:** registros das requisições HTTP e dos mecanismos de limitação de requisições do sistema.
+
+**Condição de alerta:** mais de dez requisições, em um período de um minuto, realizadas pelo mesmo usuário ou origem contra uma funcionalidade sensível ou que demande maior processamento.
+
+**Resposta inicial:** aplicar limitação temporária às requisições provenientes da origem identificada, registrar o evento e acompanhar a continuidade do comportamento.
+
+### 4.3 D03 — Tentativa de elevação de privilégios
+
+**Risco relacionado:** R11 — tentativa de execução de funcionalidades com privilégio superior ao autorizado.
+
+**Fonte de dados:** registros de autenticação, autorização e auditoria das operações protegidas por perfil de acesso.
+
+**Condição de alerta:** qualquer tentativa de um usuário com perfil de estudante ou orientador executar uma operação restrita ao perfil de coordenador.
+
+**Resposta inicial:** negar imediatamente a operação, registrar o usuário, recurso e ação solicitada e gerar um alerta para investigação. Ocorrências repetidas devem ser tratadas como comportamento suspeito e podem justificar o encerramento preventivo da sessão.
 - erros ou exceções relacionados aos mecanismos de autenticação e autorização.
 
 Para que esses registros sejam úteis na detecção de comportamentos suspeitos, cada evento deve conter informações suficientes para sua análise, como data e horário, usuário ou origem da requisição, recurso acessado, ação solicitada e resultado da operação.
