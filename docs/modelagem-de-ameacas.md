@@ -1057,7 +1057,7 @@ codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts0
 
 #### 14.2.1 Mapeamento e referências
 
-- **Risco de Origem:** `R03` — Substituição ou forjamento de comprovante de pagamento / upload malicioso.
+- **Risco de Origem:** `R03` — Substituição ou forjamento de comprovante de atividade acadêmica / upload malicioso.
 - **Requisito de Segurança:** `RS03` — O sistema deve validar no servidor o tipo real do arquivo (magic bytes), limitar o tamanho máximo a 10 MB e gerar hash SHA-256 imutável.
 - **Decisão de Arquitetura:** `DA02` — Upload seguro com Signed URLs e validação estrita no servidor antes da gravação.
 - **Referências UTILIZADAS:**
