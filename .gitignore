@@ -12,9 +12,8 @@ __pycache__/
 *$py.class
 .pytest_cache/
 
-
-# Diretórios de cache e dependências do Python
-__pycache__/
-*.pyc
-.venv/
-env/
+# Diretórios de IDEs e editores
+.vscode/
+.idea/
+*.swp
+*.swo
