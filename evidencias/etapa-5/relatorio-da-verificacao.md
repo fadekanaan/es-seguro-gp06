@@ -93,8 +93,37 @@ Por essa restrição comprovada, a sessão definitiva utilizou o Baseline Scan o
 - alertas passivos apontam condições que exigem interpretação e não comprovam, isoladamente, exploração ou impacto;
 - a ausência de um alerta não comprova ausência de vulnerabilidade.
 
-## 7. Referências da metodologia
+## 7. Achados selecionados
+
+| ID | Alerta | Risco / confiança | Evidência observada | Classificação | Correção proposta |
+| :---: | :--- | :---: | :--- | :--- | :--- |
+| `A01` | `Content Security Policy (CSP) Header Not Set` | Médio / alta | Plugin `10038`, 4 instâncias sem CSP | OWASP A02:2025 e CWE-693 | Implantar CSP restritiva, inicialmente em modo `Report-Only` |
+| `A02` | `Cross-Domain Misconfiguration` | Médio / média | Plugin `10098`, uma resposta com `Access-Control-Allow-Origin: *` | OWASP A02:2025 e CWE-942 | Restringir CORS às origens e aos recursos necessários |
+| `A03` | `Deprecated Feature Policy Header Set` | Baixo / média | Plugin `10063`, 5 instâncias com `Feature-Policy` | OWASP A02:2025 e CWE-16 | Migrar para `Permissions-Policy` com negação por padrão |
+
+A interpretação completa, o impacto contextual e os critérios de priorização estão na [Seção 15 do documento acadêmico](../../docs/etapas/etapa-5/sec15-verificacao-vulnerabilidades.md).
+
+## 8. Capturas de tela
+
+1. [OWASP Juice Shop em execução](capturas-de-tela/01-juice-shop-em-execucao.png)
+2. [Resumo dos alertas do ZAP](capturas-de-tela/02-resumo-alertas-zap.png)
+3. [Detalhe do A01 — CSP ausente](capturas-de-tela/03-achado-a01.png)
+4. [Detalhe do A02 — CORS permissivo](capturas-de-tela/04-achado-a02.png)
+5. [Detalhe do A03 — Feature Policy obsoleta](capturas-de-tela/05-achado-a03.png)
+
+## 9. Interpretação e ressalvas
+
+Os achados não foram tratados como prova automática de exploração. O A01 confirma a ausência de uma camada de defesa, não a existência de XSS. O A02 apareceu em um recurso JavaScript público e sem credenciais; por isso, não comprova exposição de dados sensíveis, embora indique uma configuração que deve ser restrita antes de ser reutilizada em APIs. O A03 registra uma política obsoleta e tem caráter preventivo.
+
+A priorização recomendada é `A01` → `A02` → `A03`. Uma nova sessão deve ser executada depois das correções para verificar a remoção dos alertas e possíveis regressões.
+
+## 10. Referências
 
 - [ZAP Baseline Scan](https://www.zaproxy.org/docs/docker/baseline-scan/)
 - [Documentação das imagens Docker do ZAP](https://www.zaproxy.org/docs/docker/)
 - [Execução local do OWASP Juice Shop](https://pwning.owasp-juice.shop/companion-guide/local/part1/running.html)
+- [ZAP — Content Security Policy Header Not Set](https://www.zaproxy.org/docs/alerts/10038/)
+- [ZAP — Cross-Domain Misconfiguration](https://www.zaproxy.org/docs/alerts/10098/)
+- [ZAP — Permissions Policy Header Not Set](https://www.zaproxy.org/docs/alerts/10063/)
+- [OWASP Top 10:2025 — A02 Security Misconfiguration](https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/)
+- [CWE-693](https://cwe.mitre.org/data/definitions/693.html), [CWE-942](https://cwe.mitre.org/data/definitions/942.html) e [CWE-16](https://cwe.mitre.org/data/definitions/16.html)
