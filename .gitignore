@@ -6,8 +6,15 @@ exemplo-atividade-es-seguro/
 .DS_Store
 Thumbs.db
 
-# Diretórios de IDEs e editores
-.vscode/
-.idea/
-*.swp
-*.swo
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+
+# Diretórios de cache e dependências do Python
+__pycache__/
+*.pyc
+.venv/
+env/

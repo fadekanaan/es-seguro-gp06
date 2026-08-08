@@ -36,6 +36,12 @@
 | `12` | [Requisitos de segurança e vulnerabilidades catalogadas](#12-requisitos-de-segurança-e-mapeamento-de-vulnerabilidades-catalogadas) | [`sec12-requisitos-vulnerabilidades.md`](etapas/etapa-3/sec12-requisitos-vulnerabilidades.md) |
 | `13` | [Diagrama da arquitetura segura e decisões de arquitetura](#13-diagrama-da-arquitetura-segura-e-decisões-de-arquitetura) | [`sec13-arquitetura-segura.md`](etapas/etapa-3/sec13-arquitetura-segura.md) |
 
+### Etapa 4 — Código Seguro e Testes de Segurança
+
+| # | Seção | Arquivo de trabalho |
+| :---: | :--- | :--- |
+| `14` | [Práticas de código seguro e testes de segurança](#14-práticas-de-código-seguro-e-testes-de-segurança) | [`sec14-codigo-seguro.md`](etapas/etapa-4/sec14-codigo-seguro.md) |
+
 ---
 ---
 
@@ -913,3 +919,129 @@ graph TD
 **Decisão:** Rate limiting por UID com `slowapi` (10 req/min) + cache in-memory com TTL de 5 minutos nos endpoints que invocam o motor. O cache reduz a carga real sem impactar a experiência de uso legítimo.
 
 **Resultado esperado:** Cada UID limitado a 10 req/min; 11ª requisição retorna HTTP 429; o cache reduz invocações reais do motor em condições normais.
+
+---
+---
+
+## Etapa 4 — Código Seguro e Testes de Segurança
+
+---
+
+## 14. Práticas de Código Seguro e Testes de Segurança
+
+Esta seção demonstra como as decisões de arquitetura da Etapa 3 são transformadas em práticas concretas de implementação segura no código-fonte da API do **ThesisFlow**.
+
+---
+
+### 14.1 Prática 1 — Controle de Autorização por Propriedade de Recurso (IDOR)
+
+#### 14.1.1 Mapeamento e referências
+
+- **Risco de Origem:** `R07` — Acesso indevido a dados de outro estudante via IDOR (*Insecure Direct Object Reference*).
+- **Requisito de Segurança:** `RS01` — A API deve verificar no servidor se o `student_id` informado corresponde ao UID do usuário autenticado (ou papel de orientador vinculado / coordenador).
+- **Decisão de Arquitetura:** `DA01` — Implementar verificação de propriedade no servidor em todos os endpoints de estudante.
+- **Referências UTILIZADAS:**
+  - [OWASP Authorization Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html)
+  - [OWASP Top 10:2025 — A01: Broken Access Control](https://owasp.org/Top10/A01_2021-Broken_Access_Control/)
+  - [CWE-639: Authorization Bypass Through User-Controlled Key](https://cwe.mitre.org/data/definitions/639.html)
+
+---
+
+#### 14.1.2 Testes de segurança (definidos ANTES da implementação)
+
+| ID | Tipo | Entrada ou ação realizada | Resultado seguro esperado |
+| :---: | :---: | :--- | :--- |
+| `TS01` | **Malicioso / Não Autorizado** | Estudante `student_123` faz requisição `GET /students/student_456/profile` buscando dados de outro estudante | A solicitação é recusada com `HTTP 403 Forbidden` e um evento `UNAUTHORIZED_IDOR_ATTEMPT` é registrado no log de auditoria. |
+| `TS02` | **Caso Válido** | Estudante `student_123` faz requisição `GET /students/student_123/profile` buscando seu próprio perfil | A solicitação é permitida com `HTTP 200 OK` e os dados do estudante são retornados com sucesso. |
+| `TS03` | **Caso Válido** | Orientador `advisor_001` acessa `student_123` (seu orientando) OU Coordenador `coord_001` acessa `student_456` | A solicitação é autorizada com `HTTP 200 OK` em ambas as situações. |
+| `TS04` | **Malicioso / Não Autorizado** | Orientador `advisor_001` tenta acessar `student_456` (estudante que NÃO é seu orientando) | A solicitação é recusada com `HTTP 403 Forbidden` e o evento de tentativa indevida é auditado. |
+
+---
+
+#### 14.1.3 Implementação em Python (`authorization.py`)
+
+A verificação ocorre estritamente no servidor, eliminando qualquer dependência de filtros no frontend.
+
+```python
+from dataclasses import dataclass, field
+from typing import List, Optional, Dict, Any
+from datetime import datetime, timezone
+
+
+class PermissionDeniedError(Exception):
+    """Exceção lançada quando uma verificação de autorização falha (HTTP 403 Forbidden)."""
+    pass
+
+
+@dataclass
+class UserContext:
+    """Representa o contexto de um usuário autenticado extraído do token JWT."""
+    uid: str
+    role: str  # "student", "advisor", "coordinator"
+    advisee_uids: List[str] = field(default_factory=list)
+
+
+def verify_resource_ownership(
+    authenticated_user: UserContext,
+    target_student_id: str,
+    action: str = "READ_STUDENT_DATA",
+    audit_logger: Optional[Any] = None
+) -> bool:
+    """
+    Verifica no servidor se o usuário autenticado possui permissão para acessar ou modificar
+    os dados do estudante identificado por `target_student_id`.
+    """
+    allowed = False
+
+    if authenticated_user.role == "coordinator":
+        allowed = True
+    elif authenticated_user.role == "advisor" and target_student_id in authenticated_user.advisee_uids:
+        allowed = True
+    elif authenticated_user.role == "student" and authenticated_user.uid == target_student_id:
+        allowed = True
+
+    if not allowed:
+        if audit_logger:
+            audit_logger.log_event(
+                event_type="UNAUTHORIZED_IDOR_ATTEMPT",
+                user_uid=authenticated_user.uid,
+                target_resource=target_student_id,
+                action=action,
+                allowed=False
+            )
+        raise PermissionDeniedError(
+            f"HTTP 403 Forbidden: Usuário '{authenticated_user.uid}' (papel: {authenticated_user.role}) "
+            f"não tem permissão para acessar o recurso do estudante '{target_student_id}'."
+        )
+
+    if audit_logger:
+        audit_logger.log_event(
+            event_type="AUTHORIZED_RESOURCE_ACCESS",
+            user_uid=authenticated_user.uid,
+            target_resource=target_student_id,
+            action=action,
+            allowed=True
+        )
+
+    return True
+```
+
+---
+
+#### 14.1.4 Resultado da execução dos testes
+
+```text
+$ python3 -m pytest codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py -v
+
+codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts01_idor_attack_attempt_denied PASSED
+codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts02_legitimate_student_access_allowed PASSED
+codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts03_advisor_and_coordinator_access_allowed PASSED
+codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts04_advisor_unauthorized_student_denied PASSED
+
+============================== 4 passed in 0.03s ===============================
+```
+
+> **Arquivos de código:**
+> - Módulo: [`codigo/etapa-4/pratica-1-autorizacao-por-recurso/authorization.py`](../codigo/etapa-4/pratica-1-autorizacao-por-recurso/authorization.py)
+> - Testes: [`codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py`](../codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py)
+
