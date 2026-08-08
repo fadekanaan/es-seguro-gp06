@@ -42,6 +42,12 @@
 | :---: | :--- | :--- |
 | `14` | [Práticas de código seguro e testes de segurança](#14-práticas-de-código-seguro-e-testes-de-segurança) | [`sec14-codigo-seguro.md`](etapas/etapa-4/sec14-codigo-seguro.md) |
 
+### Etapa 5 — Verificação de Vulnerabilidades
+
+| # | Seção | Arquivo de trabalho |
+| :---: | :--- | :--- |
+| `15` | [Verificação de vulnerabilidades](#15-verificação-de-vulnerabilidades) | [`sec15-verificacao-vulnerabilidades.md`](etapas/etapa-5/sec15-verificacao-vulnerabilidades.md) |
+
 ### Etapa 6 — Monitoramento e Detecção de Intrusões
 
 | # | Seção | Arquivo de trabalho |
@@ -1075,6 +1081,8 @@ codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts0
 | `TS06` | **Malicioso / Não Autorizado** | Envio de arquivo PDF com 11 MB (excedendo o limite de 10 MB) | Recusado com `HTTP 413 Payload Too Large` e evento `FILE_TOO_LARGE_ATTEMPT` registrado no log. |
 | `TS07` | **Malicioso / Falsificação** | Envio de arquivo renomeado para `.pdf`, mas com conteúdo real de script bash (Extension Spoofing) | A verificação profunda de *Magic Bytes* detecta a incongruência e recusa com `HTTP 422 Unprocessable Entity`. |
 | `TS08` | **Caso Válido** | Envio de comprovante PDF legítimo com magic bytes `%PDF-` e tamanho de 2 MB | Processado com sucesso (`HTTP 201 Created`), gerando e registrando o Hash `SHA-256` imutável. |
+| `TS09` | **Malicioso / Nome Inseguro** | Envio de PDF válido com nome vazio, byte nulo, `.`/`..` ou componentes de caminho em formato Unix e Windows | Recusado com `HTTP 422 Unprocessable Entity` e evento `UNSAFE_FILE_NAME_ATTEMPT` auditado. |
+| `TS10` | **Caso Válido** | Envio de PDF, PNG, JPG e JPEG com assinaturas válidas | Cada formato retorna seu MIME canônico: `application/pdf`, `image/png` ou `image/jpeg`. |
 
 ---
 
@@ -1082,10 +1090,16 @@ codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts0
 
 ```python
 import hashlib
-from typing import Optional, Dict, Any
+from pathlib import PurePosixPath
 
 MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024  # Limite de 10 MB
 ALLOWED_EXTENSIONS = {".pdf", ".png", ".jpg", ".jpeg"}
+MIME_TYPES = {
+    ".pdf": "application/pdf",
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+}
 MAGIC_BYTES_SIGNATURES = {
     ".pdf": [b"%PDF"],
     ".png": [b"\x89PNG\r\n\x1a\n"],
@@ -1093,11 +1107,29 @@ MAGIC_BYTES_SIGNATURES = {
     ".jpeg": [b"\xff\xd8\xff"],
 }
 
-def process_secure_upload(file_name: str, file_bytes: bytes, user_uid: str) -> Dict[str, Any]:
+
+def validate_safe_file_name(file_name: str) -> str:
+    normalized = file_name.replace("\\", "/")
+    base_name = PurePosixPath(normalized).name
+    if (
+        not normalized
+        or "\x00" in normalized
+        or base_name != normalized
+        or base_name in {".", ".."}
+    ):
+        raise FileValidationError(
+            "HTTP 422 Unprocessable Entity: Nome de arquivo inválido.",
+            status_code=422,
+        )
+    return base_name
+
+
+def process_secure_upload(file_name: str, file_bytes: bytes, user_uid: str):
     if len(file_bytes) > MAX_FILE_SIZE_BYTES:
         raise FileValidationError("HTTP 413 Payload Too Large", status_code=413)
 
-    lower_name = file_name.lower()
+    safe_file_name = validate_safe_file_name(file_name)
+    lower_name = safe_file_name.lower()
     detected_ext = next((ext for ext in ALLOWED_EXTENSIONS if lower_name.endswith(ext)), None)
     if not detected_ext:
         raise FileValidationError("HTTP 422 Unprocessable Entity: Extensão não permitida", status_code=422)
@@ -1107,7 +1139,13 @@ def process_secure_upload(file_name: str, file_bytes: bytes, user_uid: str) -> D
         raise FileValidationError("HTTP 422 Unprocessable Entity: Conteúdo incompatível com a extensão", status_code=422)
 
     sha256_hash = hashlib.sha256(file_bytes).hexdigest()
-    return {"status": "success", "sha256_hash": sha256_hash, "file_name": file_name}
+    return {
+        "status": "success",
+        "file_name": safe_file_name,
+        "mime_type": MIME_TYPES[detected_ext],
+        "sha256_hash": sha256_hash,
+        "storage_path": f"comprovantes/{user_uid}/{sha256_hash}_{safe_file_name}",
+    }
 ```
 
 ---
@@ -1115,23 +1153,63 @@ def process_secure_upload(file_name: str, file_bytes: bytes, user_uid: str) -> D
 #### 14.2.4 Resultado da execução dos testes da Etapa 4
 
 ```text
-$ python3 -m pytest codigo/etapa-4/ -v
-
-codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts01_idor_attack_attempt_denied PASSED
-codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts02_legitimate_student_access_allowed PASSED
-codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts03_advisor_and_coordinator_access_allowed PASSED
-codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts04_advisor_unauthorized_student_denied PASSED
-codigo/etapa-4/pratica-2-upload-seguro/test_upload_service.py::test_ts05_prohibited_executable_extension_denied PASSED
-codigo/etapa-4/pratica-2-upload-seguro/test_upload_service.py::test_ts06_excessive_file_size_denied PASSED
-codigo/etapa-4/pratica-2-upload-seguro/test_upload_service.py::test_ts07_extension_spoofing_magic_bytes_mismatch_denied PASSED
-codigo/etapa-4/pratica-2-upload-seguro/test_upload_service.py::test_ts08_legitimate_pdf_upload_success PASSED
-
-============================== 8 passed in 0.05s ===============================
+$ .venv\Scripts\python.exe -m pytest codigo/etapa-4 -q
+..................                                                       [100%]
+18 passed in 0.23s
 ```
 
 > **Arquivos de código da Etapa 4:**
 > - Prática 1: [`codigo/etapa-4/pratica-1-autorizacao-por-recurso/`](../codigo/etapa-4/pratica-1-autorizacao-por-recurso/)
 > - Prática 2: [`codigo/etapa-4/pratica-2-upload-seguro/`](../codigo/etapa-4/pratica-2-upload-seguro/)
+> - Documento individual completo: [`docs/etapas/etapa-4/sec14-codigo-seguro.md`](etapas/etapa-4/sec14-codigo-seguro.md)
+
+---
+---
+
+## Etapa 5 — Verificação de Vulnerabilidades
+
+---
+
+## 15. Verificação de Vulnerabilidades
+
+Foi realizada uma sessão autorizada no **OWASP Juice Shop 20.1.1**, aplicação deliberadamente vulnerável executada localmente em Docker. O **OWASP ZAP 2.17.0** executou um Baseline Scan com spider tradicional de um minuto e análise passiva, sem cargas de exploração ativa.
+
+### 15.1 Ambiente e resultado geral
+
+| Item | Resultado |
+| :--- | :--- |
+| Alvo interno | `http://es-seguro-juice-shop:3000` |
+| Acesso pelo host | `http://127.0.0.1:3000` |
+| Período | 08/08/2026, das 12:16:27 às 12:17:30 (`UTC−03:00`) |
+| URLs observadas | `158` |
+| Regras aprovadas | `59` |
+| Identificadores com aviso | `8` |
+| Falhas configuradas | `0` |
+
+O relatório HTML contém dez entradas nomeadas: duas de risco médio, cinco de risco baixo e três informativas. Os plugins `90004` e `10049` possuem duas variações de alerta cada, razão da diferença para os oito identificadores resumidos no log.
+
+### 15.2 Achados A01–A03
+
+| ID | Alerta ou achado | Evidência | Possível impacto | Relação com OWASP ou CWE | Correção proposta |
+| :---: | :--- | :--- | :--- | :--- | :--- |
+| `A01` | Cabeçalho `Content-Security-Policy` ausente | Plugin `10038`; médio/alta; 4 instâncias; [captura](../evidencias/etapa-5/capturas-de-tela/03-achado-a01.png) | Ausência da camada de defesa do navegador que restringe scripts e recursos pode ampliar o impacto de XSS e injeção de conteúdo | [OWASP A02:2025](https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/) e [CWE-693](https://cwe.mitre.org/data/definitions/693.html) | Implantar CSP primeiro em `Report-Only` e depois aplicar política restritiva com origens, nonces ou hashes necessários |
+| `A02` | CORS excessivamente permissivo | Plugin `10098`; médio/média; `Access-Control-Allow-Origin: *` em 1 recurso JavaScript; [captura](../evidencias/etapa-5/capturas-de-tela/04-achado-a02.png) | A origem arbitrária pode ler o recurso público; a mesma política em APIs sem autenticação poderia expor dados entre origens | [OWASP A02:2025](https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/) e [CWE-942](https://cwe.mitre.org/data/definitions/942.html) | Remover CORS desnecessário e usar lista explícita de origens com `Vary: Origin` onde o compartilhamento for exigido |
+| `A03` | Cabeçalho obsoleto `Feature-Policy` | Plugin `10063`; baixo/média; 5 instâncias; [captura](../evidencias/etapa-5/capturas-de-tela/05-achado-a03.png) | Navegadores podem ignorar a política antiga e deixar APIs sensíveis sem as restrições esperadas | [OWASP A02:2025](https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/) e [CWE-16](https://cwe.mitre.org/data/definitions/16.html) | Migrar para `Permissions-Policy` e negar por padrão câmera, microfone e geolocalização quando não utilizados |
+
+### 15.3 Interpretação e priorização
+
+A ordem de tratamento recomendada é `A01` → `A02` → `A03`. O A01 combina risco médio, confiança alta e múltiplas respostas afetadas. O A02 também é médio, mas foi observado em um arquivo JavaScript público e sem credenciais; portanto, a sessão não comprovou vazamento de dados sensíveis. O A03 é uma atualização preventiva de configuração, sem demonstração de uso indevido de APIs do navegador.
+
+Os alertas não foram tratados como prova automática de exploração: CSP ausente não comprova XSS; CORS com curinga em recurso estático não comprova leitura de dados autenticados; e cabeçalho obsoleto não comprova acesso indevido a câmera ou microfone. A navegação sem autenticação e o spider tradicional também limitam a cobertura de rotas protegidas e de aplicações de página única.
+
+As duas tentativas anteriores de Full Scan foram descartadas porque o contêiner do ZAP excedeu a memória disponível. Somente a sessão Baseline concluída integra os resultados.
+
+> **Evidências e análise completa:**
+> - [Relatório metodológico](../evidencias/etapa-5/relatorio-da-verificacao.md)
+> - [Relatório HTML do ZAP](../evidencias/etapa-5/relatorios/relatorio-zap.html)
+> - [Relatório JSON do ZAP](../evidencias/etapa-5/relatorios/relatorio-zap.json)
+> - [Log da execução](../evidencias/etapa-5/relatorios/log-da-execucao.txt)
+> - [Documento individual da Seção 15](etapas/etapa-5/sec15-verificacao-vulnerabilidades.md)
 
 ---
 ---
@@ -1142,14 +1220,14 @@ codigo/etapa-4/pratica-2-upload-seguro/test_upload_service.py::test_ts08_legitim
 
 ---
 
-### 15. Roteiro de Monitoramento e Detecção de Intrusões
+### 16. Roteiro de Monitoramento e Detecção de Intrusões
 
-#### 15.1 Introdução
+#### 16.1 Introdução
 A prevenção de incidentes de segurança busca reduzir a possibilidade de que ameaças identificadas sejam exploradas. Entretanto, mesmo com controles preventivos, não é possível garantir que todas as tentativas de ataque serão impedidas. Por esse motivo, o monitoramento e a detecção de comportamentos suspeitos são componentes importantes da segurança do sistema.
 
 Nesta etapa é definido um roteiro de detecção de intrusões para o ThesisFlow, tomando como referência os riscos identificados e priorizados nas etapas anteriores do trabalho. O objetivo não é implementar um sistema de detecção de intrusões (IDS), mas estabelecer quais eventos devem ser observados, quais comportamentos podem indicar uma tentativa de ataque e quais ações iniciais devem ser tomadas quando um alerta for gerado.
 
-#### 15.2 Prevenção e detecção de intrusões
+#### 16.2 Prevenção e detecção de intrusões
 Prevenção e detecção atuam de forma complementar.
 
 Os mecanismos de **prevenção** têm como objetivo impedir que uma ação indevida seja concluída. Controles de autenticação, autorização, validação de entradas e limitação de requisições são exemplos de medidas preventivas.
@@ -1160,7 +1238,7 @@ Por exemplo, uma tentativa de acessar uma funcionalidade sem a permissão necess
 
 Dessa forma, impedir uma ação maliciosa não elimina a necessidade de monitorá-la. Os registros produzidos pelo sistema podem auxiliar na identificação de ataques, na investigação de incidentes e na definição de respostas adequadas.
 
-#### 15.3 Eventos que devem ser monitorados no ThesisFlow
+#### 16.3 Eventos que devem ser monitorados no ThesisFlow
 Considerando os riscos levantados anteriormente para o ThesisFlow, alguns eventos possuem maior relevância para o monitoramento de segurança.
 
 Devem ser registrados, sempre que possível:
@@ -1175,7 +1253,7 @@ Devem ser registrados, sempre que possível:
 
 Para que esses registros sejam úteis na detecção de comportamentos suspeitos, cada evento deve conter informações suficientes para sua análise, como data e horário, usuário ou origem da requisição, recurso acessado, ação solicitada e resultado da operação.
 
-#### 15.4 Regras de detecção (D01–D03)
+#### 16.4 Regras de detecção (D01–D03)
 
 | ID | Risco observado | Fonte de dados | Condição de alerta | Resposta inicial |
 | :---: | :--- | :--- | :--- | :--- |
@@ -1183,7 +1261,7 @@ Para que esses registros sejam úteis na detecção de comportamentos suspeitos,
 | `D02` | **R09** — Flooding / DoS no motor de inferência | Registros de requisições HTTP e rate limiter (`slowapi`) | Mais de 10 requisições em 1 minuto pela mesma origem contra o motor de inferência | Aplicar rate limit (HTTP 429), registrar evento e monitorar origem. |
 | `D03` | **R11** — Elevação de privilégios | Registros de autorização (`@authorize`) de ações administrativas | Qualquer tentativa de estudante ou orientador executar operação restrita a coordenador | Negar imediatamente, registrar evento e gerar alerta crítico para investigação manual. |
 
-#### 15.5 Fluxo de resposta após um alerta
+#### 16.5 Fluxo de resposta após um alerta
 1. **Detecção:** Regra de monitoramento identifica um comportamento suspeito.
 2. **Registro:** Gravação detalhada de data, usuário, recurso, ação e resultado.
 3. **Triagem:** Análise inicial para descartar falso positivo ou erro operacional.
