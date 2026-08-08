@@ -42,6 +42,12 @@
 | :---: | :--- | :--- |
 | `14` | [Práticas de código seguro e testes de segurança](#14-práticas-de-código-seguro-e-testes-de-segurança) | [`sec14-codigo-seguro.md`](etapas/etapa-4/sec14-codigo-seguro.md) |
 
+### Etapa 6 — Monitoramento e Detecção de Intrusões
+
+| # | Seção | Arquivo de trabalho |
+| :---: | :--- | :--- |
+| `16` | [Roteiro de monitoramento e detecção de intrusões](#etapa-6--monitoramento-e-detecção-de-intrusões) | [`etapa-6-deteccao-de-intrusoes.md`](../roteiros/etapa-6-deteccao-de-intrusoes.md) |
+
 ---
 ---
 
@@ -1044,4 +1050,64 @@ codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts0
 > **Arquivos de código:**
 > - Módulo: [`codigo/etapa-4/pratica-1-autorizacao-por-recurso/authorization.py`](../codigo/etapa-4/pratica-1-autorizacao-por-recurso/authorization.py)
 > - Testes: [`codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py`](../codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py)
+
+---
+---
+
+## Etapa 6 — Monitoramento e Detecção de Intrusões
+
+> **Arquivo de trabalho individual:** [`roteiros/etapa-6-deteccao-de-intrusoes.md`](../roteiros/etapa-6-deteccao-de-intrusoes.md).
+
+---
+
+### 15. Roteiro de Monitoramento e Detecção de Intrusões
+
+#### 15.1 Introdução
+A prevenção de incidentes de segurança busca reduzir a possibilidade de que ameaças identificadas sejam exploradas. Entretanto, mesmo com controles preventivos, não é possível garantir que todas as tentativas de ataque serão impedidas. Por esse motivo, o monitoramento e a detecção de comportamentos suspeitos são componentes importantes da segurança do sistema.
+
+Nesta etapa é definido um roteiro de detecção de intrusões para o ThesisFlow, tomando como referência os riscos identificados e priorizados nas etapas anteriores do trabalho. O objetivo não é implementar um sistema de detecção de intrusões (IDS), mas estabelecer quais eventos devem ser observados, quais comportamentos podem indicar uma tentativa de ataque e quais ações iniciais devem ser tomadas quando um alerta for gerado.
+
+#### 15.2 Prevenção e detecção de intrusões
+Prevenção e detecção atuam de forma complementar.
+
+Os mecanismos de **prevenção** têm como objetivo impedir que uma ação indevida seja concluída. Controles de autenticação, autorização, validação de entradas e limitação de requisições são exemplos de medidas preventivas.
+
+A **detecção**, por outro lado, busca identificar comportamentos suspeitos ou tentativas de violação que estejam ocorrendo ou que já tenham ocorrido. Para isso, o sistema deve registrar eventos relevantes e permitir que determinados padrões de comportamento sejam reconhecidos.
+
+Por exemplo, uma tentativa de acessar uma funcionalidade sem a permissão necessária pode ser bloqueada pelo mecanismo de autorização. Mesmo que o acesso seja impedido, a tentativa deve ser registrada, pois várias ocorrências semelhantes em um curto período podem indicar uma tentativa deliberada de exploração.
+
+Dessa forma, impedir uma ação maliciosa não elimina a necessidade de monitorá-la. Os registros produzidos pelo sistema podem auxiliar na identificação de ataques, na investigação de incidentes e na definição de respostas adequadas.
+
+#### 15.3 Eventos que devem ser monitorados no ThesisFlow
+Considerando os riscos levantados anteriormente para o ThesisFlow, alguns eventos possuem maior relevância para o monitoramento de segurança.
+
+Devem ser registrados, sempre que possível:
+- tentativas de autenticação malsucedidas;
+- tentativas de acesso a recursos sem autorização;
+- tentativas de um usuário acessar informações pertencentes a outro usuário;
+- tentativas de execução de operações incompatíveis com o papel atribuído ao usuário;
+- aumento anormal no número de requisições realizadas por um mesmo usuário ou origem;
+- bloqueios realizados por mecanismos de autorização ou limitação de requisições;
+- alterações administrativas ou operações sensíveis realizadas no sistema;
+- erros ou exceções relacionados aos mecanismos de autenticação e autorização.
+
+Para que esses registros sejam úteis na detecção de comportamentos suspeitos, cada evento deve conter informações suficientes para sua análise, como data e horário, usuário ou origem da requisição, recurso acessado, ação solicitada e resultado da operação.
+
+#### 15.4 Regras de detecção (D01–D03)
+
+| ID | Risco observado | Fonte de dados | Condição de alerta | Resposta inicial |
+| :---: | :--- | :--- | :--- | :--- |
+| `D01` | **R07** — IDOR / acesso indevido a outro estudante | Registros de autenticação, autorização e auditoria (`@audit`) | Mais de 3 tentativas em 5 minutos de um estudante tentando acessar recurso de outro estudante | Negar operação, registrar tentativa e gerar alerta. Em reincidência, suspender temporariamente a sessão. |
+| `D02` | **R09** — Flooding / DoS no motor de inferência | Registros de requisições HTTP e rate limiter (`slowapi`) | Mais de 10 requisições em 1 minuto pela mesma origem contra o motor de inferência | Aplicar rate limit (HTTP 429), registrar evento e monitorar origem. |
+| `D03` | **R11** — Elevação de privilégios | Registros de autorização (`@authorize`) de ações administrativas | Qualquer tentativa de estudante ou orientador executar operação restrita a coordenador | Negar imediatamente, registrar evento e gerar alerta crítico para investigação manual. |
+
+#### 15.5 Fluxo de resposta após um alerta
+1. **Detecção:** Regra de monitoramento identifica um comportamento suspeito.
+2. **Registro:** Gravação detalhada de data, usuário, recurso, ação e resultado.
+3. **Triagem:** Análise inicial para descartar falso positivo ou erro operacional.
+4. **Contenção:** Medidas temporárias (rate limit, bloqueio de sessão, IP throttling).
+5. **Análise:** Investigação dos registros para mapear alcance e origem do incidente.
+6. **Correção:** Aplicação de correções no sistema para mitigar a causa-raiz.
+7. **Encerramento:** Documentação oficial da ocorrência e lições aprendidas.
+
 
