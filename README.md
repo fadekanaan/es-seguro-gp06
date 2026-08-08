@@ -44,7 +44,7 @@ O documento consolidado com todas as etapas está em:
 | **E3** | Arquitetura Segura — Requisitos, Diagrama e Decisões | [`docs/etapas/etapa-3/`](docs/etapas/etapa-3/) | ✅ |
 | **E4** | Código Seguro e Testes de Segurança | [`docs/etapas/etapa-4/`](docs/etapas/etapa-4/) + [`codigo/etapa-4/`](codigo/etapa-4/) | ⬜ |
 | **E5** | Verificação de Vulnerabilidades (ZAP) | [`evidencias/etapa-5/`](evidencias/etapa-5/) | ⬜ |
-| **E6** | Monitoramento e Detecção de Intrusões | [`roteiros/etapa-6-deteccao-de-intrusoes.md`](roteiros/etapa-6-deteccao-de-intrusoes.md) | ⬜ |
+| **E6** | Monitoramento e Detecção de Intrusões | [`roteiros/etapa-6-deteccao-de-intrusoes.md`](roteiros/etapa-6-deteccao-de-intrusoes.md) | ✅ |
 | **E7** | DevSecOps e Vídeo Final | [`roteiros/etapa-7-devsecops-e-video-final.md`](roteiros/etapa-7-devsecops-e-video-final.md) | ⬜ |
 
 ---
@@ -84,7 +84,7 @@ es-seguro-gp06/
 │       └── capturas-de-tela/
 │
 └── roteiros/
-    ├── etapa-6-deteccao-de-intrusoes.md    ← (E6) — a fazer
+    ├── etapa-6-deteccao-de-intrusoes.md    ← (E6) — concluído
     └── etapa-7-devsecops-e-video-final.md  ← (E7) — a fazer
 ```
 
