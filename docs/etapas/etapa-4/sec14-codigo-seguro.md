@@ -224,6 +224,8 @@ test_authorization.py::test_ts04_advisor_unauthorized_student_denied PASSED [100
 | `TS06` | **Malicioso / Não Autorizado** | Envio de arquivo PDF com 11 MB (excedendo o limite de 10 MB) | Recusado com `HTTP 413 Payload Too Large` e evento `FILE_TOO_LARGE_ATTEMPT` registrado no log. |
 | `TS07` | **Malicioso / Falsificação** | Envio de arquivo renomeado para `.pdf`, mas com conteúdo real de script bash (Extension Spoofing) | A verificação profunda de *Magic Bytes* detecta a incongruência e recusa com `HTTP 422 Unprocessable Entity`. |
 | `TS08` | **Caso Válido** | Envio de comprovante PDF legítimo com magic bytes `%PDF-` e tamanho de 2 MB | Processado com sucesso (`HTTP 201 Created`), gerando e registrando o Hash `SHA-256` imutável. |
+| `TS09` | **Malicioso / Nome Inseguro** | Envio de PDF válido com nome vazio, byte nulo, `.`/`..` ou componentes de caminho em formato Unix e Windows | Recusado com `HTTP 422 Unprocessable Entity` e evento `UNSAFE_FILE_NAME_ATTEMPT` auditado antes do armazenamento. |
+| `TS10` | **Caso Válido** | Envio de PDF, PNG, JPG e JPEG com assinaturas válidas | Cada formato retorna seu MIME canônico: `application/pdf`, `image/png` ou `image/jpeg`. |
 
 ---
 
@@ -231,6 +233,7 @@ test_authorization.py::test_ts04_advisor_unauthorized_student_denied PASSED [100
 
 ```python
 import hashlib
+from pathlib import PurePosixPath
 from typing import Optional, Dict, Any, List
 from datetime import datetime, timezone
 
@@ -244,6 +247,12 @@ class FileValidationError(Exception):
 
 MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024  # Limite máximo de 10 MB
 ALLOWED_EXTENSIONS = {".pdf", ".png", ".jpg", ".jpeg"}
+MIME_TYPES = {
+    ".pdf": "application/pdf",
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+}
 
 MAGIC_BYTES_SIGNATURES = {
     ".pdf": [b"%PDF"],
@@ -262,6 +271,23 @@ def detect_magic_bytes(file_bytes: bytes) -> Optional[str]:
     return None
 
 
+def validate_safe_file_name(file_name: str) -> str:
+    """Recusa nomes vazios, bytes nulos e qualquer componente de caminho."""
+    normalized = file_name.replace("\\", "/")
+    base_name = PurePosixPath(normalized).name
+    if (
+        not normalized
+        or "\x00" in normalized
+        or base_name != normalized
+        or base_name in {".", ".."}
+    ):
+        raise FileValidationError(
+            "HTTP 422 Unprocessable Entity: Nome de arquivo inválido.",
+            status_code=422,
+        )
+    return base_name
+
+
 def process_secure_upload(
     file_name: str,
     file_bytes: bytes,
@@ -274,7 +300,8 @@ def process_secure_upload(
     if file_size > MAX_FILE_SIZE_BYTES:
         raise FileValidationError("HTTP 413 Payload Too Large: O arquivo excede o limite de 10 MB.", status_code=413)
 
-    lower_name = file_name.lower()
+    safe_file_name = validate_safe_file_name(file_name)
+    lower_name = safe_file_name.lower()
     detected_ext = next((ext for ext in ALLOWED_EXTENSIONS if lower_name.endswith(ext)), None)
     if not detected_ext:
         raise FileValidationError(f"HTTP 422 Unprocessable Entity: Extensão '{file_name}' não permitida.", status_code=422)
@@ -287,10 +314,11 @@ def process_secure_upload(
 
     return {
         "status": "success",
-        "file_name": file_name,
+        "file_name": safe_file_name,
         "file_size_bytes": file_size,
+        "mime_type": MIME_TYPES[detected_ext],
         "sha256_hash": sha256_hash,
-        "storage_path": f"comprovantes/{user_uid}/{sha256_hash}_{file_name}"
+        "storage_path": f"comprovantes/{user_uid}/{sha256_hash}_{safe_file_name}"
     }
 ```
 
@@ -300,7 +328,12 @@ def process_secure_upload(
 
 ```python
 import pytest
-from upload_service import process_secure_upload, FileValidationError, MAX_FILE_SIZE_BYTES
+from upload_service import (
+    process_secure_upload,
+    FileValidationError,
+    UploadAuditLogger,
+    MAX_FILE_SIZE_BYTES,
+)
 
 
 def test_ts05_prohibited_executable_extension_denied():
@@ -332,34 +365,54 @@ def test_ts08_legitimate_pdf_upload_success():
     res = process_secure_upload("comprovante.pdf", valid_pdf, "student_123")
     assert res["status"] == "success"
     assert len(res["sha256_hash"]) == 64
+
+
+@pytest.mark.parametrize(
+    "unsafe_file_name",
+    ["../../comprovante.pdf", "..\\..\\comprovante.pdf", "", ".", "..", "\x00comprovante.pdf"],
+)
+def test_ts09_unsafe_file_name_denied(unsafe_file_name):
+    """TS09 — Nomes vazios, nulos ou com caminhos são recusados e auditados."""
+    logger = UploadAuditLogger()
+    with pytest.raises(FileValidationError) as exc_info:
+        process_secure_upload(
+            unsafe_file_name, b"%PDF-1.4\n%%EOF", "student_123", logger
+        )
+    assert exc_info.value.status_code == 422
+    assert logger.logs[0]["event_type"] == "UNSAFE_FILE_NAME_ATTEMPT"
+
+
+@pytest.mark.parametrize(
+    ("file_name", "file_bytes", "expected_mime"),
+    [
+        ("comprovante.pdf", b"%PDF-1.4\n%%EOF", "application/pdf"),
+        ("comprovante.png", b"\x89PNG\r\n\x1a\ncontent", "image/png"),
+        ("comprovante.jpg", b"\xff\xd8\xffcontent", "image/jpeg"),
+        ("comprovante.jpeg", b"\xff\xd8\xffcontent", "image/jpeg"),
+    ],
+)
+def test_ts10_allowed_files_return_canonical_mime_type(
+    file_name, file_bytes, expected_mime
+):
+    """TS10 — Formatos permitidos retornam MIME canônico."""
+    result = process_secure_upload(file_name, file_bytes, "student_123")
+    assert result["mime_type"] == expected_mime
 ```
 
 ---
 
 ### 14.2.5 Resultado da execução completa da Etapa 4
 
-Executing the entire test suite confirms 100% compliance across both practices:
+A execução completa confirma a aprovação dos testes das duas práticas:
 
 ```text
-$ python3 -m pytest codigo/etapa-4/ -v
-
-============================= test session starts ==============================
-platform linux -- Python 3.13.13, pytest-9.1.1, pluggy-1.6.0
-collected 8 items
-
-codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts01_idor_attack_attempt_denied PASSED [ 12%]
-codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts02_legitimate_student_access_allowed PASSED [ 25%]
-codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts03_advisor_and_coordinator_access_allowed PASSED [ 37%]
-codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts04_advisor_unauthorized_student_denied PASSED [ 50%]
-codigo/etapa-4/pratica-2-upload-seguro/test_upload_service.py::test_ts05_prohibited_executable_extension_denied PASSED [ 62%]
-codigo/etapa-4/pratica-2-upload-seguro/test_upload_service.py::test_ts06_excessive_file_size_denied PASSED [ 75%]
-codigo/etapa-4/pratica-2-upload-seguro/test_upload_service.py::test_ts07_extension_spoofing_magic_bytes_mismatch_denied PASSED [ 87%]
-codigo/etapa-4/pratica-2-upload-seguro/test_upload_service.py::test_ts08_legitimate_pdf_upload_success PASSED [100%]
-
-============================== 8 passed in 0.05s ===============================
+$ .venv\Scripts\python.exe -m pytest codigo/etapa-4 -q
+..................                                                       [100%]
+18 passed in 0.23s
 ```
 
 > **Localização dos arquivos de código:**
 > - Prática 1: [`codigo/etapa-4/pratica-1-autorizacao-por-recurso/`](../../../codigo/etapa-4/pratica-1-autorizacao-por-recurso/)
 > - Prática 2: [`codigo/etapa-4/pratica-2-upload-seguro/`](../../../codigo/etapa-4/pratica-2-upload-seguro/)
+> - Dependência de testes: [`requirements-dev.txt`](../../../requirements-dev.txt)
 

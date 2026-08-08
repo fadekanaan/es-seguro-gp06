@@ -105,3 +105,63 @@ def test_ts08_legitimate_pdf_upload_success():
     assert len(result["sha256_hash"]) == 64  # Tamanho padrão do hash SHA-256
     assert logger.logs[0]["event_type"] == "SECURE_UPLOAD_SUCCESS"
     assert logger.logs[0]["allowed"] is True
+
+
+@pytest.mark.parametrize(
+    "unsafe_file_name",
+    [
+        "../../comprovante.pdf",
+        "..\\..\\comprovante.pdf",
+        "",
+        ".",
+        "..",
+        "\x00comprovante.pdf",
+    ],
+)
+def test_ts09_unsafe_file_name_denied(unsafe_file_name):
+    """
+    TS09 — Caso Malicioso (Nome de Arquivo Inseguro):
+    Ação: Envio de PDF válido com nome vazio, byte nulo ou componentes de caminho.
+    Resultado Esperado: Recusado com HTTP 422 e evento auditado antes do armazenamento.
+    """
+    logger = UploadAuditLogger()
+    valid_pdf_content = b"%PDF-1.4\n%%EOF"
+
+    with pytest.raises(FileValidationError) as exc_info:
+        process_secure_upload(
+            file_name=unsafe_file_name,
+            file_bytes=valid_pdf_content,
+            user_uid="student_123",
+            audit_logger=logger,
+        )
+
+    assert exc_info.value.status_code == 422
+    assert len(logger.logs) == 1
+    assert logger.logs[0]["event_type"] == "UNSAFE_FILE_NAME_ATTEMPT"
+    assert logger.logs[0]["allowed"] is False
+
+
+@pytest.mark.parametrize(
+    ("file_name", "file_bytes", "expected_mime"),
+    [
+        ("comprovante.pdf", b"%PDF-1.4\n%%EOF", "application/pdf"),
+        ("comprovante.png", b"\x89PNG\r\n\x1a\ncontent", "image/png"),
+        ("comprovante.jpg", b"\xff\xd8\xffcontent", "image/jpeg"),
+        ("comprovante.jpeg", b"\xff\xd8\xffcontent", "image/jpeg"),
+    ],
+)
+def test_ts10_allowed_files_return_canonical_mime_type(
+    file_name, file_bytes, expected_mime
+):
+    """
+    TS10 — Caso de Uso Válido (MIME Canônico):
+    Ação: Envio de cada formato permitido com assinatura válida.
+    Resultado Esperado: Retorno do tipo MIME oficial do formato processado.
+    """
+    result = process_secure_upload(
+        file_name=file_name,
+        file_bytes=file_bytes,
+        user_uid="student_123",
+    )
+
+    assert result["mime_type"] == expected_mime

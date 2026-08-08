@@ -5,6 +5,7 @@ Referências: OWASP File Upload Cheat Sheet / CWE-434 / OWASP ASVS v4 V12.2
 """
 
 import hashlib
+from pathlib import PurePosixPath
 from typing import Optional, Dict, Any, List
 from datetime import datetime, timezone
 
@@ -19,6 +20,12 @@ class FileValidationError(Exception):
 # Configurações de segurança para upload de comprovantes (RS03)
 MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024  # Limite máximo de 10 MB
 ALLOWED_EXTENSIONS = {".pdf", ".png", ".jpg", ".jpeg"}
+MIME_TYPES = {
+    ".pdf": "application/pdf",
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+}
 
 # Assinaturas de Magic Bytes conhecidas para os formatos permitidos
 MAGIC_BYTES_SIGNATURES = {
@@ -57,6 +64,23 @@ def detect_magic_bytes(file_bytes: bytes) -> Optional[str]:
     return None
 
 
+def validate_safe_file_name(file_name: str) -> str:
+    """Recusa nomes vazios, bytes nulos e qualquer componente de caminho."""
+    normalized = file_name.replace("\\", "/")
+    base_name = PurePosixPath(normalized).name
+    if (
+        not normalized
+        or "\x00" in normalized
+        or base_name != normalized
+        or base_name in {".", ".."}
+    ):
+        raise FileValidationError(
+            "HTTP 422 Unprocessable Entity: Nome de arquivo inválido.",
+            status_code=422,
+        )
+    return base_name
+
+
 def process_secure_upload(
     file_name: str,
     file_bytes: bytes,
@@ -90,8 +114,22 @@ def process_secure_upload(
             status_code=413
         )
 
+    try:
+        safe_file_name = validate_safe_file_name(file_name)
+    except FileValidationError:
+        if audit_logger:
+            audit_logger.log_event(
+                event_type="UNSAFE_FILE_NAME_ATTEMPT",
+                user_uid=user_uid,
+                file_name=file_name,
+                file_size=file_size,
+                allowed=False,
+                detail="Nome contém componente de caminho ou caractere inválido."
+            )
+        raise
+
     # 2. Validação da Extensão Declarada (Lista Branca)
-    lower_file_name = file_name.lower()
+    lower_file_name = safe_file_name.lower()
     detected_ext = None
     for ext in ALLOWED_EXTENSIONS:
         if lower_file_name.endswith(ext):
@@ -103,13 +141,13 @@ def process_secure_upload(
             audit_logger.log_event(
                 event_type="INVALID_EXTENSION_ATTEMPT",
                 user_uid=user_uid,
-                file_name=file_name,
+                file_name=safe_file_name,
                 file_size=file_size,
                 allowed=False,
-                detail=f"Extensão não permitida para o arquivo '{file_name}'."
+                detail=f"Extensão não permitida para o arquivo '{safe_file_name}'."
             )
         raise FileValidationError(
-            f"HTTP 422 Unprocessable Entity: Extensão do arquivo '{file_name}' não é permitida. Extensões aceitas: PDF, PNG, JPG, JPEG.",
+            f"HTTP 422 Unprocessable Entity: Extensão do arquivo '{safe_file_name}' não é permitida. Extensões aceitas: PDF, PNG, JPG, JPEG.",
             status_code=422
         )
 
@@ -120,7 +158,7 @@ def process_secure_upload(
             audit_logger.log_event(
                 event_type="MAGIC_BYTES_MISMATCH_ATTEMPT",
                 user_uid=user_uid,
-                file_name=file_name,
+                file_name=safe_file_name,
                 file_size=file_size,
                 allowed=False,
                 detail=f"Assinatura do arquivo (Magic Bytes '{magic_ext}') incompatível com a extensão declarada '{detected_ext}'."
@@ -137,7 +175,7 @@ def process_secure_upload(
         audit_logger.log_event(
             event_type="SECURE_UPLOAD_SUCCESS",
             user_uid=user_uid,
-            file_name=file_name,
+            file_name=safe_file_name,
             file_size=file_size,
             allowed=True,
             detail=f"Hash SHA-256 gerado com sucesso: {sha256_hash}"
@@ -145,9 +183,9 @@ def process_secure_upload(
 
     return {
         "status": "success",
-        "file_name": file_name,
+        "file_name": safe_file_name,
         "file_size_bytes": file_size,
-        "mime_type": f"application/{detected_ext.replace('.', '')}",
+        "mime_type": MIME_TYPES[detected_ext],
         "sha256_hash": sha256_hash,
-        "storage_path": f"comprovantes/{user_uid}/{sha256_hash}_{file_name}"
+        "storage_path": f"comprovantes/{user_uid}/{sha256_hash}_{safe_file_name}"
     }
