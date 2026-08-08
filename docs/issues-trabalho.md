@@ -13,9 +13,9 @@
 | E2 — Tratamento + NIST CSF + Considerações finais (sec10–sec11) | ✅ Completa |
 | E3 — Requisitos + Mapeamento CWE/OWASP (sec12) | ✅ Completa |
 | E3 — Diagrama + Decisões de arquitetura (sec13) | ✅ Completa |
-| E4 — Código seguro e testes (sec14) | ⬜ Aberta |
+| E4 — Código seguro e testes (sec14) | 🟡 Em andamento (Prática 1 concluída) |
 | E5 — Verificação ZAP | ⬜ Aberta |
-| E6 — Detecção de intrusões | ⬜ Aberta |
+| E6 — Detecção de intrusões | ✅ Completa |
 | E7 — DevSecOps + Vídeo final | ⬜ Aberta |
 
 ---
@@ -40,9 +40,14 @@ O enunciado pede **2 práticas de código seguro** relacionadas aos riscos e req
 - Implementar validação de `content-type` real, limite de 10 MB e cálculo de hash SHA-256 antes do upload
 
 **Commit sugerido:**
-```
-Adiciona práticas de código seguro P1-P2 com testes definidos antes da implementação (E4)
-```
+- **Prática 1 — Controle de autorização por propriedade de recurso (R07, RS01, DA01)**: ✅ **Concluída**
+  - Implementação Python: [`codigo/etapa-4/pratica-1-autorizacao-por-recurso/authorization.py`](../codigo/etapa-4/pratica-1-autorizacao-por-recurso/authorization.py)
+  - Testes Pytest: [`codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py`](../codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py) (100% aprovados)
+
+- **Prática 2 — Upload seguro com validação de tipo e hash (R03, RS03, DA02)**: 🟡 **Pendente**
+  - Referência: OWASP File Upload Cheat Sheet; CWE-434; OWASP ASVS v4 V12.2
+  - Testes antes do código: arquivo `.exe` → HTTP 422; arquivo > 10 MB → HTTP 413; PDF válido → HTTP 201 + hash armazenado
+  - Implementar validação de `content-type` real, limite de 10 MB e cálculo de hash SHA-256 antes do upload
 
 ---
 
@@ -83,29 +88,15 @@ Adiciona verificação ZAP com análise dos achados A01-A03 (E5)
 
 ---
 
-### Issue #7 — [E6] Roteiro de detecção de intrusões
+### Issue #7 — [E6] Roteiro de detecção de intrusões (✅ Concluída)
 
-**Arquivo a criar:** `roteiros/etapa-6-deteccao-de-intrusoes.md`
+**Arquivo:** `roteiros/etapa-6-deteccao-de-intrusoes.md` (e consolidado em `docs/modelagem-de-ameacas.md`)
 
-Roteiro **textual** — não é necessário implementar um IDS.
-
-**Conteúdo mínimo:**
-1. O que é detecção de intrusões e diferença entre prevenir × detectar
-2. Quais eventos do ThesisFlow devem ser registrados (IDOR tentado, flooding, elevação de privilégios, acesso ao `/docs` em produção...)
-3. **3 regras de detecção** no formato:
-
-| Risco observado | Fonte de dados | Condição de alerta | Resposta inicial |
-|---|---|---|---|
-| R07 — IDOR | Log `@audit` (`action=UNAUTHORIZED_ACCESS_ATTEMPT`) | > 3 tentativas com `student_id ≠ user_uid` em 5 min pelo mesmo UID | Alertar coordenador; bloquear UID por 15 min |
-| R09 — Flooding | Log de rate limiting | > 10 req/min ao `/students/{id}/status` por UID | Bloquear UID por 5 min; alertar no dashboard |
-| R11 — Elevação de privilégios | Log `@authorize` | Qualquer requisição a endpoint de `coordinator` com role `student` | Alerta imediato; suspender sessão; investigação manual |
-
-4. Fluxo de resposta após alerta: triagem → contenção → análise → notificação (LGPD se dados expostos) → resolução → registro
-
-**Commit sugerido:**
-```
-Adiciona roteiro de detecção de intrusões com 3 regras (E6)
-```
+Roteiro **textual** elaborado com sucesso pelo integrante Marcus:
+1. Conceitos de detecção x prevenção
+2. Eventos monitorados do ThesisFlow
+3. **3 regras de detecção** (D01 — IDOR, D02 — Flooding, D03 — Elevação de privilégios)
+4. Fluxo de resposta após alerta em 7 passos com diagrama de texto
 
 ---
 
