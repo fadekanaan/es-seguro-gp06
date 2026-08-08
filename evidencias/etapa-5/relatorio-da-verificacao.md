@@ -105,11 +105,11 @@ A interpretação completa, o impacto contextual e os critérios de priorizaçã
 
 ## 8. Capturas de tela
 
-1. [OWASP Juice Shop em execução](capturas-de-tela/01-juice-shop-em-execucao.png)
-2. [Resumo dos alertas do ZAP](capturas-de-tela/02-resumo-alertas-zap.png)
-3. [Detalhe do A01 — CSP ausente](capturas-de-tela/03-achado-a01.png)
-4. [Detalhe do A02 — CORS permissivo](capturas-de-tela/04-achado-a02.png)
-5. [Detalhe do A03 — Feature Policy obsoleta](capturas-de-tela/05-achado-a03.png)
+1. [OWASP Juice Shop em execução](capturas-de-tela/01-juice-shop-em-execucao.jpg)
+2. [Resumo dos alertas do ZAP](capturas-de-tela/02-resumo-alertas-zap.jpg)
+3. [Detalhe do A01 — CSP ausente](capturas-de-tela/03-achado-a01.jpg)
+4. [Detalhe do A02 — CORS permissivo](capturas-de-tela/04-achado-a02.jpg)
+5. [Detalhe do A03 — Feature Policy obsoleta](capturas-de-tela/05-achado-a03.jpg)
 
 ## 9. Interpretação e ressalvas
 
