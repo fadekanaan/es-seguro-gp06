@@ -197,8 +197,8 @@ test_authorization.py::test_ts04_advisor_unauthorized_student_denied PASSED [100
 ```
 
 > **Localização dos arquivos de código:**
-> - Módulo de autorização: [`codigo/etapa-4/pratica-1-autorizacao-por-recurso/authorization.py`](../../codigo/etapa-4/pratica-1-autorizacao-por-recurso/authorization.py)
-> - Suíte de testes `pytest`: [`codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py`](../../codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py)
+> - Módulo de autorização: [`codigo/etapa-4/pratica-1-autorizacao-por-recurso/authorization.py`](../../../codigo/etapa-4/pratica-1-autorizacao-por-recurso/authorization.py)
+> - Suíte de testes `pytest`: [`codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py`](../../../codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py)
 
 ---
 
@@ -360,6 +360,6 @@ codigo/etapa-4/pratica-2-upload-seguro/test_upload_service.py::test_ts08_legitim
 ```
 
 > **Localização dos arquivos de código:**
-> - Prática 1: [`codigo/etapa-4/pratica-1-autorizacao-por-recurso/`](../../codigo/etapa-4/pratica-1-autorizacao-por-recurso/)
-> - Prática 2: [`codigo/etapa-4/pratica-2-upload-seguro/`](../../codigo/etapa-4/pratica-2-upload-seguro/)
+> - Prática 1: [`codigo/etapa-4/pratica-1-autorizacao-por-recurso/`](../../../codigo/etapa-4/pratica-1-autorizacao-por-recurso/)
+> - Prática 2: [`codigo/etapa-4/pratica-2-upload-seguro/`](../../../codigo/etapa-4/pratica-2-upload-seguro/)
 
