@@ -43,9 +43,9 @@ O documento consolidado com todas as etapas está em:
 | **E2** | Análise, Priorização e Tratamento de Riscos (NIST CSF 2.0) | [`docs/etapas/etapa-2/`](docs/etapas/etapa-2/) | ✅ |
 | **E3** | Arquitetura Segura — Requisitos, Diagrama e Decisões | [`docs/etapas/etapa-3/`](docs/etapas/etapa-3/) | ✅ |
 | **E4** | Código Seguro e Testes de Segurança | [`docs/etapas/etapa-4/`](docs/etapas/etapa-4/) + [`codigo/etapa-4/`](codigo/etapa-4/) | ✅ |
-| **E5** | Verificação de Vulnerabilidades (ZAP) | [`evidencias/etapa-5/`](evidencias/etapa-5/) | ⬜ |
+| **E5** | Verificação de Vulnerabilidades (ZAP) | [`docs/etapas/etapa-5/`](docs/etapas/etapa-5/) + [`evidencias/etapa-5/`](evidencias/etapa-5/) | ✅ |
 | **E6** | Monitoramento e Detecção de Intrusões | [`roteiros/etapa-6-deteccao-de-intrusoes.md`](roteiros/etapa-6-deteccao-de-intrusoes.md) | ✅ |
-| **E7** | DevSecOps e Vídeo Final | [`roteiros/etapa-7-devsecops-e-video-final.md`](roteiros/etapa-7-devsecops-e-video-final.md) | ⬜ |
+| **E7** | DevSecOps e Vídeo Final | `roteiros/etapa-7-devsecops-e-video-final.md` (planejado) | ⬜ |
 
 ---
 
@@ -55,6 +55,7 @@ O documento consolidado com todas as etapas está em:
 es-seguro-gp06/
 ├── README.md                          ← Esta página
 ├── enunciado.md                       ← Enunciado completo da disciplina
+├── requirements-dev.txt               ← Dependência da suíte de testes
 │
 ├── docs/
 │   ├── modelagem-de-ameacas.md        ← Documento consolidado (todas as etapas)
@@ -63,8 +64,8 @@ es-seguro-gp06/
 │       ├── etapa-1/                   ← sec1 a sec6 (E1)
 │       ├── etapa-2/                   ← sec7 a sec11 (E2)
 │       ├── etapa-3/                   ← sec12 a sec13 (E3)
-│       ├── etapa-4/                   ← sec14 (E4) — a fazer
-│       └── etapa-5/                   ← (E5) — a fazer
+│       ├── etapa-4/                   ← sec14 (E4) — concluída
+│       └── etapa-5/                   ← sec15 (E5) — concluída
 │
 ├── diagramas/
 │   ├── etapa-1/                       ← Diagramas da E1 (contexto, fluxo, casos de abuso)
@@ -75,17 +76,30 @@ es-seguro-gp06/
 │       └── arquitetura-segura.png     ← Imagem exportada
 │
 ├── codigo/
-│   └── etapa-4/                       ← Práticas de código seguro (E4) — a fazer
+│   └── etapa-4/                       ← Práticas de código seguro (E4) — concluídas
 │       ├── pratica-1-autorizacao-por-recurso/
 │       └── pratica-2-upload-seguro/
 │
 ├── evidencias/
-│   └── etapa-5/                       ← Relatório ZAP + capturas (E5) — a fazer
-│       └── capturas-de-tela/
+│   └── etapa-5/                       ← Evidências da sessão ZAP (E5) — concluída
+│       ├── relatorio-da-verificacao.md
+│       ├── capturas-de-tela/          ← 5 capturas da aplicação e dos achados
+│       └── relatorios/                ← HTML, JSON, log e configuração do ZAP
 │
 └── roteiros/
-    ├── etapa-6-deteccao-de-intrusoes.md    ← (E6) — concluído
-    └── etapa-7-devsecops-e-video-final.md  ← (E7) — a fazer
+    └── etapa-6-deteccao-de-intrusoes.md    ← (E6) — concluído
+```
+
+---
+
+## 🧪 Execução dos Testes
+
+Os testes de segurança da Etapa 4 utilizam Python e `pytest`:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+.\.venv\Scripts\python.exe -m pytest codigo/etapa-4 -q
 ```
 
 ---

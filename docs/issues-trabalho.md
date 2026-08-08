@@ -14,7 +14,7 @@
 | E3 — Requisitos + Mapeamento CWE/OWASP (sec12) | ✅ Completa |
 | E3 — Diagrama + Decisões de arquitetura (sec13) | ✅ Completa |
 | E4 — Código seguro e testes (sec14) | ✅ Completa |
-| E5 — Verificação ZAP | ⬜ Aberta |
+| E5 — Verificação ZAP | ✅ Completa |
 | E6 — Detecção de intrusões | ✅ Completa |
 | E7 — DevSecOps + Vídeo final | ⬜ Aberta |
 
@@ -22,7 +22,7 @@
 
 ## Issues abertas
 
-*(Etapa 5 e Etapa 7)*
+*(Etapa 7)*
 
 ---
 
@@ -44,39 +44,48 @@
 
 ---
 
-### Issue #6 — [E5] Verificação de vulnerabilidades com ZAP
+### Issue #6 — [E5] Verificação de vulnerabilidades com ZAP (✅ Concluída)
 
-**Arquivo a criar:** `evidencias/etapa-5/relatorio-da-verificacao.md`  
+**Arquivo:** [`evidencias/etapa-5/relatorio-da-verificacao.md`](../evidencias/etapa-5/relatorio-da-verificacao.md)
+
+**Análise acadêmica:** [`docs/etapas/etapa-5/sec15-verificacao-vulnerabilidades.md`](etapas/etapa-5/sec15-verificacao-vulnerabilidades.md)
+
 **Pasta de evidências:** `evidencias/etapa-5/capturas-de-tela/`
 
-Usar o **OWASP Juice Shop** como ambiente (autorizado para treinamento):
+Foi utilizado o **OWASP Juice Shop 20.1.1** como ambiente local e autorizado para treinamento, com o **OWASP ZAP 2.17.0** em Baseline Scan.
 
-```bash
-docker run -d -p 3000:3000 bkimminich/juice-shop
-# Disponível em http://localhost:3000
+```powershell
+docker network create es-seguro-e5
+docker run --detach `
+  --name es-seguro-juice-shop `
+  --network es-seguro-e5 `
+  --publish 127.0.0.1:3000:3000 `
+  bkimminich/juice-shop@sha256:e68144772ebaaca0ec117b38d44903af92416793230288ef7c5437fc4f26850a
 ```
 
-Instalar ZAP: https://www.zaproxy.org/download/
+**Resultado da sessão:**
 
-**Passos:**
-1. Abrir ZAP → Quick Start → Automated Scan → `http://localhost:3000` → Attack
-2. Aguardar (5–15 min) → aba Alerts
-3. Capturar tela da lista de alertas e detalhe de 3 alertas
-4. Gerar relatório HTML: Report → Generate Report
+- `158` URLs observadas;
+- `59` regras aprovadas;
+- `8` identificadores com aviso;
+- `0` regras configuradas como falha;
+- relatório HTML e JSON, log, configuração reproduzível e cinco capturas versionados.
 
 **Entregável — tabela com 3 achados:**
 
 | ID | Alerta | Evidência | Impacto | Relação OWASP:2025 ou CWE | Correção |
 |---|---|---|---|---|---|
-| A01 | ... | captura-de-tela | ... | ... | ... |
-| A02 | ... | ... | ... | ... | ... |
-| A03 | ... | ... | ... | ... | ... |
+| A01 | CSP ausente | [captura](../evidencias/etapa-5/capturas-de-tela/03-achado-a01.jpg) | Defesa adicional contra XSS ausente | OWASP A02:2025 / CWE-693 | Implantar CSP restritiva gradualmente |
+| A02 | CORS permissivo | [captura](../evidencias/etapa-5/capturas-de-tela/04-achado-a02.jpg) | Leitura entre origens; impacto limitado no recurso público observado | OWASP A02:2025 / CWE-942 | Restringir origens e escopo do CORS |
+| A03 | `Feature-Policy` obsoleto em subrecursos | [captura](../evidencias/etapa-5/capturas-de-tela/05-achado-a03.jpg) | Sem impacto efetivo demonstrado nos arquivos `chunk-*.js` | OWASP A02:2025 / CWE-16 | Remover dos subrecursos e configurar `Permissions-Policy` no HTML principal, se necessário |
 
-Alertas comuns no Juice Shop: Missing Anti-clickjacking Header, CSP Not Set, X-Content-Type-Options Missing, Server Version Disclosure.
+Os achados foram interpretados sem afirmar exploração. As limitações do spider tradicional e da navegação sem autenticação foram registradas no relatório; diagnósticos não versionados de tentativas preparatórias foram excluídos das conclusões.
 
-**Commit sugerido:**
+**Commits realizados:**
 ```
-Adiciona verificação ZAP com análise dos achados A01-A03 (E5)
+Documenta ambiente e configuração da verificação ZAP (E5)
+Adiciona relatório e evidências da execução do ZAP (E5)
+Analisa os achados A01-A03 e propõe correções (E5)
 ```
 
 ---
