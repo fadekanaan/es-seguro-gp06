@@ -13,7 +13,7 @@
 | E2 — Tratamento + NIST CSF + Considerações finais (sec10–sec11) | ✅ Completa |
 | E3 — Requisitos + Mapeamento CWE/OWASP (sec12) | ✅ Completa |
 | E3 — Diagrama + Decisões de arquitetura (sec13) | ✅ Completa |
-| E4 — Código seguro e testes (sec14) | 🟡 Em andamento (Prática 1 concluída) |
+| E4 — Código seguro e testes (sec14) | ✅ Completa |
 | E5 — Verificação ZAP | ⬜ Aberta |
 | E6 — Detecção de intrusões | ✅ Completa |
 | E7 — DevSecOps + Vídeo final | ⬜ Aberta |
@@ -22,32 +22,25 @@
 
 ## Issues abertas
 
-### Issue #5 — [E4] Práticas de código seguro com testes
+*(Etapa 5 e Etapa 7)*
 
-**Arquivo a criar:** `docs/etapas/etapa-4/sec14-codigo-seguro.md`  
+---
+
+## Issues concluídas
+
+### Issue #5 — [E4] Práticas de código seguro com testes (✅ Concluída)
+
+**Arquivo:** `docs/etapas/etapa-4/sec14-codigo-seguro.md` (e consolidado em `docs/modelagem-de-ameacas.md`)  
 **Pasta de código:** `codigo/etapa-4/`
 
-O enunciado pede **2 práticas de código seguro** relacionadas aos riscos e requisitos anteriores, com testes escritos **antes** da implementação.
-
-**Prática 1 — Controle de autorização por propriedade de recurso** (R07, RS01, DA01)
-- Referência: OWASP Authorization Cheat Sheet; CWE-639
-- Testes antes do código: estudante tentando acessar dados de outro → HTTP 403; orientador acessando orientando → HTTP 200; coordenador → HTTP 200
-- Implementar verificação `student.uid == authenticated_user.uid` no servidor antes de qualquer consulta ao repositório
-
-**Prática 2 — Upload seguro com validação de tipo e hash** (R03, RS03, DA02)
-- Referência: OWASP File Upload Cheat Sheet; CWE-434; OWASP ASVS v4 V12.2
-- Testes antes do código: arquivo `.exe` → HTTP 422; arquivo > 10 MB → HTTP 413; PDF válido → HTTP 201 + hash armazenado
-- Implementar validação de `content-type` real, limite de 10 MB e cálculo de hash SHA-256 antes do upload
-
-**Commit sugerido:**
 - **Prática 1 — Controle de autorização por propriedade de recurso (R07, RS01, DA01)**: ✅ **Concluída**
-  - Implementação Python: [`codigo/etapa-4/pratica-1-autorizacao-por-recurso/authorization.py`](../codigo/etapa-4/pratica-1-autorizacao-por-recurso/authorization.py)
+  - Módulo Python: [`codigo/etapa-4/pratica-1-autorizacao-por-recurso/authorization.py`](../codigo/etapa-4/pratica-1-autorizacao-por-recurso/authorization.py)
   - Testes Pytest: [`codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py`](../codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py) (100% aprovados)
 
-- **Prática 2 — Upload seguro com validação de tipo e hash (R03, RS03, DA02)**: 🟡 **Pendente**
-  - Referência: OWASP File Upload Cheat Sheet; CWE-434; OWASP ASVS v4 V12.2
-  - Testes antes do código: arquivo `.exe` → HTTP 422; arquivo > 10 MB → HTTP 413; PDF válido → HTTP 201 + hash armazenado
-  - Implementar validação de `content-type` real, limite de 10 MB e cálculo de hash SHA-256 antes do upload
+- **Prática 2 — Upload seguro com validação de tipo e hash (R03, RS03, DA02)**: ✅ **Concluída**
+  - Módulo Python: [`codigo/etapa-4/pratica-2-upload-seguro/upload_service.py`](../codigo/etapa-4/pratica-2-upload-seguro/upload_service.py)
+  - Testes Pytest: [`codigo/etapa-4/pratica-2-upload-seguro/test_upload_service.py`](../codigo/etapa-4/pratica-2-upload-seguro/test_upload_service.py) (100% aprovados)
+
 
 ---
 

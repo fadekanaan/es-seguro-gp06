@@ -1052,6 +1052,88 @@ codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts0
 > - Testes: [`codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py`](../codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py)
 
 ---
+
+### 14.2 Prática 2 — Upload Seguro com Validação de Tipo, Tamanho e Hash SHA-256
+
+#### 14.2.1 Mapeamento e referências
+
+- **Risco de Origem:** `R03` — Substituição ou forjamento de comprovante de pagamento / upload malicioso.
+- **Requisito de Segurança:** `RS03` — O sistema deve validar no servidor o tipo real do arquivo (magic bytes), limitar o tamanho máximo a 10 MB e gerar hash SHA-256 imutável.
+- **Decisão de Arquitetura:** `DA02` — Upload seguro com Signed URLs e validação estrita no servidor antes da gravação.
+- **Referências UTILIZADAS:**
+  - [OWASP File Upload Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html)
+  - [CWE-434: Unrestricted Upload of File with Dangerous Type](https://cwe.mitre.org/data/definitions/434.html)
+  - [OWASP ASVS v4 — V12.2 File Integrity](https://github.com/OWASP/ASVS)
+
+---
+
+#### 14.2.2 Testes de segurança (definidos ANTES da implementação)
+
+| ID | Tipo | Entrada ou ação realizada | Resultado seguro esperado |
+| :---: | :---: | :--- | :--- |
+| `TS05` | **Malicioso / Não Autorizado** | Envio de script malicioso com extensão executável (`.php` ou `.exe`) | Recusado no servidor com `HTTP 422 Unprocessable Entity` e evento `INVALID_EXTENSION_ATTEMPT` auditado. |
+| `TS06` | **Malicioso / Não Autorizado** | Envio de arquivo PDF com 11 MB (excedendo o limite de 10 MB) | Recusado com `HTTP 413 Payload Too Large` e evento `FILE_TOO_LARGE_ATTEMPT` registrado no log. |
+| `TS07` | **Malicioso / Falsificação** | Envio de arquivo renomeado para `.pdf`, mas com conteúdo real de script bash (Extension Spoofing) | A verificação profunda de *Magic Bytes* detecta a incongruência e recusa com `HTTP 422 Unprocessable Entity`. |
+| `TS08` | **Caso Válido** | Envio de comprovante PDF legítimo com magic bytes `%PDF-` e tamanho de 2 MB | Processado com sucesso (`HTTP 201 Created`), gerando e registrando o Hash `SHA-256` imutável. |
+
+---
+
+#### 14.2.3 Implementação em Python (`upload_service.py`)
+
+```python
+import hashlib
+from typing import Optional, Dict, Any
+
+MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024  # Limite de 10 MB
+ALLOWED_EXTENSIONS = {".pdf", ".png", ".jpg", ".jpeg"}
+MAGIC_BYTES_SIGNATURES = {
+    ".pdf": [b"%PDF"],
+    ".png": [b"\x89PNG\r\n\x1a\n"],
+    ".jpg": [b"\xff\xd8\xff"],
+    ".jpeg": [b"\xff\xd8\xff"],
+}
+
+def process_secure_upload(file_name: str, file_bytes: bytes, user_uid: str) -> Dict[str, Any]:
+    if len(file_bytes) > MAX_FILE_SIZE_BYTES:
+        raise FileValidationError("HTTP 413 Payload Too Large", status_code=413)
+
+    lower_name = file_name.lower()
+    detected_ext = next((ext for ext in ALLOWED_EXTENSIONS if lower_name.endswith(ext)), None)
+    if not detected_ext:
+        raise FileValidationError("HTTP 422 Unprocessable Entity: Extensão não permitida", status_code=422)
+
+    magic_ext = detect_magic_bytes(file_bytes)
+    if not magic_ext or (magic_ext != detected_ext and not (detected_ext in [".jpg", ".jpeg"] and magic_ext in [".jpg", ".jpeg"])):
+        raise FileValidationError("HTTP 422 Unprocessable Entity: Conteúdo incompatível com a extensão", status_code=422)
+
+    sha256_hash = hashlib.sha256(file_bytes).hexdigest()
+    return {"status": "success", "sha256_hash": sha256_hash, "file_name": file_name}
+```
+
+---
+
+#### 14.2.4 Resultado da execução dos testes da Etapa 4
+
+```text
+$ python3 -m pytest codigo/etapa-4/ -v
+
+codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts01_idor_attack_attempt_denied PASSED
+codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts02_legitimate_student_access_allowed PASSED
+codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts03_advisor_and_coordinator_access_allowed PASSED
+codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts04_advisor_unauthorized_student_denied PASSED
+codigo/etapa-4/pratica-2-upload-seguro/test_upload_service.py::test_ts05_prohibited_executable_extension_denied PASSED
+codigo/etapa-4/pratica-2-upload-seguro/test_upload_service.py::test_ts06_excessive_file_size_denied PASSED
+codigo/etapa-4/pratica-2-upload-seguro/test_upload_service.py::test_ts07_extension_spoofing_magic_bytes_mismatch_denied PASSED
+codigo/etapa-4/pratica-2-upload-seguro/test_upload_service.py::test_ts08_legitimate_pdf_upload_success PASSED
+
+============================== 8 passed in 0.05s ===============================
+```
+
+> **Arquivos de código da Etapa 4:**
+> - Prática 1: [`codigo/etapa-4/pratica-1-autorizacao-por-recurso/`](../codigo/etapa-4/pratica-1-autorizacao-por-recurso/)
+> - Prática 2: [`codigo/etapa-4/pratica-2-upload-seguro/`](../codigo/etapa-4/pratica-2-upload-seguro/)
+
+---
 ---
 
 ## Etapa 6 — Monitoramento e Detecção de Intrusões

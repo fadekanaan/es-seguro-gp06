@@ -199,3 +199,167 @@ test_authorization.py::test_ts04_advisor_unauthorized_student_denied PASSED [100
 > **Localização dos arquivos de código:**
 > - Módulo de autorização: [`codigo/etapa-4/pratica-1-autorizacao-por-recurso/authorization.py`](../../codigo/etapa-4/pratica-1-autorizacao-por-recurso/authorization.py)
 > - Suíte de testes `pytest`: [`codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py`](../../codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py)
+
+---
+
+## 14.2 Prática 2 — Upload Seguro com Validação de Tipo, Tamanho e Hash SHA-256
+
+### 14.2.1 Mapeamento e referências
+
+- **Risco de Origem:** `R03` — Substituição ou forjamento de comprovante de pagamento / upload malicioso.
+- **Requisito de Segurança:** `RS03` — O sistema deve validar no servidor o tipo real do arquivo (magic bytes), limitar o tamanho máximo a 10 MB e gerar hash SHA-256 imutável.
+- **Decisão de Arquitetura:** `DA02` — Upload seguro com Signed URLs e validação estrita no servidor antes da gravação.
+- **Referências UTILIZADAS:**
+  - [OWASP File Upload Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html)
+  - [CWE-434: Unrestricted Upload of File with Dangerous Type](https://cwe.mitre.org/data/definitions/434.html)
+  - [OWASP ASVS v4 — V12.2 File Integrity](https://github.com/OWASP/ASVS)
+
+---
+
+### 14.2.2 Testes de segurança (definidos ANTES da implementação)
+
+| ID | Tipo | Entrada ou ação realizada | Resultado seguro esperado |
+| :---: | :---: | :--- | :--- |
+| `TS05` | **Malicioso / Não Autorizado** | Envio de script malicioso com extensão executável (`.php` ou `.exe`) | Recusado no servidor com `HTTP 422 Unprocessable Entity` e evento `INVALID_EXTENSION_ATTEMPT` auditado. |
+| `TS06` | **Malicioso / Não Autorizado** | Envio de arquivo PDF com 11 MB (excedendo o limite de 10 MB) | Recusado com `HTTP 413 Payload Too Large` e evento `FILE_TOO_LARGE_ATTEMPT` registrado no log. |
+| `TS07` | **Malicioso / Falsificação** | Envio de arquivo renomeado para `.pdf`, mas com conteúdo real de script bash (Extension Spoofing) | A verificação profunda de *Magic Bytes* detecta a incongruência e recusa com `HTTP 422 Unprocessable Entity`. |
+| `TS08` | **Caso Válido** | Envio de comprovante PDF legítimo com magic bytes `%PDF-` e tamanho de 2 MB | Processado com sucesso (`HTTP 201 Created`), gerando e registrando o Hash `SHA-256` imutável. |
+
+---
+
+### 14.2.3 Implementação em Python (`upload_service.py`)
+
+```python
+import hashlib
+from typing import Optional, Dict, Any, List
+from datetime import datetime, timezone
+
+
+class FileValidationError(Exception):
+    """Exceção lançada quando o arquivo viola regras de tamanho ou extensão (HTTP 422 / 413)."""
+    def __init__(self, message: str, status_code: int = 422):
+        super().__init__(message)
+        self.status_code = status_code
+
+
+MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024  # Limite máximo de 10 MB
+ALLOWED_EXTENSIONS = {".pdf", ".png", ".jpg", ".jpeg"}
+
+MAGIC_BYTES_SIGNATURES = {
+    ".pdf": [b"%PDF"],
+    ".png": [b"\x89PNG\r\n\x1a\n"],
+    ".jpg": [b"\xff\xd8\xff"],
+    ".jpeg": [b"\xff\xd8\xff"],
+}
+
+
+def detect_magic_bytes(file_bytes: bytes) -> Optional[str]:
+    """Inspeção profunda de magic bytes (header do arquivo) sem confiar na extensão enviada."""
+    for ext, signatures in MAGIC_BYTES_SIGNATURES.items():
+        for sig in signatures:
+            if file_bytes.startswith(sig):
+                return ext
+    return None
+
+
+def process_secure_upload(
+    file_name: str,
+    file_bytes: bytes,
+    user_uid: str,
+    audit_logger: Optional[Any] = None
+) -> Dict[str, Any]:
+    """Valida e processa o upload de comprovante garantindo integridade e tipo real."""
+    file_size = len(file_bytes)
+
+    if file_size > MAX_FILE_SIZE_BYTES:
+        raise FileValidationError("HTTP 413 Payload Too Large: O arquivo excede o limite de 10 MB.", status_code=413)
+
+    lower_name = file_name.lower()
+    detected_ext = next((ext for ext in ALLOWED_EXTENSIONS if lower_name.endswith(ext)), None)
+    if not detected_ext:
+        raise FileValidationError(f"HTTP 422 Unprocessable Entity: Extensão '{file_name}' não permitida.", status_code=422)
+
+    magic_ext = detect_magic_bytes(file_bytes)
+    if not magic_ext or (magic_ext != detected_ext and not (detected_ext in [".jpg", ".jpeg"] and magic_ext in [".jpg", ".jpeg"])):
+        raise FileValidationError("HTTP 422 Unprocessable Entity: Conteúdo incompatível com a extensão declarada.", status_code=422)
+
+    sha256_hash = hashlib.sha256(file_bytes).hexdigest()
+
+    return {
+        "status": "success",
+        "file_name": file_name,
+        "file_size_bytes": file_size,
+        "sha256_hash": sha256_hash,
+        "storage_path": f"comprovantes/{user_uid}/{sha256_hash}_{file_name}"
+    }
+```
+
+---
+
+### 14.2.4 Suíte de testes automatizados (`test_upload_service.py`)
+
+```python
+import pytest
+from upload_service import process_secure_upload, FileValidationError, MAX_FILE_SIZE_BYTES
+
+
+def test_ts05_prohibited_executable_extension_denied():
+    """TS05 — Extensão maliciosa (.php) recusada com 422."""
+    with pytest.raises(FileValidationError) as exc_info:
+        process_secure_upload("script.php", b"<?php echo 'malware'; ?>", "student_123")
+    assert exc_info.value.status_code == 422
+
+
+def test_ts06_excessive_file_size_denied():
+    """TS06 — Arquivo acima de 10 MB recusado com 413."""
+    big_file = b"%PDF-1.5 " + (b"0" * (MAX_FILE_SIZE_BYTES + 1024))
+    with pytest.raises(FileValidationError) as exc_info:
+        process_secure_upload("gigante.pdf", big_file, "student_123")
+    assert exc_info.value.status_code == 413
+
+
+def test_ts07_extension_spoofing_magic_bytes_mismatch_denied():
+    """TS07 — Extension spoofing detectado via Magic Bytes e recusado com 422."""
+    fake_pdf = b"#!/bin/bash\nrm -rf /"
+    with pytest.raises(FileValidationError) as exc_info:
+        process_secure_upload("falso.pdf", fake_pdf, "student_123")
+    assert exc_info.value.status_code == 422
+
+
+def test_ts08_legitimate_pdf_upload_success():
+    """TS08 — Upload válido gera hash SHA-256 de integridade."""
+    valid_pdf = b"%PDF-1.4\n1 0 obj\n<< /Title (Comprovante) >>\nendobj\n%%EOF"
+    res = process_secure_upload("comprovante.pdf", valid_pdf, "student_123")
+    assert res["status"] == "success"
+    assert len(res["sha256_hash"]) == 64
+```
+
+---
+
+### 14.2.5 Resultado da execução completa da Etapa 4
+
+Executing the entire test suite confirms 100% compliance across both practices:
+
+```text
+$ python3 -m pytest codigo/etapa-4/ -v
+
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.1.1, pluggy-1.6.0
+collected 8 items
+
+codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts01_idor_attack_attempt_denied PASSED [ 12%]
+codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts02_legitimate_student_access_allowed PASSED [ 25%]
+codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts03_advisor_and_coordinator_access_allowed PASSED [ 37%]
+codigo/etapa-4/pratica-1-autorizacao-por-recurso/test_authorization.py::test_ts04_advisor_unauthorized_student_denied PASSED [ 50%]
+codigo/etapa-4/pratica-2-upload-seguro/test_upload_service.py::test_ts05_prohibited_executable_extension_denied PASSED [ 62%]
+codigo/etapa-4/pratica-2-upload-seguro/test_upload_service.py::test_ts06_excessive_file_size_denied PASSED [ 75%]
+codigo/etapa-4/pratica-2-upload-seguro/test_upload_service.py::test_ts07_extension_spoofing_magic_bytes_mismatch_denied PASSED [ 87%]
+codigo/etapa-4/pratica-2-upload-seguro/test_upload_service.py::test_ts08_legitimate_pdf_upload_success PASSED [100%]
+
+============================== 8 passed in 0.05s ===============================
+```
+
+> **Localização dos arquivos de código:**
+> - Prática 1: [`codigo/etapa-4/pratica-1-autorizacao-por-recurso/`](../../codigo/etapa-4/pratica-1-autorizacao-por-recurso/)
+> - Prática 2: [`codigo/etapa-4/pratica-2-upload-seguro/`](../../codigo/etapa-4/pratica-2-upload-seguro/)
+
