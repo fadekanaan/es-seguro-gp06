@@ -60,7 +60,7 @@ docker run --detach `
   --name es-seguro-juice-shop `
   --network es-seguro-e5 `
   --publish 127.0.0.1:3000:3000 `
-  bkimminich/juice-shop:latest
+  bkimminich/juice-shop@sha256:e68144772ebaaca0ec117b38d44903af92416793230288ef7c5437fc4f26850a
 ```
 
 **Resultado da sessão:**
@@ -77,9 +77,9 @@ docker run --detach `
 |---|---|---|---|---|---|
 | A01 | CSP ausente | [captura](../evidencias/etapa-5/capturas-de-tela/03-achado-a01.png) | Defesa adicional contra XSS ausente | OWASP A02:2025 / CWE-693 | Implantar CSP restritiva gradualmente |
 | A02 | CORS permissivo | [captura](../evidencias/etapa-5/capturas-de-tela/04-achado-a02.png) | Leitura entre origens; impacto limitado no recurso público observado | OWASP A02:2025 / CWE-942 | Restringir origens e escopo do CORS |
-| A03 | `Feature-Policy` obsoleto | [captura](../evidencias/etapa-5/capturas-de-tela/05-achado-a03.png) | Política antiga pode ser ignorada | OWASP A02:2025 / CWE-16 | Migrar para `Permissions-Policy` |
+| A03 | `Feature-Policy` obsoleto em subrecursos | [captura](../evidencias/etapa-5/capturas-de-tela/05-achado-a03.png) | Sem impacto efetivo demonstrado nos arquivos `chunk-*.js` | OWASP A02:2025 / CWE-16 | Remover dos subrecursos e configurar `Permissions-Policy` no HTML principal, se necessário |
 
-Os achados foram interpretados sem afirmar exploração. As limitações do spider tradicional, da navegação sem autenticação e da memória disponível foram registradas no relatório.
+Os achados foram interpretados sem afirmar exploração. As limitações do spider tradicional e da navegação sem autenticação foram registradas no relatório; diagnósticos não versionados de tentativas preparatórias foram excluídos das conclusões.
 
 **Commits realizados:**
 ```

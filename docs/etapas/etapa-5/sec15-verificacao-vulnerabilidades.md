@@ -38,7 +38,7 @@ O relatório HTML apresenta dez entradas nomeadas: `2` de risco médio, `5` de r
 | :---: | :--- | :--- | :--- | :--- | :--- |
 | `A01` | Cabeçalho `Content-Security-Policy` ausente | Plugin `10038`; risco médio; confiança alta; 4 instâncias; [captura](../../../evidencias/etapa-5/capturas-de-tela/03-achado-a01.png) | Ausência de uma camada de defesa que restringe as fontes de scripts e outros recursos, ampliando o impacto potencial de injeções de conteúdo e XSS | [OWASP Top 10:2025 A02 — Security Misconfiguration](https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/) e [CWE-693](https://cwe.mitre.org/data/definitions/693.html) | Implantar CSP inicialmente em modo `Report-Only`, corrigir violações legítimas e então habilitar uma política restritiva com `default-src`, `script-src`, `object-src`, `base-uri` e `frame-ancestors` |
 | `A02` | CORS excessivamente permissivo | Plugin `10098`; risco médio; confiança média; `Access-Control-Allow-Origin: *` em 1 recurso JavaScript; [captura](../../../evidencias/etapa-5/capturas-de-tela/04-achado-a02.png) | Qualquer origem pode ler o recurso público observado; se a mesma política alcançar APIs sem autenticação com dados sensíveis, poderá ocorrer divulgação entre origens | [OWASP Top 10:2025 A02](https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/) e [CWE-942](https://cwe.mitre.org/data/definitions/942.html) | Remover CORS onde não for necessário; nos endpoints que exigirem compartilhamento, usar lista explícita de origens e `Vary: Origin`, com testes separados para recursos públicos e autenticados |
-| `A03` | Cabeçalho obsoleto `Feature-Policy` | Plugin `10063`; risco baixo; confiança média; 5 instâncias; [captura](../../../evidencias/etapa-5/capturas-de-tela/05-achado-a03.png) | Navegadores podem ignorar a política antiga, deixando APIs sensíveis sem as restrições de câmera, microfone ou geolocalização esperadas | [OWASP Top 10:2025 A02](https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/) e [CWE-16](https://cwe.mitre.org/data/definitions/16.html) | Substituir `Feature-Policy` por `Permissions-Policy` e negar por padrão os recursos não utilizados, por exemplo `camera=(), microphone=(), geolocation=()` |
+| `A03` | Cabeçalho obsoleto `Feature-Policy` em subrecursos | Plugin `10063`; risco baixo; confiança média; 5 instâncias exclusivamente em `chunk-*.js`; [captura](../../../evidencias/etapa-5/capturas-de-tela/05-achado-a03.png) | O cabeçalho presente nos subrecursos não governa o documento principal; nenhum impacto efetivo foi demonstrado | [OWASP Top 10:2025 A02](https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/) e [CWE-16](https://cwe.mitre.org/data/definitions/16.html) | Remover o cabeçalho dos arquivos JavaScript; se a restrição for necessária, enviar `Permissions-Policy` na resposta do documento HTML principal |
 
 ### 15.4 Análise do A01 — Content Security Policy ausente
 
@@ -62,26 +62,26 @@ O recurso observado é JavaScript estático e não contém, por si só, uma resp
 
 A correção consiste em aplicar CORS somente onde houver uma necessidade arquitetural. APIs privadas devem aceitar apenas as origens conhecidas do frontend. Quando a origem for selecionada dinamicamente a partir de uma lista permitida, a resposta também deve enviar `Vary: Origin`. O caractere curinga deve ficar restrito a recursos deliberadamente públicos e sem credenciais.
 
-### 15.6 Análise do A03 — Feature Policy obsoleta
+### 15.6 Análise do A03 — Feature Policy obsoleta em subrecursos
 
-O ZAP observou o cabeçalho `Feature-Policy` em cinco recursos. A especificação atual utiliza o nome `Permissions-Policy` e uma sintaxe diferente. Manter apenas o cabeçalho antigo pode produzir uma falsa expectativa de proteção quando o navegador não o interpreta.
+O ZAP observou o cabeçalho `Feature-Policy` em cinco respostas, todas correspondentes a arquivos `chunk-*.js`. Cabeçalhos de política enviados em subrecursos JavaScript não controlam as permissões do documento principal. Assim, simplesmente trocar o nome do cabeçalho nessas mesmas respostas não produziria a proteção descrita pela regra.
 
-Não houve demonstração de uso indevido de câmera, microfone, geolocalização ou outra API controlada. O achado é preventivo, de risco baixo, e se relaciona ao `CWE-16` e ao endurecimento de configuração da categoria A02:2025.
+Não houve demonstração de uso indevido de câmera, microfone, geolocalização ou outra API controlada. No contexto observado, o A03 é tratado como configuração sem impacto efetivo demonstrado e possível ruído de uma regra passiva aplicada a subrecursos. Ainda assim, a presença do cabeçalho obsoleto revela uma configuração global imprecisa e se relaciona ao `CWE-16` e ao endurecimento da categoria A02:2025.
 
-A migração deve começar pelo inventário das funcionalidades realmente necessárias. Recursos não utilizados devem ser negados por padrão, e permissões indispensáveis devem ser concedidas ao menor conjunto possível de origens e frames.
+A correção é remover `Feature-Policy` das respostas dos arquivos JavaScript. Se o sistema realmente precisar restringir recursos do navegador, deve enviar `Permissions-Policy` na resposta do documento HTML principal, após inventariar as funcionalidades necessárias. Recursos não utilizados podem ser negados, por exemplo, com `camera=(), microphone=(), geolocation=()`.
 
 ### 15.7 Priorização, limitações e possíveis falsos positivos
 
-A ordem proposta de tratamento é `A01` → `A02` → `A03`. O A01 combina risco médio, confiança alta e presença em múltiplas respostas. O A02 também é médio, mas apareceu em um recurso público e sem credenciais, o que reduz seu impacto confirmado. O A03 exige modernização, porém não demonstrou exploração e foi classificado como baixo.
+A ordem proposta de tratamento é `A01` → `A02` → `A03`. O A01 combina risco médio, confiança alta e presença em múltiplas respostas. O A02 também é médio, mas apareceu em um recurso público e sem credenciais, o que reduz seu impacto confirmado. O A03 foi classificado por último porque apareceu somente em subrecursos e não tem impacto efetivo demonstrado.
 
 Nenhum achado crítico ou alto foi produzido pela sessão. Os alertas passivos identificam condições observáveis, mas não comprovam exploração. Em particular:
 
 - o A01 confirma a ausência de CSP, não a existência de XSS;
 - o A02 confirma o curinga em um recurso estático, não o vazamento de dados autenticados;
-- o A03 confirma um cabeçalho obsoleto, não o acesso indevido a uma API do navegador;
+- o A03 confirma um cabeçalho obsoleto em subrecursos, onde não governa as permissões do documento principal;
 - a navegação sem autenticação não cobriu fluxos protegidos;
 - o spider tradicional pode deixar rotas de uma aplicação de página única sem cobertura;
-- as duas tentativas de Full Scan foram descartadas por falta de memória e não integram os resultados.
+- tentativas preparatórias de Full Scan não foram concluídas; seus diagnósticos não foram preservados e, portanto, não sustentam conclusões deste trabalho.
 
 Os alertas informativos, as variantes duplicadas e os avisos de baixa confiança não foram priorizados porque os três achados escolhidos oferecem evidências mais claras e correções diretamente verificáveis. Uma nova sessão deverá ser executada após as correções para confirmar a ausência dos alertas sem introduzir regressões.
 

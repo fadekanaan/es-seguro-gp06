@@ -40,7 +40,7 @@ docker run --detach `
   --name es-seguro-juice-shop `
   --network es-seguro-e5 `
   --publish 127.0.0.1:3000:3000 `
-  bkimminich/juice-shop:latest
+  bkimminich/juice-shop@sha256:e68144772ebaaca0ec117b38d44903af92416793230288ef7c5437fc4f26850a
 ```
 
 A sessão válida utilizou o script oficial `zap-baseline.py`, com um minuto de spider tradicional e até dez minutos para inicialização e conclusão da análise passiva:
@@ -50,7 +50,7 @@ $evidencePath = (Resolve-Path "evidencias\etapa-5\relatorios").Path
 docker run --rm `
   --network es-seguro-e5 `
   --volume "${evidencePath}:/zap/wrk/:rw" `
-  ghcr.io/zaproxy/zaproxy:stable `
+  ghcr.io/zaproxy/zaproxy@sha256:781a2bdaea47324e7bab583e2263f21d257b0aee61ed51521a5be45f5f5081ef `
   zap-baseline.py `
   -t http://es-seguro-juice-shop:3000 `
   -m 1 -T 10 `
@@ -82,9 +82,9 @@ Os três arquivos foram gerados pela mesma sessão, possuem conteúdo não vazio
 
 ## 6. Limitações e tentativas descartadas
 
-Duas tentativas anteriores de executar o ZAP Full Scan foram descartadas e não foram usadas como evidência. A primeira, com Client Spider, tornou a API do Docker indisponível; a segunda, sem o navegador, foi encerrada por falta de memória. Os eventos do Docker registraram `oom` para o contêiner do ZAP. A máquina disponibilizava aproximadamente `3,69 GiB` à VM do Docker, valor insuficiente para concluir o active scan com a imagem utilizada.
+Tentativas preparatórias de Full Scan não foram concluídas e foram descartadas. Como os diagnósticos dessas tentativas não foram preservados no repositório, nenhuma causa ou métrica de recursos é apresentada como evidência. Todas as conclusões deste relatório derivam exclusivamente da sessão Baseline concluída e versionada.
 
-Por essa restrição comprovada, a sessão definitiva utilizou o Baseline Scan oficial. Consequentemente:
+Consequentemente:
 
 - não foram enviados payloads de exploração ativa;
 - a navegação foi feita sem autenticação;
@@ -99,7 +99,7 @@ Por essa restrição comprovada, a sessão definitiva utilizou o Baseline Scan o
 | :---: | :--- | :---: | :--- | :--- | :--- |
 | `A01` | `Content Security Policy (CSP) Header Not Set` | Médio / alta | Plugin `10038`, 4 instâncias sem CSP | OWASP A02:2025 e CWE-693 | Implantar CSP restritiva, inicialmente em modo `Report-Only` |
 | `A02` | `Cross-Domain Misconfiguration` | Médio / média | Plugin `10098`, uma resposta com `Access-Control-Allow-Origin: *` | OWASP A02:2025 e CWE-942 | Restringir CORS às origens e aos recursos necessários |
-| `A03` | `Deprecated Feature Policy Header Set` | Baixo / média | Plugin `10063`, 5 instâncias com `Feature-Policy` | OWASP A02:2025 e CWE-16 | Migrar para `Permissions-Policy` com negação por padrão |
+| `A03` | `Deprecated Feature Policy Header Set` | Baixo / média | Plugin `10063`, 5 instâncias exclusivamente em arquivos `chunk-*.js` | OWASP A02:2025 e CWE-16 | Remover o cabeçalho dos subrecursos; se a política for necessária, enviar `Permissions-Policy` na resposta do documento HTML principal |
 
 A interpretação completa, o impacto contextual e os critérios de priorização estão na [Seção 15 do documento acadêmico](../../docs/etapas/etapa-5/sec15-verificacao-vulnerabilidades.md).
 
@@ -113,7 +113,7 @@ A interpretação completa, o impacto contextual e os critérios de priorizaçã
 
 ## 9. Interpretação e ressalvas
 
-Os achados não foram tratados como prova automática de exploração. O A01 confirma a ausência de uma camada de defesa, não a existência de XSS. O A02 apareceu em um recurso JavaScript público e sem credenciais; por isso, não comprova exposição de dados sensíveis, embora indique uma configuração que deve ser restrita antes de ser reutilizada em APIs. O A03 registra uma política obsoleta e tem caráter preventivo.
+Os achados não foram tratados como prova automática de exploração. O A01 confirma a ausência de uma camada de defesa, não a existência de XSS. O A02 apareceu em um recurso JavaScript público e sem credenciais; por isso, não comprova exposição de dados sensíveis, embora indique uma configuração que deve ser restrita antes de ser reutilizada em APIs. No A03, o cabeçalho apareceu apenas em subrecursos JavaScript e não governa as permissões do documento principal; nesse contexto, o alerta foi classificado como configuração sem impacto efetivo demonstrado.
 
 A priorização recomendada é `A01` → `A02` → `A03`. Uma nova sessão deve ser executada depois das correções para verificar a remoção dos alertas e possíveis regressões.
 
