@@ -16,7 +16,7 @@
 | E4 — Código seguro e testes (sec14) | ✅ Completa |
 | E5 — Verificação ZAP | ✅ Completa |
 | E6 — Detecção de intrusões | ✅ Completa |
-| E7 — DevSecOps + Vídeo final | ⬜ Aberta |
+| E7 — DevSecOps + Vídeo final | ✅ Completa |
 
 ---
 
@@ -102,9 +102,9 @@ Roteiro **textual** elaborado com sucesso pelo integrante Marcus:
 
 ---
 
-### Issue #8 — [E7] Pipeline DevSecOps e roteiro do vídeo final
+### Issue #8 — [E7] Pipeline DevSecOps e roteiro do vídeo final (✅ Concluída)
 
-**Arquivo a criar:** `roteiros/etapa-7-devsecops-e-video-final.md`
+**Arquivos criados:** `roteiros/etapa-7-devsecops.md` e `roteiros/etapa-7-video-final.md`
 
 **Pipeline (tabela):**
 
