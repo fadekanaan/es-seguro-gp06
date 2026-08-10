@@ -1172,37 +1172,39 @@ $ .venv\Scripts\python.exe -m pytest codigo/etapa-4 -q
 
 ## 15. Verificação de Vulnerabilidades
 
-Foi realizada uma sessão autorizada no **OWASP Juice Shop 20.1.1**, aplicação deliberadamente vulnerável executada localmente em Docker. O **OWASP ZAP 2.17.0** executou um Baseline Scan com spider tradicional de um minuto e análise passiva, sem cargas de exploração ativa.
+Foi realizada uma sessão autorizada no **ThesisFlow**, revisão `486219c46ffce643e567a76b737e1f7b4cfc9964` do sistema desenvolvido pelo grupo. O **OWASP ZAP 2.17.0** acompanhou navegação autenticada, importou o contrato OpenAPI, executou spider e concluiu análise passiva, sem Active Scan.
+
+Como as credenciais reais não estavam disponíveis, Firebase Authentication e Firestore foram emulados localmente. O frontend React/Vite e o backend FastAPI testados são os componentes reais do projeto; somente os serviços externos de identidade e dados foram substituídos por instâncias descartáveis.
 
 ### 15.1 Ambiente e resultado geral
 
 | Item | Resultado |
 | :--- | :--- |
-| Alvo interno | `http://es-seguro-juice-shop:3000` |
-| Acesso pelo host | `http://127.0.0.1:3000` |
-| Período | 08/08/2026, das 12:16:27 às 12:17:30 (`UTC−03:00`) |
-| URLs observadas | `158` |
-| Regras aprovadas | `59` |
-| Identificadores com aviso | `8` |
-| Falhas configuradas | `0` |
+| Frontend | `http://127.0.0.1:5173` |
+| Backend | `http://127.0.0.1:8000` |
+| Serviços emulados | Firebase Auth `9099` e Firestore `8080` |
+| Período | 10/08/2026, das 17:23:59 às 17:25:58 (`UTC−03:00`) |
+| URLs registradas | `104` |
+| Instâncias de alertas | `62`: 14 médias, 39 baixas e 9 informativas |
+| Tipos únicos | `9`: 2 médios, 4 baixos e 3 informativos |
 
-O relatório HTML contém dez entradas nomeadas: duas de risco médio, cinco de risco baixo e três informativas. Os plugins `90004` e `10049` possuem duas variações de alerta cada, razão da diferença para os oito identificadores resumidos no log.
+Foram aprovados `45` testes do frontend e `271` do backend antes da sessão. O ZAP recebeu tráfego de três páginas do frontend e de `18` rotas autenticadas do backend, importou o OpenAPI, concluiu o spider e terminou com fila passiva zero.
 
 ### 15.2 Achados A01–A03
 
 | ID | Alerta ou achado | Evidência | Possível impacto | Relação com OWASP ou CWE | Correção proposta |
 | :---: | :--- | :--- | :--- | :--- | :--- |
-| `A01` | Cabeçalho `Content-Security-Policy` ausente | Plugin `10038`; médio/alta; 4 instâncias; [captura](../evidencias/etapa-5/capturas-de-tela/03-achado-a01.jpg) | Ausência da camada de defesa do navegador que restringe scripts e recursos pode ampliar o impacto de XSS e injeção de conteúdo | [OWASP A02:2025](https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/) e [CWE-693](https://cwe.mitre.org/data/definitions/693.html) | Implantar CSP primeiro em `Report-Only` e depois aplicar política restritiva com origens, nonces ou hashes necessários |
-| `A02` | CORS excessivamente permissivo | Plugin `10098`; médio/média; `Access-Control-Allow-Origin: *` em 1 recurso JavaScript; [captura](../evidencias/etapa-5/capturas-de-tela/04-achado-a02.jpg) | A origem arbitrária pode ler o recurso público; a mesma política em APIs sem autenticação poderia expor dados entre origens | [OWASP A02:2025](https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/) e [CWE-942](https://cwe.mitre.org/data/definitions/942.html) | Remover CORS desnecessário e usar lista explícita de origens com `Vary: Origin` onde o compartilhamento for exigido |
-| `A03` | `Feature-Policy` obsoleto em subrecursos | Plugin `10063`; baixo/média; 5 instâncias exclusivamente em `chunk-*.js`; [captura](../evidencias/etapa-5/capturas-de-tela/05-achado-a03.jpg) | O cabeçalho nos arquivos JavaScript não governa o documento principal; nenhum impacto efetivo foi demonstrado | [OWASP A02:2025](https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/) e [CWE-16](https://cwe.mitre.org/data/definitions/16.html) | Remover o cabeçalho dos subrecursos e, se necessário, enviar `Permissions-Policy` na resposta HTML principal |
+| `A01` | CSP ausente | Plugin `10038`; médio/alta; 7 ocorrências; [captura](../evidencias/etapa-5/capturas-de-tela/04-achado-a01-csp.jpg) | Amplia o impacto potencial de injeção de conteúdo e XSS sobre a sessão | Risco `R01`, [OWASP A05:2025](https://owasp.org/Top10/2025/A05_2025-Security_Misconfiguration/) e [CWE-693](https://cwe.mitre.org/data/definitions/693.html) | Implantar CSP em `Report-Only` e depois impor política restritiva |
+| `A02` | Proteção contra clickjacking ausente | Plugin `10020`; médio/média; 7 ocorrências; [captura](../evidencias/etapa-5/capturas-de-tela/05-achado-a02-clickjacking.jpg) | Permite tentativa de enquadramento da interface para induzir cliques | Nova lacuna defensiva, [OWASP A05:2025](https://owasp.org/Top10/2025/A05_2025-Security_Misconfiguration/) e [CWE-1021](https://cwe.mitre.org/data/definitions/1021.html) | Aplicar CSP `frame-ancestors 'none'` e `X-Frame-Options: DENY` |
+| `A03` | Identificadores inválidos provocam `HTTP 500` | Plugins `90022` e `10023`; baixo/média; [captura](../evidencias/etapa-5/capturas-de-tela/06-achado-a03-erros-http-500.jpg) | Indica validação ou mapeamento de exceção inadequado; nenhum detalhe sensível foi observado | Endurecimento relacionado a `R07`, sem comprovar IDOR; [OWASP A05:2025](https://owasp.org/Top10/2025/A05_2025-Security_Misconfiguration/), [CWE-550](https://cwe.mitre.org/data/definitions/550.html) e [CWE-1295](https://cwe.mitre.org/data/definitions/1295.html) | Validar o identificador, devolver `404` ou `422` e manter detalhes apenas no log interno |
 
 ### 15.3 Interpretação e priorização
 
-A ordem de tratamento recomendada é `A01` → `A02` → `A03`. O A01 combina risco médio, confiança alta e múltiplas respostas afetadas. O A02 também é médio, mas foi observado em um arquivo JavaScript público e sem credenciais; portanto, a sessão não comprovou vazamento de dados sensíveis. O A03 foi observado somente em subrecursos JavaScript, onde o cabeçalho não controla as permissões do documento principal, e foi classificado como configuração sem impacto efetivo demonstrado.
+A ordem de tratamento recomendada é `A01` → `A02` → `A03`. O A01 reforça o risco `R01` já modelado. O A02 é uma nova lacuna defensiva nas páginas do frontend. O A03 confirma resposta inadequada a identificadores inválidos, mas não confirma divulgação sensível nem IDOR.
 
-Os alertas não foram tratados como prova automática de exploração: CSP ausente não comprova XSS; CORS com curinga em recurso estático não comprova leitura de dados autenticados; e um cabeçalho de política em subrecurso não protege o documento principal. A navegação sem autenticação e o spider tradicional também limitam a cobertura de rotas protegidas e de aplicações de página única.
+Os alertas não foram tratados como prova automática de exploração: CSP ausente não comprova XSS e proteção de frame ausente não comprova clickjacking explorado. No A03, o corpo foi somente `Internal Server Error`, sem stack trace ou segredo; portanto, a descrição de divulgação de erro é um possível falso positivo ou duplicidade entre plugins, embora o `HTTP 500` seja real.
 
-Tentativas preparatórias de Full Scan não foram concluídas. Como seus diagnósticos não foram preservados, nenhuma causa é apresentada como evidência; somente a sessão Baseline concluída integra os resultados.
+Alertas pertencentes ao Auth Emulator foram descartados da análise do ThesisFlow. A ausência de Active Scan, o uso de um único perfil e a substituição do Firebase real também limitam as conclusões.
 
 > **Evidências e análise completa:**
 > - [Relatório metodológico](../evidencias/etapa-5/relatorio-da-verificacao.md)
