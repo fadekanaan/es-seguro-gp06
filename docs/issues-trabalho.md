@@ -52,40 +52,33 @@
 
 **Pasta de evidências:** `evidencias/etapa-5/capturas-de-tela/`
 
-Foi utilizado o **OWASP Juice Shop 20.1.1** como ambiente local e autorizado para treinamento, com o **OWASP ZAP 2.17.0** em Baseline Scan.
-
-```powershell
-docker network create es-seguro-e5
-docker run --detach `
-  --name es-seguro-juice-shop `
-  --network es-seguro-e5 `
-  --publish 127.0.0.1:3000:3000 `
-  bkimminich/juice-shop@sha256:e68144772ebaaca0ec117b38d44903af92416793230288ef7c5437fc4f26850a
-```
+Foi utilizado o próprio **ThesisFlow**, revisão `486219c46ffce643e567a76b737e1f7b4cfc9964`, com o **OWASP ZAP 2.17.0**. A sessão foi local, autenticada e passiva. Firebase Authentication e Firestore foram emulados porque as credenciais reais não estavam disponíveis; frontend e backend permaneceram os componentes reais do projeto.
 
 **Resultado da sessão:**
 
-- `158` URLs observadas;
-- `59` regras aprovadas;
-- `8` identificadores com aviso;
-- `0` regras configuradas como falha;
-- relatório HTML e JSON, log, configuração reproduzível e cinco capturas versionados.
+- `104` URLs registradas;
+- `18` rotas autenticadas do backend responderam `HTTP 200`;
+- `62` ocorrências na API ao fim da sessão: 14 médias, 39 baixas e 9 informativas;
+- `33` exemplos preservados nos relatórios: 10 médios, 16 baixos e 7 informativos;
+- `9` tipos únicos no relatório: 2 médios, 4 baixos e 3 informativos;
+- relatório HTML e JSON, log, configuração e seis capturas versionados.
 
 **Entregável — tabela com 3 achados:**
 
 | ID | Alerta | Evidência | Impacto | Relação OWASP:2025 ou CWE | Correção |
 |---|---|---|---|---|---|
-| A01 | CSP ausente | [captura](../evidencias/etapa-5/capturas-de-tela/03-achado-a01.jpg) | Defesa adicional contra XSS ausente | OWASP A02:2025 / CWE-693 | Implantar CSP restritiva gradualmente |
-| A02 | CORS permissivo | [captura](../evidencias/etapa-5/capturas-de-tela/04-achado-a02.jpg) | Leitura entre origens; impacto limitado no recurso público observado | OWASP A02:2025 / CWE-942 | Restringir origens e escopo do CORS |
-| A03 | `Feature-Policy` obsoleto em subrecursos | [captura](../evidencias/etapa-5/capturas-de-tela/05-achado-a03.jpg) | Sem impacto efetivo demonstrado nos arquivos `chunk-*.js` | OWASP A02:2025 / CWE-16 | Remover dos subrecursos e configurar `Permissions-Policy` no HTML principal, se necessário |
+| A01 | CSP ausente | [captura](../evidencias/etapa-5/capturas-de-tela/04-achado-a01-csp.jpg) | Defesa adicional contra XSS ausente | R01 / OWASP A02:2025 / CWE-693 | Implantar CSP restritiva gradualmente |
+| A02 | Proteção contra clickjacking ausente | [captura](../evidencias/etapa-5/capturas-de-tela/05-achado-a02-clickjacking.jpg) | Possibilidade de enquadrar a interface e induzir cliques | OWASP A02:2025 / CWE-1021 | Aplicar `frame-ancestors 'none'` e `X-Frame-Options: DENY` |
+| A03 | Identificador inválido retorna `HTTP 500` | [captura](../evidencias/etapa-5/capturas-de-tela/06-achado-a03-erros-http-500.jpg) | Tratamento de entrada/erro inadequado; sem detalhe sensível observado | OWASP A10:2025 / CWE-550 / CWE-1295 | Validar o ID e responder `404` ou `422` |
 
-Os achados foram interpretados sem afirmar exploração. As limitações do spider tradicional e da navegação sem autenticação foram registradas no relatório; diagnósticos não versionados de tentativas preparatórias foram excluídos das conclusões.
+Os achados foram interpretados sem afirmar exploração. A navegação autenticada usou o papel de coordenação; as limitações do spider tradicional, do perfil único e do Firebase emulado foram registradas no relatório.
 
 **Commits realizados:**
 ```
-Documenta ambiente e configuração da verificação ZAP (E5)
-Adiciona relatório e evidências da execução do ZAP (E5)
-Analisa os achados A01-A03 e propõe correções (E5)
+test: registra sessão ZAP autenticada no ThesisFlow
+docs: analisa achados reais da Etapa 5
+docs: consolida rastreabilidade da Etapa 5
+docs: corrige classificação e contagens da Etapa 5
 ```
 
 ---
@@ -149,7 +142,7 @@ Adiciona pipeline DevSecOps com condições de bloqueio e roteiro do vídeo (E7)
 - Mensagens **descritivas**: `Descreve controles para R01-R03` ✅ / `ajustes` ❌
 - **Versionar tudo**: imagens, diagramas, arquivos-fonte (`.drawio`, `.mmd`)
 - **Risco residual é estimativa** — não afirmar que risco foi eliminado sem testes reais
-- Etapa 5: testar **apenas** o Juice Shop ou o próprio sistema — nunca sistemas de terceiros
+- Etapa 5: testar **apenas** ambiente autorizado; nesta entrega, o próprio ThesisFlow local — nunca sistemas de terceiros
 - Vídeo: **5–8 minutos**; todos participam
 
 ---
@@ -164,5 +157,5 @@ Adiciona pipeline DevSecOps com condições de bloqueio e roteiro do vídeo (E7)
 | OWASP Cheat Sheet Series | https://cheatsheetseries.owasp.org |
 | OWASP ASVS v4 | https://github.com/OWASP/ASVS |
 | CWE List | https://cwe.mitre.org |
-| Juice Shop | `docker run -d -p 3000:3000 bkimminich/juice-shop` |
+| Firebase Local Emulator Suite | https://firebase.google.com/docs/emulator-suite |
 | ZAP Download | https://www.zaproxy.org/download/ |

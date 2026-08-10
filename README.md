@@ -83,7 +83,7 @@ es-seguro-gp06/
 ├── evidencias/
 │   └── etapa-5/                       ← Evidências da sessão ZAP (E5) — concluída
 │       ├── relatorio-da-verificacao.md
-│       ├── capturas-de-tela/          ← 5 capturas da aplicação e dos achados
+│       ├── capturas-de-tela/          ← 6 capturas da aplicação, sessão e achados
 │       └── relatorios/                ← HTML, JSON, log e configuração do ZAP
 │
 └── roteiros/

@@ -1,107 +1,98 @@
-﻿SESSION_STARTED_AT=2026-08-08T12:16:27-03:00
-TARGET=http://es-seguro-juice-shop:3000
-MODE=ZAP Baseline Scan; traditional spider; passive scan
-COMMAND=zap-baseline.py -t http://es-seguro-juice-shop:3000 -m 1 -T 10 -r relatorio-zap.html -J relatorio-zap.json
-Using the Automation Framework
-Total of 158 URLs
-PASS: Vulnerable JS Library (Powered by Retire.js) [10003]
-PASS: In Page Banner Information Leak [10009]
-PASS: Cookie No HttpOnly Flag [10010]
-PASS: Cookie Without Secure Flag [10011]
-PASS: Re-examine Cache-control Directives [10015]
-PASS: Cross-Domain JavaScript Source File Inclusion [10017]
-PASS: Content-Type Header Missing [10019]
-PASS: Anti-clickjacking Header [10020]
-PASS: X-Content-Type-Options Header Missing [10021]
-PASS: Information Disclosure - Debug Error Messages [10023]
-PASS: Information Disclosure - Sensitive Information in URL [10024]
-PASS: Information Disclosure - Sensitive Information in HTTP Referrer Header [10025]
-PASS: HTTP Parameter Override [10026]
-PASS: Information Disclosure - Suspicious Comments [10027]
-PASS: Off-site Redirect [10028]
-PASS: Cookie Poisoning [10029]
-PASS: User Controllable Charset [10030]
-PASS: User Controllable HTML Element Attribute (Potential XSS) [10031]
-PASS: Viewstate [10032]
-PASS: Directory Browsing [10033]
-PASS: Heartbleed OpenSSL Vulnerability (Indicative) [10034]
-PASS: Strict-Transport-Security Header [10035]
-PASS: HTTP Server Response Header [10036]
-PASS: Server Leaks Information via "X-Powered-By" HTTP Response Header Field(s) [10037]
-PASS: X-Backend-Server Header Information Leak [10039]
-PASS: Secure Pages Include Mixed Content [10040]
-PASS: HTTP to HTTPS Insecure Transition in Form Post [10041]
-PASS: HTTPS to HTTP Insecure Transition in Form Post [10042]
-PASS: User Controllable JavaScript Event (XSS) [10043]
-PASS: Big Redirect Detected (Potential Sensitive Information Leak) [10044]
-PASS: Retrieved from Cache [10050]
-PASS: X-ChromeLogger-Data (XCOLD) Header Information Leak [10052]
-PASS: Cookie without SameSite Attribute [10054]
-PASS: CSP [10055]
-PASS: X-Debug-Token Information Leak [10056]
-PASS: Username Hash Found [10057]
-PASS: X-AspNet-Version Response Header [10061]
-PASS: PII Disclosure [10062]
-PASS: Hash Disclosure [10097]
-PASS: Source Code Disclosure [10099]
-PASS: Weak Authentication Method [10105]
-PASS: Reverse Tabnabbing [10108]
-PASS: Authentication Request Identified [10111]
-PASS: Session Management Response Identified [10112]
-PASS: Verification Request Identified [10113]
-PASS: Script Served From Malicious Domain (polyfill) [10115]
-PASS: ZAP is Out of Date [10116]
-PASS: Absence of Anti-CSRF Tokens [10202]
-PASS: Private IP Disclosure [2]
-PASS: Session ID in URL Rewrite [3]
-PASS: Script Passive Scan Rules [50001]
-PASS: Stats Passive Scan Rule [50003]
-PASS: Insecure JSF ViewState [90001]
-PASS: Java Serialization Object [90002]
-PASS: Sub Resource Integrity Attribute Missing [90003]
-PASS: Charset Mismatch [90011]
-PASS: Application Error Disclosure [90022]
-PASS: WSDL File Detection [90030]
-PASS: Loosely Scoped Cookie [90033]
-WARN-NEW: Content Security Policy (CSP) Header Not Set [10038] x 4 
-	http://es-seguro-juice-shop:3000 (200 OK)
-	http://es-seguro-juice-shop:3000/ (200 OK)
-	http://es-seguro-juice-shop:3000/ftp (200 OK)
-	http://es-seguro-juice-shop:3000/ftp/eastere.gg (403 Forbidden)
-WARN-NEW: Storable and Cacheable Content [10049] x 6 
-	http://es-seguro-juice-shop:3000/robots.txt (200 OK)
-	http://es-seguro-juice-shop:3000/assets/public/favicon_js.ico (200 OK)
-	http://es-seguro-juice-shop:3000/chunk-5K74DZ2F.js (200 OK)
-	http://es-seguro-juice-shop:3000/chunk-PX7UKXVL.js (200 OK)
-	http://es-seguro-juice-shop:3000/chunk-VJL3IV3O.js (200 OK)
-WARN-NEW: Deprecated Feature Policy Header Set [10063] x 5 
-	http://es-seguro-juice-shop:3000/chunk-5K74DZ2F.js (200 OK)
-	http://es-seguro-juice-shop:3000/chunk-PX7UKXVL.js (200 OK)
-	http://es-seguro-juice-shop:3000/chunk-VJL3IV3O.js (200 OK)
-	http://es-seguro-juice-shop:3000/chunk-VS3A3LTT.js (200 OK)
-	http://es-seguro-juice-shop:3000/chunk-YVDT5JXT.js (200 OK)
-WARN-NEW: Timestamp Disclosure - Unix [10096] x 5 
-	http://es-seguro-juice-shop:3000/styles.css (200 OK)
-	http://es-seguro-juice-shop:3000/styles.css (200 OK)
-	http://es-seguro-juice-shop:3000/styles.css (200 OK)
-	http://es-seguro-juice-shop:3000/styles.css (200 OK)
-	http://es-seguro-juice-shop:3000/styles.css (200 OK)
-WARN-NEW: Cross-Domain Misconfiguration [10098] x 1 
-	http://es-seguro-juice-shop:3000/chunk-VS3A3LTT.js (200 OK)
-WARN-NEW: Modern Web Application [10109] x 5 
-	http://es-seguro-juice-shop:3000 (200 OK)
-	http://es-seguro-juice-shop:3000/ (200 OK)
-	http://es-seguro-juice-shop:3000/juice-shop/build/routes/fileServer.js:53:13 (200 OK)
-	http://es-seguro-juice-shop:3000/juice-shop/node_modules/express/lib/router/layer.js:95:5 (200 OK)
-	http://es-seguro-juice-shop:3000/sitemap.xml (200 OK)
-WARN-NEW: Dangerous JS Functions [10110] x 1 
-	http://es-seguro-juice-shop:3000/main.js (200 OK)
-WARN-NEW: Cross-Origin-Embedder-Policy Header Missing or Invalid [90004] x 10 
-	http://es-seguro-juice-shop:3000 (200 OK)
-	http://es-seguro-juice-shop:3000/ (200 OK)
-	http://es-seguro-juice-shop:3000/ftp (200 OK)
-	http://es-seguro-juice-shop:3000/juice-shop/node_modules/express/lib/router/layer.js:95:5 (200 OK)
-	http://es-seguro-juice-shop:3000/sitemap.xml (200 OK)
-FAIL-NEW: 0	FAIL-INPROG: 0	WARN-NEW: 8	WARN-INPROG: 0	INFO: 0	IGNORE: 0	PASS: 59
-ZAP_EXIT_CODE=2
-SESSION_FINISHED_AT=2026-08-08T12:17:30-03:00
+SESSION_ID=thesisflow-e5-zap
+SESSION_STARTED_AT=2026-08-10T17:23:59-03:00
+SESSION_FINISHED_AT=2026-08-10T17:25:58-03:00
+TIMEZONE=America/Sao_Paulo
+AUTHORIZED_TARGET=ThesisFlow local
+THESISFLOW_COMMIT=486219c46ffce643e567a76b737e1f7b4cfc9964
+ZAP_VERSION=2.17.0
+ZAP_IMAGE=ghcr.io/zaproxy/zaproxy:stable
+FIREBASE_CLI_VERSION=14.27.0
+FIREBASE_PROJECT=demo-thesisflow-e5
+MODE=single authenticated session; spider; OpenAPI import; passive scan; no active scan
+
+LOCAL_ENDPOINTS:
+- frontend=http://127.0.0.1:5173
+- backend=http://127.0.0.1:8000
+- auth_emulator=http://127.0.0.1:9099
+- firestore_emulator=http://127.0.0.1:8080
+- zap_proxy_api=http://127.0.0.1:8090
+
+ZAP_CONTAINER_ENDPOINTS:
+- frontend=http://192.168.65.254:5173
+- backend=http://192.168.65.254:8000
+- auth_emulator=http://192.168.65.254:9099
+
+NOTE=192.168.65.254 is the Docker Desktop gateway to services running on the same local machine; it is not an external target.
+NOTE=Firebase Authentication and Firestore were emulated locally because production credentials were unavailable.
+NOTE=No password, access token, refresh token or production credential is stored in this log.
+
+PRE_SESSION_VALIDATION:
+- frontend_tests=45 passed in 13 files
+- backend_tests=271 passed; 1 dependency deprecation warning
+- auth_emulator_login=PASS
+- sync_claims_role=coordinator
+- protected_students_request=HTTP 200
+
+TRAFFIC_SENT_THROUGH_ZAP:
+- frontend_pages=/,/login,/dashboard (HTTP 200)
+- authenticated_get_routes=18/18 HTTP 200
+- openapi_import=http://192.168.65.254:8000/openapi.json
+- traditional_spider=100 percent complete
+- passive_scan_queue=0
+
+AUTHENTICATED_BACKEND_ROUTES:
+- /health
+- /students
+- /students/extensions/pending
+- /advisors
+- /activity-types
+- /venues
+- /audit-log/
+- /alerts
+- /activities/pending
+- /support/tickets
+- /reports/students-by-status
+- /reports/progress-overview
+- /reports/deadlines
+- /reports/advisor-workload
+- /reports/activities-summary
+- /proficiency/pending
+- /projects
+- /auth/sync-claims
+
+RESULTS:
+- urls=104
+- alert_instances_high=0
+- alert_instances_medium=14
+- alert_instances_low=39
+- alert_instances_informational=9
+- alert_instances_total=62
+- report_examples_high=0
+- report_examples_medium=10
+- report_examples_low=16
+- report_examples_informational=7
+- report_examples_total=33
+- unique_alert_types_high=0
+- unique_alert_types_medium=2
+- unique_alert_types_low=4
+- unique_alert_types_informational=3
+- unique_alert_types_total=9
+
+COUNTING_NOTE=The ZAP API summary counted all 62 occurrences at session end. The traditional HTML/JSON report template retained at most five example instances per alert and site, totaling 33 preserved examples. The HTML summary groups those examples into nine unique alert names.
+
+SELECTED_FINDINGS:
+- A01 plugin=10038 risk=Medium confidence=High api_instances=7 report_examples=5 name=Content Security Policy (CSP) Header Not Set
+- A02 plugin=10020 risk=Medium confidence=Medium api_instances=7 report_examples=5 name=Missing Anti-clickjacking Header
+- A03 plugins=90022,10023 risk=Low confidence=Medium instances=2+2 condition=invalid resource identifiers returned HTTP 500
+
+DISCARDED_OR_NOT_SELECTED:
+- Alerts on port 9099 belong to the local Auth Emulator, not the ThesisFlow production service.
+- Plugins 10109, 10111 and 10112 are informational observations.
+- Plugin 10021 is a relevant hardening item but was not selected among the three required analyses.
+- For A03, no stack trace, local path or secret was observed; the disclosure wording may be a false positive or duplicate, while the HTTP 500 behavior is confirmed.
+
+ARTIFACTS:
+- relatorio-zap.html
+- relatorio-zap.json
+- zap.yaml
+- six JPG screenshots in ../capturas-de-tela/
