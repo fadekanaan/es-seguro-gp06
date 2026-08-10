@@ -35,7 +35,7 @@ O endereço `192.168.65.254` presente nos relatórios é somente o gateway do Do
 
 Na mesma sessão, o ZAP recebeu tráfego de `/`, `/login` e `/dashboard`, acompanhou o login pelo Auth Emulator, observou a sincronização das claims e registrou `18` requisições autenticadas ao backend. Todas essas rotas responderam `HTTP 200`. O contrato OpenAPI foi importado, o spider chegou a `100%` e a fila passiva terminou em zero.
 
-A sessão registrou `104` URLs e `62` instâncias de alertas: `0` altas, `14` médias, `39` baixas e `9` informativas. O relatório HTML agrupa essas instâncias em nove tipos únicos: `0` altos, `2` médios, `4` baixos e `3` informativos.
+A sessão registrou `104` URLs. Ao final, a API do ZAP contou `62` ocorrências: `0` altas, `14` médias, `39` baixas e `9` informativas. O template dos relatórios preservou no máximo cinco exemplos por alerta em cada site, totalizando `33` exemplos (`10` médios, `16` baixos e `7` informativos). O resumo HTML agrupa esses exemplos em nove tipos únicos: `0` altos, `2` médios, `4` baixos e `3` informativos. Essa diferença entre ocorrências da API, exemplos preservados e tipos agrupados está registrada no log da sessão.
 
 ![Resumo dos alertas do ZAP](../../../evidencias/etapa-5/capturas-de-tela/03-zap-resumo.jpg)
 
@@ -45,13 +45,13 @@ As evidências originais são o [relatório HTML](../../../evidencias/etapa-5/re
 
 | ID | Alerta ou achado | Evidência | Possível impacto | Relação com riscos, OWASP ou CWE | Correção proposta |
 | :---: | :--- | :--- | :--- | :--- | :--- |
-| `A01` | Cabeçalho `Content-Security-Policy` ausente | Plugin `10038`; médio/alta; `7` ocorrências no frontend; [captura](../../../evidencias/etapa-5/capturas-de-tela/04-achado-a01-csp.jpg) | A ausência dessa defesa amplia o impacto potencial de injeções de conteúdo e XSS sobre a sessão do usuário | Risco `R01`; OWASP A05:2025; CWE-693 | Implantar CSP em `Report-Only`, corrigir violações legítimas e depois impor política restritiva |
-| `A02` | Proteção contra clickjacking ausente | Plugin `10020`; médio/média; `7` ocorrências no frontend; [captura](../../../evidencias/etapa-5/capturas-de-tela/05-achado-a02-clickjacking.jpg) | Uma página maliciosa pode tentar enquadrar a interface e induzir cliques sobre ações do usuário | Nova lacuna defensiva; OWASP A05:2025; CWE-1021 | Definir `frame-ancestors 'none'` na CSP e manter `X-Frame-Options: DENY` como compatibilidade |
-| `A03` | Identificadores inválidos provocam `HTTP 500` | Plugins `90022` e `10023`; baixo/média; `/advisors/advisor_id` e `/students/student_id`; [captura](../../../evidencias/etapa-5/capturas-de-tela/06-achado-a03-erros-http-500.jpg) | Respostas de erro previsíveis auxiliam reconhecimento e indicam validação ou mapeamento de exceções inadequado; nenhum dado sensível foi exposto | Endurecimento relacionado ao risco `R07`, sem comprovar IDOR; OWASP A05:2025; CWE-550 e CWE-1295 | Validar formato, responder `404` ou `422` e registrar detalhes somente no servidor com identificador de correlação |
+| `A01` | Cabeçalho `Content-Security-Policy` ausente | Plugin `10038`; médio/alta; `5` exemplos no relatório e `7` ocorrências na API; [captura](../../../evidencias/etapa-5/capturas-de-tela/04-achado-a01-csp.jpg) | A ausência dessa defesa amplia o impacto potencial de injeções de conteúdo e XSS sobre a sessão do usuário | Risco `R01`; OWASP A02:2025; CWE-693 | Implantar CSP em `Report-Only`, corrigir violações legítimas e depois impor política restritiva |
+| `A02` | Proteção contra clickjacking ausente | Plugin `10020`; médio/média; `5` exemplos no relatório e `7` ocorrências na API; [captura](../../../evidencias/etapa-5/capturas-de-tela/05-achado-a02-clickjacking.jpg) | Uma página maliciosa pode tentar enquadrar a interface e induzir cliques sobre ações do usuário | Nova lacuna defensiva; OWASP A02:2025; CWE-1021 | Definir `frame-ancestors 'none'` na CSP e manter `X-Frame-Options: DENY` como compatibilidade |
+| `A03` | Identificadores inválidos provocam `HTTP 500` | Plugins `90022` e `10023`; baixo/média; `/advisors/advisor_id` e `/students/student_id`; [captura](../../../evidencias/etapa-5/capturas-de-tela/06-achado-a03-erros-http-500.jpg) | Respostas de erro previsíveis auxiliam reconhecimento e indicam validação ou mapeamento de exceções inadequado; nenhum dado sensível foi exposto | Endurecimento relacionado ao risco `R07`, sem comprovar IDOR; OWASP A10:2025; CWE-550 e CWE-1295 | Validar formato, responder `404` ou `422` e registrar detalhes somente no servidor com identificador de correlação |
 
 ### 15.4 Análise do A01 — Content Security Policy ausente
 
-O ZAP observou diretamente a ausência do cabeçalho `Content-Security-Policy` em sete respostas do frontend, incluindo `/`, `/login` e `/dashboard`. A confiança alta indica que o cabeçalho não estava presente; não significa que uma vulnerabilidade XSS tenha sido explorada.
+O ZAP observou diretamente a ausência do cabeçalho `Content-Security-Policy` em sete respostas do frontend, incluindo `/`, `/login` e `/dashboard`; cinco exemplos permanecem listados no relatório devido ao limite do template. A confiança alta indica que o cabeçalho não estava presente; não significa que uma vulnerabilidade XSS tenha sido explorada.
 
 No contexto do ThesisFlow, o achado reforça o risco `R01`: se uma injeção de script ocorrer por outra falha, a ausência de CSP deixa de impor uma barreira adicional contra execução e acesso à sessão. Assim, a sessão atual fornece evidência concreta para um controle já previsto na modelagem de ameaças.
 
@@ -65,7 +65,7 @@ As diretivas `script-src`, `style-src`, `img-src` e `connect-src` devem usar som
 
 ### 15.5 Análise do A02 — Proteção contra clickjacking ausente
 
-O plugin `10020` identificou sete respostas sem `X-Frame-Options` nem uma diretiva CSP `frame-ancestors`. A condição foi observada diretamente nas páginas do frontend, inclusive na tela de login e no painel autenticado.
+O plugin `10020` identificou sete respostas sem `X-Frame-Options` nem uma diretiva CSP `frame-ancestors`; cinco exemplos permanecem listados no relatório. A condição foi observada diretamente nas páginas do frontend, inclusive na tela de login e no painel autenticado.
 
 Sem essa restrição, um domínio malicioso pode tentar carregar o ThesisFlow em um `iframe`, sobrepor elementos visuais e induzir o usuário a clicar em controles diferentes dos que acredita estar acionando. A sessão não montou uma página de ataque e, portanto, não comprova uma ação indevida; comprova a ausência da defesa de enquadramento.
 
@@ -99,7 +99,8 @@ As principais limitações são o uso de Firebase emulado, o perfil único de co
 - [ZAP — Content Security Policy Header Not Set (plugin 10038)](https://www.zaproxy.org/docs/alerts/10038/)
 - [ZAP — Missing Anti-clickjacking Header (plugin 10020)](https://www.zaproxy.org/docs/alerts/10020/)
 - [ZAP — Application Error Disclosure (plugin 90022)](https://www.zaproxy.org/docs/alerts/90022/)
-- [OWASP Top 10:2025 — A05 Security Misconfiguration](https://owasp.org/Top10/2025/A05_2025-Security_Misconfiguration/)
+- [OWASP Top 10:2025 — A02 Security Misconfiguration](https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/)
+- [OWASP Top 10:2025 — A10 Mishandling of Exceptional Conditions](https://owasp.org/Top10/2025/A10_2025-Mishandling_of_Exceptional_Conditions/)
 - [MDN — Content-Security-Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy)
 - [MDN — X-Frame-Options](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options)
 - [CWE-693 — Protection Mechanism Failure](https://cwe.mitre.org/data/definitions/693.html)

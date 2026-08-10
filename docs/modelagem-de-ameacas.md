@@ -1185,7 +1185,8 @@ Como as credenciais reais não estavam disponíveis, Firebase Authentication e F
 | Serviços emulados | Firebase Auth `9099` e Firestore `8080` |
 | Período | 10/08/2026, das 17:23:59 às 17:25:58 (`UTC−03:00`) |
 | URLs registradas | `104` |
-| Instâncias de alertas | `62`: 14 médias, 39 baixas e 9 informativas |
+| Ocorrências na API | `62`: 14 médias, 39 baixas e 9 informativas |
+| Exemplos nos relatórios | `33`: 10 médios, 16 baixos e 7 informativos |
 | Tipos únicos | `9`: 2 médios, 4 baixos e 3 informativos |
 
 Foram aprovados `45` testes do frontend e `271` do backend antes da sessão. O ZAP recebeu tráfego de três páginas do frontend e de `18` rotas autenticadas do backend, importou o OpenAPI, concluiu o spider e terminou com fila passiva zero.
@@ -1194,9 +1195,9 @@ Foram aprovados `45` testes do frontend e `271` do backend antes da sessão. O Z
 
 | ID | Alerta ou achado | Evidência | Possível impacto | Relação com OWASP ou CWE | Correção proposta |
 | :---: | :--- | :--- | :--- | :--- | :--- |
-| `A01` | CSP ausente | Plugin `10038`; médio/alta; 7 ocorrências; [captura](../evidencias/etapa-5/capturas-de-tela/04-achado-a01-csp.jpg) | Amplia o impacto potencial de injeção de conteúdo e XSS sobre a sessão | Risco `R01`, [OWASP A05:2025](https://owasp.org/Top10/2025/A05_2025-Security_Misconfiguration/) e [CWE-693](https://cwe.mitre.org/data/definitions/693.html) | Implantar CSP em `Report-Only` e depois impor política restritiva |
-| `A02` | Proteção contra clickjacking ausente | Plugin `10020`; médio/média; 7 ocorrências; [captura](../evidencias/etapa-5/capturas-de-tela/05-achado-a02-clickjacking.jpg) | Permite tentativa de enquadramento da interface para induzir cliques | Nova lacuna defensiva, [OWASP A05:2025](https://owasp.org/Top10/2025/A05_2025-Security_Misconfiguration/) e [CWE-1021](https://cwe.mitre.org/data/definitions/1021.html) | Aplicar CSP `frame-ancestors 'none'` e `X-Frame-Options: DENY` |
-| `A03` | Identificadores inválidos provocam `HTTP 500` | Plugins `90022` e `10023`; baixo/média; [captura](../evidencias/etapa-5/capturas-de-tela/06-achado-a03-erros-http-500.jpg) | Indica validação ou mapeamento de exceção inadequado; nenhum detalhe sensível foi observado | Endurecimento relacionado a `R07`, sem comprovar IDOR; [OWASP A05:2025](https://owasp.org/Top10/2025/A05_2025-Security_Misconfiguration/), [CWE-550](https://cwe.mitre.org/data/definitions/550.html) e [CWE-1295](https://cwe.mitre.org/data/definitions/1295.html) | Validar o identificador, devolver `404` ou `422` e manter detalhes apenas no log interno |
+| `A01` | CSP ausente | Plugin `10038`; médio/alta; 5 exemplos no relatório e 7 ocorrências na API; [captura](../evidencias/etapa-5/capturas-de-tela/04-achado-a01-csp.jpg) | Amplia o impacto potencial de injeção de conteúdo e XSS sobre a sessão | Risco `R01`, [OWASP A02:2025](https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/) e [CWE-693](https://cwe.mitre.org/data/definitions/693.html) | Implantar CSP em `Report-Only` e depois impor política restritiva |
+| `A02` | Proteção contra clickjacking ausente | Plugin `10020`; médio/média; 5 exemplos no relatório e 7 ocorrências na API; [captura](../evidencias/etapa-5/capturas-de-tela/05-achado-a02-clickjacking.jpg) | Permite tentativa de enquadramento da interface para induzir cliques | Nova lacuna defensiva, [OWASP A02:2025](https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/) e [CWE-1021](https://cwe.mitre.org/data/definitions/1021.html) | Aplicar CSP `frame-ancestors 'none'` e `X-Frame-Options: DENY` |
+| `A03` | Identificadores inválidos provocam `HTTP 500` | Plugins `90022` e `10023`; baixo/média; [captura](../evidencias/etapa-5/capturas-de-tela/06-achado-a03-erros-http-500.jpg) | Indica validação ou mapeamento de exceção inadequado; nenhum detalhe sensível foi observado | Endurecimento relacionado a `R07`, sem comprovar IDOR; [OWASP A10:2025](https://owasp.org/Top10/2025/A10_2025-Mishandling_of_Exceptional_Conditions/), [CWE-550](https://cwe.mitre.org/data/definitions/550.html) e [CWE-1295](https://cwe.mitre.org/data/definitions/1295.html) | Validar o identificador, devolver `404` ou `422` e manter detalhes apenas no log interno |
 
 ### 15.3 Interpretação e priorização
 

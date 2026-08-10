@@ -57,16 +57,16 @@ A configuração declarativa está em [`relatorios/zap.yaml`](relatorios/zap.yam
 
 ## 4. Resultado geral
 
-A sessão registrou `104` URLs. A API do ZAP contabilizou `62` instâncias de alerta:
+A sessão registrou `104` URLs. Ao final da execução, a API do ZAP contabilizou `62` ocorrências. O template dos relatórios HTML e JSON preservou no máximo cinco exemplos por alerta em cada site; por isso, os arquivos originais contêm `33` exemplos, embora mantenham os nove tipos únicos encontrados.
 
-| Risco | Instâncias | Tipos únicos no relatório HTML |
-| :--- | ---: | ---: |
-| Alto | `0` | `0` |
-| Médio | `14` | `2` |
-| Baixo | `39` | `4` |
-| Informativo | `9` | `3` |
+| Risco | Ocorrências na API ao fim da sessão | Exemplos preservados nos relatórios | Tipos únicos |
+| :--- | ---: | ---: | ---: |
+| Alto | `0` | `0` | `0` |
+| Médio | `14` | `10` | `2` |
+| Baixo | `39` | `16` | `4` |
+| Informativo | `9` | `7` | `3` |
 
-Os números representam métricas diferentes: a API conta cada ocorrência em cada URL, enquanto o resumo HTML agrupa ocorrências pelo tipo de alerta. Foram observados nove tipos únicos no conjunto da sessão.
+Os números representam métricas diferentes: a API conta todas as ocorrências em cada URL; o corpo dos relatórios limita a quantidade de exemplos exibidos; e o resumo HTML agrupa os exemplos pelo tipo de alerta. Para manter a análise verificável diretamente nos artefatos versionados, as tabelas de achados informam tanto os exemplos preservados quanto, quando relevante, o total observado na API e registrado no log.
 
 ## 5. Evidências preservadas
 
@@ -84,9 +84,9 @@ Os relatórios possuem conteúdo não vazio, e o JSON foi validado por desserial
 
 | ID | Alerta ou condição | Evidência | Classificação | Correção proposta |
 | :---: | :--- | :--- | :--- | :--- |
-| `A01` | `Content Security Policy (CSP) Header Not Set` | Plugin `10038`; risco médio; confiança alta; `7` ocorrências no frontend | OWASP A05:2025 e CWE-693 | Implantar CSP em `Report-Only`, ajustar origens legítimas e então impor política restritiva |
-| `A02` | `Missing Anti-clickjacking Header` | Plugin `10020`; risco médio; confiança média; `7` ocorrências no frontend | OWASP A05:2025 e CWE-1021 | Definir `frame-ancestors 'none'` na CSP e `X-Frame-Options: DENY` como compatibilidade |
-| `A03` | Identificadores inválidos provocam `HTTP 500` | Plugins `90022` e `10023`; risco baixo; confiança média; rotas `/advisors/advisor_id` e `/students/student_id` | OWASP A05:2025, CWE-550 e CWE-1295 | Validar o identificador e responder `404` ou `422`; centralizar exceções e manter detalhes somente no log interno |
+| `A01` | `Content Security Policy (CSP) Header Not Set` | Plugin `10038`; risco médio; confiança alta; `5` exemplos preservados e `7` ocorrências na API | OWASP A02:2025 e CWE-693 | Implantar CSP em `Report-Only`, ajustar origens legítimas e então impor política restritiva |
+| `A02` | `Missing Anti-clickjacking Header` | Plugin `10020`; risco médio; confiança média; `5` exemplos preservados e `7` ocorrências na API | OWASP A02:2025 e CWE-1021 | Definir `frame-ancestors 'none'` na CSP e `X-Frame-Options: DENY` como compatibilidade |
+| `A03` | Identificadores inválidos provocam `HTTP 500` | Plugins `90022` e `10023`; risco baixo; confiança média; rotas `/advisors/advisor_id` e `/students/student_id` | OWASP A10:2025, CWE-550 e CWE-1295 | Validar o identificador e responder `404` ou `422`; centralizar exceções e manter detalhes somente no log interno |
 
 A interpretação completa e a relação com os riscos anteriores estão na [Seção 15 do documento acadêmico](../../docs/etapas/etapa-5/sec15-verificacao-vulnerabilidades.md).
 
@@ -115,5 +115,6 @@ A ordem recomendada de tratamento é `A01` → `A02` → `A03`. Depois das corre
 - [ZAP — Content Security Policy Header Not Set](https://www.zaproxy.org/docs/alerts/10038/)
 - [ZAP — Missing Anti-clickjacking Header](https://www.zaproxy.org/docs/alerts/10020/)
 - [ZAP — Application Error Disclosure](https://www.zaproxy.org/docs/alerts/90022/)
-- [OWASP Top 10:2025 — A05 Security Misconfiguration](https://owasp.org/Top10/2025/A05_2025-Security_Misconfiguration/)
+- [OWASP Top 10:2025 — A02 Security Misconfiguration](https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/)
+- [OWASP Top 10:2025 — A10 Mishandling of Exceptional Conditions](https://owasp.org/Top10/2025/A10_2025-Mishandling_of_Exceptional_Conditions/)
 - [CWE-693](https://cwe.mitre.org/data/definitions/693.html), [CWE-1021](https://cwe.mitre.org/data/definitions/1021.html), [CWE-550](https://cwe.mitre.org/data/definitions/550.html) e [CWE-1295](https://cwe.mitre.org/data/definitions/1295.html)

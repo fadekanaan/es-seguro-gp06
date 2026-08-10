@@ -67,15 +67,22 @@ RESULTS:
 - alert_instances_low=39
 - alert_instances_informational=9
 - alert_instances_total=62
+- report_examples_high=0
+- report_examples_medium=10
+- report_examples_low=16
+- report_examples_informational=7
+- report_examples_total=33
 - unique_alert_types_high=0
 - unique_alert_types_medium=2
 - unique_alert_types_low=4
 - unique_alert_types_informational=3
 - unique_alert_types_total=9
 
+COUNTING_NOTE=The ZAP API summary counted all 62 occurrences at session end. The traditional HTML/JSON report template retained at most five example instances per alert and site, totaling 33 preserved examples. The HTML summary groups those examples into nine unique alert names.
+
 SELECTED_FINDINGS:
-- A01 plugin=10038 risk=Medium confidence=High instances=7 name=Content Security Policy (CSP) Header Not Set
-- A02 plugin=10020 risk=Medium confidence=Medium instances=7 name=Missing Anti-clickjacking Header
+- A01 plugin=10038 risk=Medium confidence=High api_instances=7 report_examples=5 name=Content Security Policy (CSP) Header Not Set
+- A02 plugin=10020 risk=Medium confidence=Medium api_instances=7 report_examples=5 name=Missing Anti-clickjacking Header
 - A03 plugins=90022,10023 risk=Low confidence=Medium instances=2+2 condition=invalid resource identifiers returned HTTP 500
 
 DISCARDED_OR_NOT_SELECTED:
