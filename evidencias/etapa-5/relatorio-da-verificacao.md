@@ -4,126 +4,116 @@
 
 | Item | Valor |
 | :--- | :--- |
-| **Ambiente testado** | OWASP Juice Shop `20.1.1` executado localmente em contêiner Docker |
-| **Ferramenta** | OWASP ZAP `2.17.0`, imagem estável oficial |
-| **Modalidade** | ZAP Baseline Scan: spider tradicional seguido de análise passiva |
-| **Início** | 08/08/2026 às 12:16:27 (`America/Sao_Paulo`, UTC−03:00) |
-| **Término** | 08/08/2026 às 12:17:30 (`America/Sao_Paulo`, UTC−03:00) |
-| **Duração aproximada** | 1 minuto e 3 segundos |
-| **Alvo interno** | `http://es-seguro-juice-shop:3000` |
-| **Acesso pelo host** | `http://127.0.0.1:3000` |
-| **Autorização** | Aplicação deliberadamente vulnerável, executada localmente para treinamento |
+| **Sistema testado** | ThesisFlow, revisão `486219c46ffce643e567a76b737e1f7b4cfc9964` da branch `development` |
+| **Ferramenta** | OWASP ZAP `2.17.0` |
+| **Modalidade** | Sessão única, autenticada, com spider, importação OpenAPI e análise passiva |
+| **Período** | 10/08/2026, das 17:23:59 às 17:25:58 (`America/Sao_Paulo`, UTC−03:00) |
+| **Frontend** | `http://127.0.0.1:5173` |
+| **Backend** | `http://127.0.0.1:8000` |
+| **Serviços emulados** | Firebase Authentication em `127.0.0.1:9099` e Firestore em `127.0.0.1:8080` |
+| **Autorização** | Código do próprio grupo, executado apenas no computador local |
 
-O teste permaneceu restrito à instância local do OWASP Juice Shop. Nenhum sistema de terceiros foi incluído no escopo.
+O objeto da verificação foi o próprio **ThesisFlow**. Como as credenciais do projeto Firebase real não estavam disponíveis, Firebase Authentication e Firestore foram substituídos pela **Firebase Local Emulator Suite**. Essa limitação não foi ocultada: o frontend React/Vite e o backend FastAPI analisados são os componentes reais do projeto; somente os serviços externos de identidade e banco de dados foram emulados para viabilizar uma sessão autenticada e reproduzível sem acessar produção.
 
-## 2. Ambiente e rastreabilidade
+Nenhum sistema de terceiros foi incluído no escopo e nenhuma credencial, token de sessão ou senha foi preservado nas evidências.
+
+## 2. Ambiente e configuração básica
 
 | Componente | Versão ou identificação |
 | :--- | :--- |
-| Docker Engine | `29.4.3` |
-| OWASP Juice Shop | `20.1.1` |
-| Imagem Juice Shop | `bkimminich/juice-shop@sha256:e68144772ebaaca0ec117b38d44903af92416793230288ef7c5437fc4f26850a` |
-| OWASP ZAP | `2.17.0` |
-| Imagem ZAP | `ghcr.io/zaproxy/zaproxy@sha256:781a2bdaea47324e7bab583e2263f21d257b0aee61ed51521a5be45f5f5081ef` |
-| Rede Docker dedicada | `es-seguro-e5` |
-| Contêiner do alvo | `es-seguro-juice-shop` |
+| ThesisFlow | commit `486219c46ffce643e567a76b737e1f7b4cfc9964` |
+| Frontend | React/Vite, porta local `5173` |
+| Backend | FastAPI, porta local `8000` |
+| Firebase CLI | `14.27.0` |
+| Projeto descartável do emulador | `demo-thesisflow-e5` |
+| OWASP ZAP | `2.17.0`, imagem `ghcr.io/zaproxy/zaproxy:stable` |
+| Proxy/API local do ZAP | `127.0.0.1:8090` |
+| Gateway do host visto pelo contêiner | `192.168.65.254` |
 
-Antes da sessão, o alvo retornou `HTTP 200` pelo host e a partir de um contêiner conectado à rede `es-seguro-e5`. Essa dupla verificação confirmou que o serviço estava disponível e que o ZAP alcançaria somente o alias interno autorizado.
+O endereço `192.168.65.254` mostrado pelo ZAP é o gateway do Docker Desktop para os serviços que executavam no próprio computador. Ele não representa um alvo externo. O escopo continha somente as portas locais `5173`, `8000` e `9099`.
 
-## 3. Configuração e execução
+Foram criados adaptadores locais mínimos, não versionados no ThesisFlow, para conectar o frontend ao Auth Emulator e o backend ao Firestore Emulator. Antes da sessão, os testes do projeto foram executados:
 
-O Juice Shop foi publicado apenas na interface de loopback do computador:
+- frontend: `45` testes aprovados em `13` arquivos;
+- backend: `271` testes aprovados, com um aviso de depreciação de dependência;
+- integração local: autenticação, sincronização do papel `coordinator` e consulta protegida ao backend aprovadas.
 
-```powershell
-docker network create es-seguro-e5
-docker run --detach `
-  --name es-seguro-juice-shop `
-  --network es-seguro-e5 `
-  --publish 127.0.0.1:3000:3000 `
-  bkimminich/juice-shop@sha256:e68144772ebaaca0ec117b38d44903af92416793230288ef7c5437fc4f26850a
-```
+## 3. Procedimento executado
 
-A sessão válida utilizou o script oficial `zap-baseline.py`, com um minuto de spider tradicional e até dez minutos para inicialização e conclusão da análise passiva:
+A sessão foi iniciada com o ZAP em modo daemon e sem Active Scan. Na mesma sessão foram realizadas as seguintes ações:
 
-```powershell
-$evidencePath = (Resolve-Path "evidencias\etapa-5\relatorios").Path
-docker run --rm `
-  --network es-seguro-e5 `
-  --volume "${evidencePath}:/zap/wrk/:rw" `
-  ghcr.io/zaproxy/zaproxy@sha256:781a2bdaea47324e7bab583e2263f21d257b0aee61ed51521a5be45f5f5081ef `
-  zap-baseline.py `
-  -t http://es-seguro-juice-shop:3000 `
-  -m 1 -T 10 `
-  -r relatorio-zap.html `
-  -J relatorio-zap.json
-```
+1. acesso às páginas `/`, `/login` e `/dashboard` do frontend;
+2. autenticação de um usuário descartável no Auth Emulator;
+3. sincronização das claims e confirmação do papel `coordinator`;
+4. envio, pelo proxy do ZAP, de `18` requisições `GET` autenticadas a rotas do backend, todas com resposta `HTTP 200`;
+5. importação do contrato OpenAPI do backend;
+6. spider tradicional até `100%`;
+7. espera até a fila de análise passiva chegar a zero;
+8. geração dos relatórios HTML e JSON da mesma sessão.
 
-Segundo a documentação oficial do ZAP, o Baseline Scan rastreia o alvo pelo tempo configurado e aguarda a conclusão das regras passivas, sem executar ataques ativos. Essa modalidade foi suficiente para observar cabeçalhos e configurações inseguras no ambiente educacional.
+As rotas autenticadas incluíram estudantes, orientadores, projetos, atividades, auditoria, alertas, suporte e relatórios. O objetivo foi obter cobertura representativa sem alterar dados e sem executar exploração completa, conforme permitido pelo enunciado.
 
-## 4. Resultado geral da execução
+A configuração declarativa está em [`relatorios/zap.yaml`](relatorios/zap.yaml), e o registro sanitizado da execução está em [`relatorios/log-da-execucao.txt`](relatorios/log-da-execucao.txt).
 
-A sessão definitiva apresentou:
+## 4. Resultado geral
 
-- `158` URLs observadas;
-- `59` regras sem alerta (`PASS`);
-- `8` identificadores de regra com novos avisos (`WARN-NEW`);
-- `0` regras configuradas como falha (`FAIL-NEW`);
-- código de saída `2`, que na convenção do script indica ao menos um `WARN` e nenhum `FAIL`.
+A sessão registrou `104` URLs. A API do ZAP contabilizou `62` instâncias de alerta:
 
-O JSON contém dez entradas nomeadas de alerta porque os identificadores `90004` e `10049` aparecem com duas variações de nome cada. A saída resumida agrupa essas variações pelo identificador da regra.
+| Risco | Instâncias | Tipos únicos no relatório HTML |
+| :--- | ---: | ---: |
+| Alto | `0` | `0` |
+| Médio | `14` | `2` |
+| Baixo | `39` | `4` |
+| Informativo | `9` | `3` |
+
+Os números representam métricas diferentes: a API conta cada ocorrência em cada URL, enquanto o resumo HTML agrupa ocorrências pelo tipo de alerta. Foram observados nove tipos únicos no conjunto da sessão.
 
 ## 5. Evidências preservadas
 
 - [Relatório HTML original do ZAP](relatorios/relatorio-zap.html)
 - [Relatório JSON original do ZAP](relatorios/relatorio-zap.json)
-- [Log integral da sessão definitiva](relatorios/log-da-execucao.txt)
+- [Log sanitizado da sessão](relatorios/log-da-execucao.txt)
+- [Configuração declarativa do escopo](relatorios/zap.yaml)
+- [Tela de login do ThesisFlow](capturas-de-tela/01-thesisflow-login.jpg)
+- [Painel autenticado do ThesisFlow](capturas-de-tela/02-thesisflow-dashboard.jpg)
+- [Resumo dos alertas do ZAP](capturas-de-tela/03-zap-resumo.jpg)
 
-Os três arquivos foram gerados pela mesma sessão, possuem conteúdo não vazio e o JSON foi validado por desserialização antes da análise.
+Os relatórios possuem conteúdo não vazio, e o JSON foi validado por desserialização antes da análise.
 
-## 6. Limitações e tentativas descartadas
+## 6. Achados selecionados
 
-Tentativas preparatórias de Full Scan não foram concluídas e foram descartadas. Como os diagnósticos dessas tentativas não foram preservados no repositório, nenhuma causa ou métrica de recursos é apresentada como evidência. Todas as conclusões deste relatório derivam exclusivamente da sessão Baseline concluída e versionada.
+| ID | Alerta ou condição | Evidência | Classificação | Correção proposta |
+| :---: | :--- | :--- | :--- | :--- |
+| `A01` | `Content Security Policy (CSP) Header Not Set` | Plugin `10038`; risco médio; confiança alta; `7` ocorrências no frontend | OWASP A05:2025 e CWE-693 | Implantar CSP em `Report-Only`, ajustar origens legítimas e então impor política restritiva |
+| `A02` | `Missing Anti-clickjacking Header` | Plugin `10020`; risco médio; confiança média; `7` ocorrências no frontend | OWASP A05:2025 e CWE-1021 | Definir `frame-ancestors 'none'` na CSP e `X-Frame-Options: DENY` como compatibilidade |
+| `A03` | Identificadores inválidos provocam `HTTP 500` | Plugins `90022` e `10023`; risco baixo; confiança média; rotas `/advisors/advisor_id` e `/students/student_id` | OWASP A05:2025, CWE-550 e CWE-1295 | Validar o identificador e responder `404` ou `422`; centralizar exceções e manter detalhes somente no log interno |
 
-Consequentemente:
+A interpretação completa e a relação com os riscos anteriores estão na [Seção 15 do documento acadêmico](../../docs/etapas/etapa-5/sec15-verificacao-vulnerabilidades.md).
 
-- não foram enviados payloads de exploração ativa;
-- a navegação foi feita sem autenticação;
-- fluxos protegidos por login não foram cobertos;
-- aplicações de página única podem expor rotas que o spider tradicional não alcança;
-- alertas passivos apontam condições que exigem interpretação e não comprovam, isoladamente, exploração ou impacto;
-- a ausência de um alerta não comprova ausência de vulnerabilidade.
+## 7. Interpretação, descartes e possíveis falsos positivos
 
-## 7. Achados selecionados
+Os alertas não foram tratados como prova automática de exploração:
 
-| ID | Alerta | Risco / confiança | Evidência observada | Classificação | Correção proposta |
-| :---: | :--- | :---: | :--- | :--- | :--- |
-| `A01` | `Content Security Policy (CSP) Header Not Set` | Médio / alta | Plugin `10038`, 4 instâncias sem CSP | OWASP A02:2025 e CWE-693 | Implantar CSP restritiva, inicialmente em modo `Report-Only` |
-| `A02` | `Cross-Domain Misconfiguration` | Médio / média | Plugin `10098`, uma resposta com `Access-Control-Allow-Origin: *` | OWASP A02:2025 e CWE-942 | Restringir CORS às origens e aos recursos necessários |
-| `A03` | `Deprecated Feature Policy Header Set` | Baixo / média | Plugin `10063`, 5 instâncias exclusivamente em arquivos `chunk-*.js` | OWASP A02:2025 e CWE-16 | Remover o cabeçalho dos subrecursos; se a política for necessária, enviar `Permissions-Policy` na resposta do documento HTML principal |
+- o `A01` comprova ausência de CSP, mas não comprova a existência de XSS;
+- o `A02` comprova falta de proteção contra enquadramento, mas nenhum clique enganoso foi executado;
+- no `A03`, o comportamento `HTTP 500` diante de identificadores inválidos é real, porém o corpo observado foi apenas `Internal Server Error`. Não houve stack trace, caminho local ou segredo. Assim, a parte de “divulgação de erro” é um possível falso positivo ou uma sobreposição entre os plugins `90022` e `10023`; permanece válida a falha de tratamento de entrada e erro.
 
-A interpretação completa, o impacto contextual e os critérios de priorização estão na [Seção 15 do documento acadêmico](../../docs/etapas/etapa-5/sec15-verificacao-vulnerabilidades.md).
+Alertas de `X-Powered-By` e cabeçalhos ausentes na porta `9099` foram descartados da avaliação do ThesisFlow porque pertencem ao Auth Emulator, que não é o serviço implantado em produção. Os alertas informativos `Modern Web Application`, `Authentication Request Identified` e `Session Management Response Identified` descrevem tecnologia ou fluxo observado, sem representar vulnerabilidade por si sós. O cabeçalho `X-Content-Type-Options` ausente é relevante para endurecimento, mas não foi selecionado entre os três achados porque se sobrepõe ao tema de cabeçalhos defensivos já coberto por `A01` e `A02`.
 
-## 8. Capturas de tela
+## 8. Limitações
 
-1. [OWASP Juice Shop em execução](capturas-de-tela/01-juice-shop-em-execucao.jpg)
-2. [Resumo dos alertas do ZAP](capturas-de-tela/02-resumo-alertas-zap.jpg)
-3. [Detalhe do A01 — CSP ausente](capturas-de-tela/03-achado-a01.jpg)
-4. [Detalhe do A02 — CORS permissivo](capturas-de-tela/04-achado-a02.jpg)
-5. [Detalhe do A03 — Feature Policy obsoleta](capturas-de-tela/05-achado-a03.jpg)
+- Firebase Authentication e Firestore foram emulados; configurações exclusivas do projeto Firebase real não foram avaliadas.
+- A sessão foi passiva e não destrutiva; não houve Active Scan nem exploração completa.
+- As requisições autenticadas usaram o papel de coordenação; não houve matriz comparativa completa entre todos os perfis.
+- O conjunto de dados local era mínimo e descartável.
+- Ausência de alerta não comprova ausência de vulnerabilidade.
 
-## 9. Interpretação e ressalvas
+A ordem recomendada de tratamento é `A01` → `A02` → `A03`. Depois das correções, uma nova sessão deve confirmar a remoção dos alertas e a ausência de regressões.
 
-Os achados não foram tratados como prova automática de exploração. O A01 confirma a ausência de uma camada de defesa, não a existência de XSS. O A02 apareceu em um recurso JavaScript público e sem credenciais; por isso, não comprova exposição de dados sensíveis, embora indique uma configuração que deve ser restrita antes de ser reutilizada em APIs. No A03, o cabeçalho apareceu apenas em subrecursos JavaScript e não governa as permissões do documento principal; nesse contexto, o alerta foi classificado como configuração sem impacto efetivo demonstrado.
+## 9. Referências
 
-A priorização recomendada é `A01` → `A02` → `A03`. Uma nova sessão deve ser executada depois das correções para verificar a remoção dos alertas e possíveis regressões.
-
-## 10. Referências
-
-- [ZAP Baseline Scan](https://www.zaproxy.org/docs/docker/baseline-scan/)
-- [Documentação das imagens Docker do ZAP](https://www.zaproxy.org/docs/docker/)
-- [Execução local do OWASP Juice Shop](https://pwning.owasp-juice.shop/companion-guide/local/part1/running.html)
 - [ZAP — Content Security Policy Header Not Set](https://www.zaproxy.org/docs/alerts/10038/)
-- [ZAP — Cross-Domain Misconfiguration](https://www.zaproxy.org/docs/alerts/10098/)
-- [ZAP — Permissions Policy Header Not Set](https://www.zaproxy.org/docs/alerts/10063/)
-- [OWASP Top 10:2025 — A02 Security Misconfiguration](https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/)
-- [CWE-693](https://cwe.mitre.org/data/definitions/693.html), [CWE-942](https://cwe.mitre.org/data/definitions/942.html) e [CWE-16](https://cwe.mitre.org/data/definitions/16.html)
+- [ZAP — Missing Anti-clickjacking Header](https://www.zaproxy.org/docs/alerts/10020/)
+- [ZAP — Application Error Disclosure](https://www.zaproxy.org/docs/alerts/90022/)
+- [OWASP Top 10:2025 — A05 Security Misconfiguration](https://owasp.org/Top10/2025/A05_2025-Security_Misconfiguration/)
+- [CWE-693](https://cwe.mitre.org/data/definitions/693.html), [CWE-1021](https://cwe.mitre.org/data/definitions/1021.html), [CWE-550](https://cwe.mitre.org/data/definitions/550.html) e [CWE-1295](https://cwe.mitre.org/data/definitions/1295.html)

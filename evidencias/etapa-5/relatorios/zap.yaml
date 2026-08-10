@@ -1,40 +1,48 @@
 env:
   contexts:
-  - excludePaths: []
-    name: baseline
-    urls:
-    - http://es-seguro-juice-shop:3000
+    - name: thesisflow-local-autorizado
+      urls:
+        - http://192.168.65.254:5173
+        - http://192.168.65.254:8000
+        - http://192.168.65.254:9099
+      excludePaths: []
   parameters:
     failOnError: true
-    progressToStdout: false
+    progressToStdout: true
+
 jobs:
-- parameters:
-    enableTags: false
-    maxAlertsPerRule: 10
-  type: passiveScan-config
-- parameters:
-    maxDuration: 1
-    url: http://es-seguro-juice-shop:3000
-  type: spider
-- parameters:
-    maxDuration: 10
-  type: passiveScan-wait
-- parameters:
-    format: Long
-    summaryFile: /home/zap/zap_out.json
-  rules: []
-  type: outputSummary
-- parameters:
-    reportDescription: ''
-    reportDir: /zap/wrk/
-    reportFile: relatorio-zap.html
-    reportTitle: ZAP Scanning Report
-    template: traditional-html
-  type: report
-- parameters:
-    reportDescription: ''
-    reportDir: /zap/wrk/
-    reportFile: relatorio-zap.json
-    reportTitle: ZAP Scanning Report
-    template: traditional-json
-  type: report
+  - type: passiveScan-config
+    parameters:
+      enableTags: false
+      maxAlertsPerRule: 0
+
+  - type: openapi
+    parameters:
+      apiUrl: http://192.168.65.254:8000/openapi.json
+      targetUrl: http://192.168.65.254:8000
+
+  - type: spider
+    parameters:
+      context: thesisflow-local-autorizado
+      url: http://192.168.65.254:5173
+      maxDuration: 2
+
+  - type: passiveScan-wait
+    parameters:
+      maxDuration: 10
+
+  - type: report
+    parameters:
+      template: traditional-html
+      reportDir: /zap/wrk/
+      reportFile: relatorio-zap.html
+      reportTitle: ThesisFlow - Etapa 5 - Sessao ZAP
+      reportDescription: Sessao local autorizada, com Firebase Authentication e Firestore emulados.
+
+  - type: report
+    parameters:
+      template: traditional-json
+      reportDir: /zap/wrk/
+      reportFile: relatorio-zap.json
+      reportTitle: ThesisFlow - Etapa 5 - Sessao ZAP
+      reportDescription: Sessao local autorizada, com Firebase Authentication e Firestore emulados.
