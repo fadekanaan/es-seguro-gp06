@@ -1342,7 +1342,7 @@ Durante a disciplina de Engenharia de Software Seguro, o ThesisFlow evoluiu de u
 
 - **Slides da Apresentação:** [`docs/slides.pdf`](slides.pdf) — Slides utilizados na apresentação do vídeo final.
 - **Roteiro do Vídeo Versionado:** [`roteiros/etapa-7-video-final.md`](../roteiros/etapa-7-video-final.md) — Roteiro com o planejamento das falas dos 6 integrantes do grupo.
-- **Vídeo Final:** Disponibilizado conforme as orientações da disciplina (link indicado no `README.md`).
+- **Vídeo Final:** Assista ao vídeo de apresentação publicado no YouTube em [https://www.youtube.com/watch?v=q2SbaZeJSAw](https://www.youtube.com/watch?v=q2SbaZeJSAw).
 
 
 
