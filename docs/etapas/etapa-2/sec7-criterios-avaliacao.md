@@ -6,55 +6,49 @@
 
 ## 7. Critérios de Avaliação de Risco
 
-Esta seção define os critérios de probabilidade e impacto que serão aplicados a todas as ameaças identificadas na Etapa 1, transformando-as em eventos de risco mensuráveis e comparáveis. As escalas adotadas seguem as diretrizes da disciplina e são calibradas de acordo com o contexto específico do **ThesisFlow**.
+Esta seção define os critérios formais de probabilidade e impacto aplicados a todas as ameaças identificadas no **ThesisFlow** durante a Etapa 1 (`T01–T12`), transformando-as em eventos de risco mensuráveis e comparáveis. As escalas e matrizes adotadas seguem a metodologia do **NIST CSF 2.0** e as diretrizes formais da disciplina.
 
 ---
 
 ### 7.1 Critérios de probabilidade
 
-A escala de probabilidade reflete a facilidade com que um evento de risco pode ocorrer, considerando as condições técnicas do sistema, o perfil dos usuários, as vulnerabilidades existentes e o contexto de uso acadêmico.
+A escala de probabilidade reflete a facilidade de exploração e a frequência esperada de ocorrência de um evento de risco, considerando os controles vigentes, o perfil dos usuários e a arquitetura do **ThesisFlow**.
 
-| Valor | Classificação | Critério |
+| Valor | Classificação | Critério Técnico |
 | :---: | :---: | :--- |
-| `1` | Baixa | O evento depende de condições incomuns, acesso muito específico ou grande capacidade técnica |
-| `2` | Média-baixa | O evento é possível, mas depende de uma vulnerabilidade ou condição específica |
-| `3` | Média-alta | O evento é plausível e pode ocorrer em situações comuns de uso ou ataque |
-| `4` | Alta | O evento pode ocorrer com facilidade, frequência ou durante condições previsíveis do sistema |
-
-A probabilidade não é atribuída por intuição. Cada valor é justificado com base nas características do sistema, nas vulnerabilidades identificadas, nas condições de exploração e no contexto de uso do **ThesisFlow** (ver Seção 8 — Registro de Riscos).
+| `1` | **Baixa** | O evento depende de condições incomuns, acesso físico/infraestrutura específico ou altíssima capacidade técnica. |
+| `2` | **Média-baixa** | O evento é possível, mas exige exploração de vulnerabilidade específica ou conhecimento de configurações internas. |
+| `3` | **Média-alta** | O evento é plausível e pode ocorrer em condições normais de uso ou através de ataques automatizados comuns. |
+| `4` | **Alta** | O evento possui alta facilidade de execução, podendo ocorrer com frequência ou durante janelas previsíveis do sistema. |
 
 ---
 
 ### 7.2 Critérios de impacto
 
-A escala de impacto reflete as consequências de um evento de risco bem-sucedido sobre os usuários, os dados, a integridade acadêmica e a conformidade legal do sistema.
+A escala de impacto mensura a severidade das consequências de um incidente de segurança sobre a integridade acadêmica, a privacidade dos usuários (`LGPD`), a disponibilidade do sistema e a reputação institucional.
 
-| Valor | Classificação | Critério |
+| Valor | Classificação | Critério Técnico |
 | :---: | :---: | :--- |
-| `1` | Baixo | Causa pequeno transtorno e pode ser corrigido rapidamente |
-| `2` | Moderado | Causa interrupção ou inconsistência limitada, com possibilidade de recuperação |
-| `3` | Alto | Causa prejuízo relevante aos usuários, ao negócio, à administração ou à privacidade |
-| `4` | Muito alto | Pode afetar muitos usuários, comprometer operações críticas ou causar prejuízo grave |
-
-Na avaliação do impacto, foram considerados: prejuízo direto aos usuários, exposição de dados pessoais protegidos pela `LGPD`, interrupção de operações críticas do calendário acadêmico, comprometimento da integridade das decisões de validação e dificuldade de recuperação.
+| `1` | **Baixo** | Causa inconveniência mínima sem perda de dados ou interrupção de serviços, com correção trivial. |
+| `2` | **Moderado** | Causa interrupção localizada ou inconsistência temporária com possibilidade de recuperação direta. |
+| `3` | **Alto** | Causa prejuízo relevante aos usuários, exposição de dados pessoais ou atraso em marcos do calendário acadêmico. |
+| `4` | **Muito alto** | Compromete operações críticas, expõe dados em massa (LGPD), afeta a concessão de diplomas ou paralisa o sistema. |
 
 ---
 
-### 7.3 Cálculo e classificação do nível de risco
+### 7.3 Cálculo e matriz de classificação do nível de risco
 
-A pontuação de cada risco é calculada pela seguinte fórmula:
+A pontuação quantitativa de cada risco é calculada pela multiplicação escalar dos fatores de probabilidade e impacto:
 
-```
-Pontuação = Probabilidade × Impacto
-```
+$$\text{Pontuação} = \text{Probabilidade} \times \text{Impacto}$$
 
-O resultado é então classificado conforme a tabela abaixo:
+O valor resultante determina a severidade do nível de risco, conforme a matriz de classificação abaixo:
 
-| Pontuação | Nível do risco |
-| :---: | :---: |
-| `1 a 3` | **Baixo** |
-| `4 a 7` | **Médio** |
-| `8 a 11` | **Alto** |
-| `12 a 16` | **Crítico** |
+| Pontuação | Nível do risco | Ação Recomendada |
+| :---: | :---: | :--- |
+| `1 a 3` | **Baixo** | Monitoramento periódico e correções de rotina. |
+| `4 a 7` | **Médio** | Mitigação planejada no ciclo de desenvolvimento. |
+| `8 a 11` | **Alto** | Requer implementação prioritária de controles e requisitos de segurança. |
+| `12 a 16` | **Crítico** | Exige mitigação imediata e testes de validação obrigatórios (Etapa 3 e Etapa 4). |
 
-> A pontuação auxilia na comparação entre riscos, mas não substitui a análise contextual. Dois riscos com a mesma pontuação podem receber prioridades distintas em função da gravidade das consequências, das dependências entre componentes ou da dificuldade de recuperação (ver Seção 9 — Priorização dos Riscos).
+> A pontuação quantitativa orienta a priorização no Registro de Riscos (Seção 8), mas é complementada pela análise contextual das dependências do sistema na Seção 9 (Priorização dos Riscos).
