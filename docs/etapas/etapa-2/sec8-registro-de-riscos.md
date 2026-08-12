@@ -6,7 +6,7 @@
 
 ## 8. Registro de Riscos
 
-Cada ameaça identificada na Etapa 1 (T01–T12) originou pelo menos um evento de risco. Os Casos de Abuso (CA01–CA06) são referenciados como origens complementares onde a relação é direta. As avaliações de probabilidade e impacto aplicam os critérios definidos na Seção 7.
+Cada ameaça identificada na Etapa 1 (`T01–T12`) originou pelo menos um evento de risco no sistema ThesisFlow. Os Casos de Abuso (`CA01–CA06`) foram consolidados como origens complementares onde a relação é direta. As avaliações de probabilidade e impacto aplicam rigorosamente a escala de 1 a 4 definida na Seção 7 ($\text{Pontuação} = \text{Probabilidade} \times \text{Impacto}$). Os riscos classificados como **Críticos** e **Altos** priorizam diretamente os requisitos e as soluções de arquitetura da Etapa 3 e os testes da Etapa 4.
 
 ---
 
@@ -31,89 +31,89 @@ Cada ameaça identificada na Etapa 1 (T01–T12) originou pelo menos um evento d
 
 ### 8.2 Justificativas das avaliações
 
-As justificativas a seguir explicam, para cada risco, os critérios que motivaram os valores de probabilidade e impacto atribuídos, bem como os componentes, usuários e consequências envolvidos.
+As justificativas a seguir detalham os critérios que motivaram os valores de probabilidade e impacto atribuídos a cada risco do sistema ThesisFlow, destacando componentes, usuários e potenciais danos organizacionais e regulatórios.
 
 ---
 
 #### R01 — Roubo de token JWT (T01)
 
-- **Probabilidade 3 — Média-alta:** Ataques de XSS e interceptação de tokens são técnicas amplamente documentadas e utilizadas. O frontend `React` com `Vite` não garante proteção automática contra todos os vetores de XSS, especialmente em bibliotecas de terceiros ou renderização de conteúdo dinâmico. A ausência de mecanismo de revogação proativa torna o ataque sustentável por toda a validade do token.
-- **Impacto 4 — Muito alto:** Um token comprometido concede ao atacante acesso completo à conta da vítima, permitindo realizar qualquer operação autorizada para aquele papel — incluindo validação de créditos (orientador), emissão de relatórios ou alteração de configurações (coordenador). O impacto se multiplica quando o token pertence a um perfil com privilégios elevados.
-- **Relação com casos de abuso:** Esta ameaça habilita vários outros casos de abuso se o token pertencer a um orientador (CA05) ou coordenador (CA06).
+- **Probabilidade 3 — Média-alta:** Ataques de XSS e interceptação de tokens são vetores recorrentes. O frontend desenvolvido em `React` com `Vite` exige sanitização rigorosa e bibliotecas atualizadas para evitar XSS. A ausência de revogação proativa estende o ataque por toda a janela de validade do token.
+- **Impacto 4 — Muito alto:** O sequestro do token concede ao atacante acesso total à sessão da vítima, permitindo realizar operações sensíveis de acordo com o papel usurpado (como validação indevida de créditos pelo orientador ou alteração de regras por coordenadores).
+- **Relação com casos de abuso:** Habilita vetores colaterais graves caso a conta comprometida possua privilégios elevados (`CA05` ou `CA06`). Origina o requisito `RS02` da Etapa 3.
 
 ---
 
 #### R02 — Falso orientador (T02 · CA03)
 
-- **Probabilidade 3 — Média-alta:** O cadastro de orientadores sem validação de vínculo institucional é uma falha explorada com técnicas simples: basta criar uma conta com e-mail plausível. Não há barreira técnica relevante impedindo o registro.
-- **Impacto 3 — Alto:** O atacante obtém acesso prolongado aos dados pessoais, comprovantes e plano de trabalho de múltiplos estudantes, além da capacidade de aprovar atividades fraudulentamente. O impacto inclui violação de privacidade com implicações jurídicas (`LGPD`) e comprometimento da integridade acadêmica.
+- **Probabilidade 3 — Média-alta:** O auto-cadastro sem dupla verificação ou aprovação administrativa permite a criação de perfis maliciosos com e-mails plausíveis sem barreiras técnicas imediatas.
+- **Impacto 3 — Alto:** Concede acesso prolongado a dados acadêmicos e pessoais de múltiplos estudantes, permitindo a aprovação fraudulenta de atividades. Envolve riscos diretos de conformidade com a `LGPD` e perda de integridade acadêmica.
 
 ---
 
 #### R03 — Substituição de comprovante forjado (T03 · CA01)
 
-- **Probabilidade 3 — Média-alta:** A substituição de arquivo após upload é possível a qualquer estudante autenticado que conheça a URL de acesso ao `Storage`. Não há mecanismo de imutabilidade documentado que bloqueie essa operação.
-- **Impacto 4 — Muito alto:** A fraude de comprovante compromete a validade dos créditos acadêmicos e pode permitir que um estudante avance para a defesa sem ter cumprido os requisitos reais. O dano é ao mesmo tempo acadêmico, institucional e difícil de detectar sem auditoria ativa.
+- **Probabilidade 3 — Média-alta:** Qualquer estudante autenticado que obtenha a URL ou referência de upload no `Firebase Storage` pode tentar a substituição de arquivos se não houver trava de imutabilidade ativada no backend.
+- **Impacto 4 — Muito alto:** A adulteração de comprovantes compromete a concessão de créditos e a legitimidade das bancas de defesa. É um risco crítico que fundamenta diretamente o requisito `RS03` (Etapa 3) e o serviço de upload seguro em Python (`codigo/etapa-4/`).
 
 ---
 
 #### R04 — Alteração indevida do plano de trabalho (T04)
 
-- **Probabilidade 2 — Média-baixa:** A exploração depende de uma falha específica no controle de acesso (`@authorize` ausente ou falho) em endpoints de atualização do plano de trabalho. Esse vetor exige conhecimento técnico da API (ex.: Swagger exposto).
-- **Impacto 3 — Alto:** A adulteração do plano de trabalho pode mascarar atrasos acadêmicos, criar inconsistências no histórico do estudante e dificultar a auditoria posterior. O dano afeta diretamente a confiabilidade das decisões do programa.
+- **Probabilidade 2 — Média-baixa:** Requer a descoberta de falhas pontuais no controle de acesso (`@authorize` ausente ou mal configurado) em endpoints específicos de atualização do plano.
+- **Impacto 3 — Alto:** Permite mascarar atrasos acadêmicos e alterar dados estruturantes do progresso do estudante, prejudicando a auditoria do programa.
 
 ---
 
 #### R05 — Desabilitação do aspecto de auditoria (T05 · CA05)
 
-- **Probabilidade 2 — Média-baixa:** A exploração exige acesso privilegiado às configurações do sistema (variável `ASPECTS_ENABLED`), o que restringe o vetor a insiders ou a atacantes que já tenham comprometido o ambiente de execução. No entanto, a condição é uma vulnerabilidade de configuração real e documentada no código.
-- **Impacto 4 — Muito alto:** A ausência de logs de auditoria elimina a capacidade de responsabilização por qualquer operação. Em um contexto acadêmico formal, a impossibilidade de comprovar quem realizou uma validação tem consequências institucionais e potencialmente jurídicas graves.
+- **Probabilidade 2 — Média-baixa:** Restrito a usuários com acesso a variáveis de ambiente ou configurações de tempo de execução (`ASPECTS_ENABLED`), caracterizando um risco do tipo insider ou pós-comprometimento de infraestrutura.
+- **Impacto 4 — Muito alto:** A inativação dos logs elimina o não-repúdio das operações. Sem rastreabilidade, validações fraudulentas não podem ser vinculadas aos responsáveis, gerando passivos institucionais e jurídicos.
 
 ---
 
 #### R06 — Repudiação de operação administrativa (T06)
 
-- **Probabilidade 2 — Média-baixa:** Requer que o coordenador tenha motivação para negar a ação e que os logs sejam insuficientes ou alteráveis. A condição depende tanto de comportamento humano quanto de fragilidade técnica do log.
-- **Impacto 3 — Alto:** A impossibilidade de comprovar uma decisão administrativa (ex.: aprovação de extensão de prazo) gera disputas sem resolução técnica, prejudicando estudantes e comprometendo a governança do programa.
+- **Probabilidade 2 — Média-baixa:** Depende de fragilidades na imutabilidade dos logs aliadas à intenção maliciosa de um perfil administrativo de negar uma decisão prévia.
+- **Impacto 3 — Alto:** Gera disrupção nas decisões do programa (ex.: extensões de prazo recusadas ou retratadas), prejudicando o estudante e minando a governança do sistema.
 
 ---
 
 #### R07 — IDOR para acesso a dados de terceiros (T07 · CA02)
 
-- **Probabilidade 3 — Média-alta:** A técnica IDOR é trivial para qualquer estudante autenticado que observe o padrão de IDs nas requisições. Não requer ferramentas especializadas — basta modificar um valor na URL. Identificadores sequenciais ou UUIDs previsíveis ampliam o risco.
-- **Impacto 4 — Muito alto:** A exploração permite enumeração sistemática dos dados de todos os estudantes do programa — dados pessoais, status acadêmico, plano de trabalho e comprovantes — configurando violação em massa com implicações diretas da `LGPD`.
+- **Probabilidade 3 — Média-alta:** A exploração de *Insecure Direct Object References* (IDOR) é trivial via manipulação de parâmetros sequenciais ou conhecidos na URL, dispensando ferramentas avançadas.
+- **Impacto 4 — Muito alto:** Permite a raspagem (*scraping*) e exposição massiva de dados pessoais, planos de estudo e comprovantes de todos os estudantes cadastrados. É a maior prioridade do sistema, originando o risco `R07`, o requisito `RS01` (Etapa 3) e o módulo de autorização por recurso (`codigo/etapa-4/`).
 
 ---
 
 #### R08 — URL de comprovante acessível sem autenticação (T08)
 
-- **Probabilidade 3 — Média-alta:** URLs do `Firebase Storage` sem regras restritivas de leitura são acessíveis publicamente a qualquer um que as possua. O compartilhamento acidental (ex.: via e-mail, print de tela) ou a descoberta por varredura configuram um vetor de exploração plausível e recorrente.
-- **Impacto 3 — Alto:** A exposição de comprovantes pode incluir diplomas, certidões, artigos científicos não publicados e documentos de identificação pessoal — todos sensíveis sob a `LGPD` e de valor para o titular.
+- **Probabilidade 3 — Média-alta:** URLs públicas ou assinadas com prazos longos no `Firebase Storage` podem vazar por e-mail, histórico ou varreduras automatizadas.
+- **Impacto 3 — Alto:** Exposição indevida de documentos e comprovantes sensíveis protegidos pela `LGPD`.
 
 ---
 
 #### R09 — Flooding do motor de inferência (T09 · CA04)
 
-- **Probabilidade 3 — Média-alta:** O vetor de ataque é de baixa complexidade: qualquer usuário autenticado com um script básico pode disparar requisições em alta frequência. O motor de inferência, por seu custo computacional, é um alvo natural.
-- **Impacto 3 — Alto:** A indisponibilidade durante períodos críticos do calendário acadêmico (defesas, qualificações, entrega de relatórios) pode causar perda de prazos, retrabalho administrativo e danos à reputação do sistema e do programa.
+- **Probabilidade 3 — Média-alta:** Qualquer usuário autenticado pode disparar requisições concorrentes contra endpoints computacionalmente pesados através de scripts simples.
+- **Impacto 3 — Alto:** Causa negação de serviço nos períodos mais críticos do calendário acadêmico (prazos de defesa e entregas de relatórios).
 
 ---
 
 #### R10 — Upload massivo no Storage (T10)
 
-- **Probabilidade 2 — Média-baixa:** Depende de um usuário autenticado com intenção maliciosa e conhecimento da API de upload. A ausência de limitação de tamanho facilita o ataque, mas o vetor é mais direto do que um ataque externo.
-- **Impacto 2 — Moderado:** O impacto é limitado ao esgotamento da cota de armazenamento, bloqueando novos uploads legítimos. O serviço pode ser restaurado com ampliação de cota e remoção dos arquivos maliciosos, sem perda de dados existentes.
+- **Probabilidade 2 — Média-baixa:** Depende de um usuário autenticado explorando a ausência de cotas e validação de tamanho de arquivos de upload.
+- **Impacto 2 — Moderado:** Provoca esgotamento da cota de armazenamento no Firebase, interrompendo novos envios até a limpeza manual e ampliação de limites.
 
 ---
 
 #### R11 — Elevação de privilégios via endpoint desprotegido (T11 · CA06)
 
-- **Probabilidade 2 — Média-baixa:** A exploração depende da existência de um endpoint específico sem o decorator `@authorize` correto — uma falha pontual, não sistêmica. A documentação Swagger em `/docs`, quando exposta em produção, facilita a descoberta.
-- **Impacto 4 — Muito alto:** O acesso a funções de coordenador permite alterar a estrutura do programa (tipos de atividades, configurações de crédito), aprovar extensões de prazo indevidamente e acessar relatórios gerenciais completos, comprometendo toda a integridade administrativa do sistema.
+- **Probabilidade 2 — Média-baixa:** Requer a descoberta de endpoints administrativos sem a devida verificação de papéis (`@authorize(role="coordinator")`), facilitada por documentações como Swagger expostas em produção.
+- **Impacto 4 — Muito alto:** Concede acesso a funcionalidades estratégicas do sistema, permitindo a aprovação indevida de créditos e alteração das regras do programa.
 
 ---
 
 #### R12 — Exposição do script bootstrap_admin.py (T12)
 
-- **Probabilidade 1 — Baixa:** A exposição do script em produção requer um erro de configuração de infraestrutura grave (endpoint não autenticado ativo ou acesso indevido ao servidor). Em implantações minimamente cuidadosas, o risco de exposição é baixo, pois o script deve ser executado apenas localmente na inicialização.
-- **Impacto 4 — Muito alto:** Se explorado, permite a criação de uma conta de coordenador com privilégios máximos sob controle do atacante, comprometendo toda a segurança do sistema de forma imediata e potencialmente silenciosa.
+- **Probabilidade 1 — Baixa:** Ocorre apenas mediante falhas graves de implantação/servidor em ambiente de produção, pois o script de inicialização deve residir em ambiente isolado.
+- **Impacto 4 — Muito alto:** Permite a criação arbitrária de uma conta com superprivilégios, resultando no comprometimento total e silencioso do ThesisFlow.
