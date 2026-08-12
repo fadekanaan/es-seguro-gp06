@@ -54,6 +54,13 @@
 | :---: | :--- | :--- |
 | `16` | [Roteiro de monitoramento e detecção de intrusões](#etapa-6--monitoramento-e-detecção-de-intrusões) | [`etapa-6-deteccao-de-intrusoes.md`](../roteiros/etapa-6-deteccao-de-intrusoes.md) |
 
+### Etapa 7 — DevSecOps, Slides e Vídeo Final
+
+| # | Seção | Arquivo de trabalho |
+| :---: | :--- | :--- |
+| `17` | [Pipeline DevSecOps e Automação CI/CD](#17-pipeline-devsecops-e-automação-cicd) | [`etapa-7-devsecops.md`](../roteiros/etapa-7-devsecops.md) |
+| `18` | [Apresentação em Slides Interativos e Roteiro de Vídeo](#18-apresentação-em-slides-interativos-e-roteiro-de-vídeo) | [`etapa-7-video-final.md`](../roteiros/etapa-7-video-final.md) |
+
 ---
 ---
 
@@ -1272,5 +1279,70 @@ Para que esses registros sejam úteis na detecção de comportamentos suspeitos,
 5. **Análise:** Investigação dos registros para mapear alcance e origem do incidente.
 6. **Correção:** Aplicação de correções no sistema para mitigar a causa-raiz.
 7. **Encerramento:** Documentação oficial da ocorrência e lições aprendidas.
+
+---
+---
+
+## Etapa 7 — DevSecOps, Slides e Vídeo Final
+
+> **Arquivos de trabalho individuais:** [`roteiros/etapa-7-devsecops.md`](../roteiros/etapa-7-devsecops.md), [`roteiros/etapa-7-video-final.md`](../roteiros/etapa-7-video-final.md) e [`docs/slides.html`](slides.html).
+
+---
+
+### 17. Pipeline DevSecOps e Automação CI/CD
+
+#### 17.1 Visão geral e Shift-Left Security
+A esteira DevSecOps do **ThesisFlow** integra verificações automáticas de segurança em todo o ciclo de desenvolvimento (*SDLC*). Ao "deslocar a segurança para a esquerda" (*shift-left*), o sistema garante que vulnerabilidades sejam identificadas e tratadas antes de atingir o ambiente de homologação ou produção.
+
+#### 17.2 Diagrama da esteira CI/CD e Quality Gates
+
+```text
+Commit / Pull Request
+      │
+      ▼
+┌─────────────────────────────────┐
+│ 1. Secret Scanning (Gitleaks)   │  ← Quality Gate 1: Nenhuma chave ou token vazado
+└─────────────────────────────────┘
+      │ (Aprovado)
+      ▼
+┌─────────────────────────────────┐
+│ 2. SAST & Unit Tests (Pytest)   │  ← Quality Gate 2: Bandit OK & 100% de sucesso no Pytest
+└─────────────────────────────────┘
+      │ (Aprovado)
+      ▼
+┌─────────────────────────────────┐
+│ 3. Build & Container Security   │  ← Quality Gate 3: Nenhuma CVE crítica nas dependências
+└─────────────────────────────────┘
+      │ (Aprovado)
+      ▼
+┌─────────────────────────────────┐
+│ 4. DAST Scan (OWASP ZAP)        │  ← Quality Gate 4: Varredura dinâmica sem vulnerabilidade crítica
+└─────────────────────────────────┘
+      │ (Aprovado)
+      ▼
+┌─────────────────────────────────┐
+│ 5. Deploy & Monitoramento       │  ← Operação: Logs auditáveis em JSON e Regras D01-D03
+└─────────────────────────────────┘
+```
+
+#### 17.3 Evolução da Maturidade de Segurança do ThesisFlow
+Durante a disciplina de Engenharia de Software Seguro, o ThesisFlow evoluiu de um MVP simples para uma aplicação com nível de produção seguro:
+
+| Dimensão | Estado Inicial (MVP) | Estado Final (Etapa 7) |
+| :--- | :--- | :--- |
+| **Controle de Acesso** | Ausência de autorização unificada; vulnerável a IDOR (`R07`). | Decorador RBAC (`@exige_perfil`) centralizado no backend com tokens JWT Firebase. |
+| **Upload de Arquivos** | Sem validação de assinaturas binárias (`R03`). | Verificação estrita de extensões permitidas + inspeção de Magic Bytes (`CWE-434`). |
+| **Verificação DAST** | Configuração inicial com CORS permissivo e CSP ausente. | Injeção dos cabeçalhos OWASP (`nosniff`, `HSTS`, `CSP`) e origens restritas. |
+| **Monitoramento** | Sem logs de auditoria padronizados. | Regras automatizadas (`D01`–`D03`) e trilha de auditoria em JSON. |
+| **Esteira CI/CD** | Deploy manual sem testes de segurança. | Pipeline automatizado no GitHub Actions com 4 Quality Gates bloqueantes. |
+
+---
+
+### 18. Apresentação em Slides e Roteiro de Vídeo
+
+- **Slides da Apresentação:** [`docs/slides.pdf`](slides.pdf) — Slides utilizados na apresentação do vídeo final.
+- **Roteiro do Vídeo Versionado:** [`roteiros/etapa-7-video-final.md`](../roteiros/etapa-7-video-final.md) — Roteiro com o planejamento das falas dos 6 integrantes do grupo.
+- **Vídeo Final:** Disponibilizado conforme as orientações da disciplina (link indicado no `README.md`).
+
 
 
