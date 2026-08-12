@@ -1,8 +1,10 @@
 # Etapa 7 — Roteiro Estruturado do Vídeo Final e Apresentação
 
-## 1. Instruções para Gravação
+## 1. Instruções e Link do Vídeo Gravado
 
-Para atender aos critérios de avaliação da disciplina, este roteiro servirá como guia para a gravação da apresentação em vídeo do grupo (duração preferencial entre **5 e 8 minutos**, estimada em ~6:30).
+> 🎬 **Link do Vídeo Final no YouTube:** [https://www.youtube.com/watch?v=q2SbaZeJSAw](https://www.youtube.com/watch?v=q2SbaZeJSAw)
+
+Para atender aos critérios de avaliação da disciplina, este roteiro serviu como guia para a gravação da apresentação em vídeo do grupo (duração preferencial entre **5 e 8 minutos**, estimada em ~6:30).
 
 - **Total de Integrantes:** 6 membros (Marcus Vinicius, Bernardo, Gustavo, Fade, Rodrigo e Artur).
 - **Distribuição de Conteúdo:** 12 slides no total, alocando **exatamente 2 slides por integrante** (~35 segundos de fala por slide).
