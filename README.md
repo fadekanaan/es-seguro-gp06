@@ -35,6 +35,14 @@ O documento consolidado com todas as etapas está em:
 
 ---
 
+## 🎥 Vídeo Final da Apresentação
+
+O vídeo final apresentando a jornada de segurança e a evolução do ThesisFlow está disponível em:
+
+👉 **[Assista ao Vídeo no YouTube (https://www.youtube.com/watch?v=q2SbaZeJSAw)](https://www.youtube.com/watch?v=q2SbaZeJSAw)**
+
+---
+
 ## 🗂️ Entregáveis por Etapa
 
 | Etapa | Conteúdo | Arquivos | Status |
