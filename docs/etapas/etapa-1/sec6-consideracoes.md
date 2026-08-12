@@ -1,39 +1,39 @@
-# Etapa 1 — Seção 6: Considerações Finais
+# Seção 6 — Considerações Finais da Etapa 1
+
+> **Arquivo de trabalho individual:** este arquivo corresponde à Seção 6 do documento principal [`docs/modelagem-de-ameacas.md`](../../modelagem-de-ameacas.md).
 
 ---
 
-## 7. Considerações finais
+## 6. Considerações Finais
 
-### Ameaças mais preocupantes
+### 6.1 Ameaças mais preocupantes
 
-As ameaças consideradas mais críticas são a exposição de dados por IDOR (`T07`), o roubo de token `JWT` (`T01`) e a falsificação de comprovantes (`T03`). Essas ameaças afetam diretamente a integridade e a confidencialidade do sistema, podendo comprometer a validade do processo acadêmico.
+As ameaças consideradas mais críticas no contexto do **ThesisFlow** são a exposição de dados por IDOR (`T07`), o roubo/interceptação de token JWT (`T01`) e a falsificação de comprovantes acadêmicos (`T03`). Essas ameaças afetam diretamente a integridade, confidencialidade e não-repúdio do sistema, podendo comprometer a legitimidade de todo o processo acadêmico.
 
-A ameaça `T07` (IDOR) é particularmente preocupante porque exige pouco conhecimento técnico — qualquer estudante autenticado pode tentar modificar identificadores em requisições — e seu impacto é elevado, pois viola a privacidade de múltiplos usuários e pode gerar consequências legais conforme a `LGPD`.
-
-A ameaça `T01` (roubo de token `JWT`) é crítica pela abrangência: um token de coordenador comprometido expõe todo o sistema administrativo, enquanto um token de orientador compromete os dados de todos os seus orientandos.
-
----
-
-### Ativos mais importantes
-
-Os ativos mais valiosos são as **credenciais de autenticação** (token `JWT`), os **comprovantes de atividades** (arquivos no `Firebase Storage`), os **registros de validação** e os **logs de auditoria**. Esses elementos são a base para todas as decisões acadêmicas tomadas pelo sistema — a integridade do diploma emitido ao final do programa depende diretamente da confiabilidade dessas informações.
+- **Ameaça `T07` (IDOR):** É a mais crítica devido à baixa complexidade de exploração — qualquer estudante autenticado pode alterar identificadores sequenciais em requisições HTTP GET. Seu impacto é gravíssimo, pois resulta em exposição em massa de dados pessoais e acadêmicos, violando diretrizes diretas da `LGPD`.
+- **Ameaça `T01` (Roubo de Token JWT):** Apresenta alto impacto pela abrangência de privilégios. O comprometimento do token de um coordenador expõe todo o ambiente administrativo, enquanto o de um orientador expõe as informações e a gestão de créditos de seus orientandos.
+- **Ameaça `T03` (Substituição de Comprovante):** Compromete a confiabilidade das validações de créditos quando o ambiente de armazenamento em nuvem (`Firebase Storage`) não aplica travas de imutabilidade.
 
 ---
 
-### Tipos de abuso com maior impacto
+### 6.2 Ativos mais importantes
 
-Os casos de abuso com maior impacto potencial são:
-
-- **`CA03` (falso orientador):** permite acesso prolongado e sistemático a dados de múltiplos estudantes, com grande dificuldade de detecção.
-- **`CA01` (forja de comprovante):** compromete a validade acadêmica dos créditos validados, podendo levar um estudante a defender uma dissertação sem ter cumprido os requisitos reais.
-- **`CA06` (elevação de privilégios):** compromete toda a estrutura de controle de acesso do sistema, permitindo alterações que afetam todos os usuários.
+Os ativos mais valiosos do ThesisFlow são as **credenciais e tokens de autenticação** (`JWT`), os **comprovantes de atividades e artigos** (arquivos armazenados no `Firebase Storage`), os **registros de validação de créditos** e os **logs imutáveis de auditoria** (`@audit`). Esses elementos sustentam todas as decisões acadêmicas — a integridade da emissão do diploma ao final do programa de mestrado depende estritamente da confiabilidade e imutabilidade dessas informações.
 
 ---
 
-### Principais dificuldades encontradas
+### 6.3 Tipos de abuso com maior impacto
 
-A maior dificuldade foi diferenciar ameaças genéricas de situações concretas e específicas ao **ThesisFlow**. O conhecimento profundo do sistema, por ter sido desenvolvido pelo grupo, facilitou a identificação de pontos realmente vulneráveis — como o flag `ASPECTS_ENABLED` que pode desabilitar a auditoria, ou a ausência de restrição de imutabilidade nos arquivos do `Storage`.
+Os casos de abuso identificados com maior potencial de dano institucional são:
 
-Outra dificuldade foi determinar o limite entre **ameaça** (o que pode acontecer), **vulnerabilidade** (a condição que permite) e **ataque** (a ação do agente malicioso). A utilização do `STRIDE` ajudou a estruturar essa análise por perspectivas distintas, revelando ameaças que poderiam não ser percebidas em uma análise apenas funcional.
+- **`CA03` (Cadastro de Falso Orientador):** Permite acesso prolongado e não autorizado a dados sensíveis de múltiplos estudantes, apresentando elevada dificuldade de detecção inicial.
+- **`CA01` (Forja de Comprovantes Acadêmicos):** Compromete a concessão de créditos, podendo levar à aprovação indevida de um estudante sem o cumprimento dos requisitos do programa.
+- **`CA06` (Elevação Involuntária de Privilégios):** Subverte os controles de acesso por papéis (`RBAC`), permitindo a execução de operações administrativas por usuários não autorizados.
 
-Por fim, a categoria **Repudiation** foi a mais difícil de contextualizar, pois depende não apenas de uma falha técnica, mas também do comportamento dos usuários e da qualidade dos registros de auditoria — que no **ThesisFlow** podem ser desabilitados via configuração.
+---
+
+### 6.4 Principais dificuldades e aprendizados da análise
+
+A principal dificuldade consistiu em diferenciar ameaças genéricas de cenários vulneráveis concretos do **ThesisFlow**. Por ser um software desenvolvido pelo próprio grupo, foi possível identificar pontos falhos específicos de implementação — como a vulnerabilidade na flag de configuração `ASPECTS_ENABLED` (que pode desabilitar os logs de auditoria em runtime) e a falta de regras de imutabilidade nos arquivos enviados ao `Storage`.
+
+A aplicação da metodologia **STRIDE** permitiu estruturar a análise sob seis perspectivas complementares, revelando fragilidades que passariam despercebidas em uma análise puramente funcional. Por fim, a categoria **Repudiation** exigiu cuidado especial, pois sua mitigação depende da imutabilidade dos logs de auditoria — elemento que fundamenta a transição do projeto para a análise de riscos baseada no **NIST CSF 2.0** na Etapa 2.
