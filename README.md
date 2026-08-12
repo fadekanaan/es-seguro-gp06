@@ -45,7 +45,7 @@ O documento consolidado com todas as etapas está em:
 | **E4** | Código Seguro e Testes de Segurança | [`docs/etapas/etapa-4/`](docs/etapas/etapa-4/) + [`codigo/etapa-4/`](codigo/etapa-4/) | ✅ |
 | **E5** | Verificação de Vulnerabilidades (ZAP) | [`docs/etapas/etapa-5/`](docs/etapas/etapa-5/) + [`evidencias/etapa-5/`](evidencias/etapa-5/) | ✅ |
 | **E6** | Monitoramento e Detecção de Intrusões | [`roteiros/etapa-6-deteccao-de-intrusoes.md`](roteiros/etapa-6-deteccao-de-intrusoes.md) | ✅ |
-| **E7** | DevSecOps e Vídeo Final | [`roteiros/etapa-7-devsecops.md`](roteiros/etapa-7-devsecops.md) + [`roteiros/etapa-7-video-final.md`](roteiros/etapa-7-video-final.md) | ✅ |
+| **E7** | DevSecOps, Slides e Vídeo Final | [`roteiros/etapa-7-devsecops.md`](roteiros/etapa-7-devsecops.md) + [`roteiros/etapa-7-video-final.md`](roteiros/etapa-7-video-final.md) + [`docs/slides.pdf`](docs/slides.pdf) | ✅ |
 
 ---
 
